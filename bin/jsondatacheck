@@ -1,0 +1,179 @@
+#!/usr/bin/env python
+"""A command line interface for the validation of JSON based configuration files.
+
+The command line interface is implemented as a front-end for the module
+'JSONData.Serializer'.
+
+The interface provides a callable generic validator for arbitrary JSON data files
+against a main JSON schema file with additional sub-configuration for an optional
+set of an arbitrary number of plugins. It provides the validation of JSON based
+configuration files by their corresponding JSONschemas. The call interface is
+Linux/Unix command line standard with a few conventions related to default values
+of file names and paths.
+
+The application of this call interface is mainly intended as a developer utility
+for the development of JSON based configuration data models in conjunction with
+custom GUI forms. The main requirement leading to the development was the
+necessity of the configuration of a modular ViewModel for a custom plugins based
+data viewer. Therefore the assembly of data tree models with basic branch
+functions for the incremental setup and serialization of JSON data is provided.
+
+When no explicit filenames are provided the following convention is applied
+as default:
+
+    appname: "-a"
+        "JSONobjects"
+
+    JSON-schema: "-s"
+        dirname(__file__)/<appname>.jsd ("jsondata.jsd")
+
+    JSON-data: "-c"
+        <appname>.json ("jsondata.json")
+
+    Search-path-data: "-p"
+        Search path for JSON-data - refer to __file__=JSONData/Serializer.py:
+        default:= ../dirname(__file__)/:dirname(__file__)/:/etc/:$HOME/
+
+SYNOPSIS:
+  jsondatacheck [OPTIONS]
+
+OPTIONS:
+  -a, --appname= <appname>
+     Name of application.
+     default: jsondatacheck
+  -c, --configfile= <configfile>
+     Configuration file - JSON data.
+     default: jsondatacheck.json
+  -D, --print-data
+     Pretty print data.
+  -n, --no-default-path
+     Supress load of default path.
+     default: False
+  -N, --no-sub-data
+     Supress load of sub-data files, e.g. from plugins.
+     default: False
+  -p, --pathlist= <search-path-JSON-data>
+     Search path for JSON data file(s), standard list for current platform.
+     default:= ../dirname(__file__)/:dirname(__file__)/:/etc/:$HOME/
+  -P, --plugins-pathlist= <search-path-JSON-data-branches>
+     Search path for JSON data file(s) to be inserted as additional branches,
+     standard list for current platform.
+     default:= ../dirname(__file__)/:dirname(__file__)/:/etc/:$HOME/
+  -s, --schemafile= <schemafile>
+     Schema file - JSONschema.
+     default: jsondatacheck.jsd
+  -S, --print-schema
+     Pretty print schema.
+  -V, --validator= <validator>
+     Alternate validator provided by module 'jsonschema'
+     - default: validate
+     - draft3: Draft3Validator
+     - off: None
+    default:= validate
+
+  -d, --debug
+     Debug entries, does NOT work with 'python -O ...'.
+     Developer output, aimed for filtering.
+  -v, --verbose
+     Verbose, some relevant states for basic analysis.
+
+  --version
+     Current version - terse.
+  --Version
+     Current version - detailed.
+
+  -h, --help
+     This help.
+
+PYTHON OPTIONS:
+  -O, -OO
+   Eliminates '__debug__' code.
+"""
+__author__ = 'Arno-Can Uestuensoez'
+__license__ = "Apache-2.0 + Forced-Fairplay-Constraints"
+__copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
+__version__ = '0.0.3'
+__uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
+
+try:
+    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
+except Exception as e:
+    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+# name of application, used for several filenames as default
+_APPNAME = "jsondatacheck"
+
+#
+#--- fetch options
+#
+import getopt, sys, os
+
+def usage():
+    if __name__ == '__main__':
+        import pydoc
+        #FIXME: literally displayed '__main__'
+        print pydoc.help(__name__)
+    else:
+        help(str(os.path.basename(sys.argv[0]).split('.')[0]))
+
+kargs={}
+try:
+    longopts = [
+        "help","debug","verbose","version","Version",
+        "appname=", "configfile=","schemafile=","validator=","no-default-path",
+        "no-sub-data","pathlist=","plugins-pathlist=","print-schema","print-data"
+    ]
+    opts, args = getopt.getopt(sys.argv[1:], "a:c:s:np:P:NDShdvV:", longopts)
+except getopt.GetoptError, err:
+    print str(err)
+    usage()
+    sys.exit(2)
+
+appname = _APPNAME
+for o, a in opts:
+    if o in ("-a","--appname"):
+        appname = a
+    elif o in ("-c","--configfile"):
+        kargs['configfile'] = a
+    elif o in ("-D","--print-data"):
+        kargs['printdata'] = True
+    elif o in ("-n","--no-default-path"):
+        kargs['nodefaultpath'] = True
+    elif o in ("-N","--no-sub-data"):
+        kargs['nosubdata'] = True
+    elif o in ("-p","--pathlist"):
+        kargs['pathlist'] = a
+    elif o in ("-P","--plugins-pathlist"):
+        kargs['pluginspathlist'] = a
+    elif o in ("-s","--schemafile"):
+        kargs['schemafile'] = a
+    elif o in ("-S","--print-schema"):
+        kargs['printschema'] = True
+    elif o in ("-V","--validator"):
+        kargs['validator'] = a
+
+    elif o in ("-d","--debug"):
+        kargs['debug'] = True
+    elif o in ("-v","--verbose"):
+        kargs['verbose'] = True
+
+    elif o in ("-h","--help"):
+        usage()
+        sys.exit()
+
+    elif o in ("--version"):
+        print str(__version__)
+        sys.exit()
+    elif o in ("--Version"):
+        print "app:      "+str(_APPNAME)
+        print "version:  "+str(__version__)
+        print "author:   "+str(__author__)
+        print "copyright:"+str(__copyright__)
+        print "license:  "+str(__license__)
+        print "file:     "+str(os.path.basename(__file__))
+        sys.exit()
+
+    else:
+        assert False, "unhandled option"
+
+
+configdata = ConfigData(appname,**kargs)
