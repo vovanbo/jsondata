@@ -24,7 +24,9 @@ style guide for pydoc, thus the html documents may not utilize the full scope
 of presentation features.
 
 Available from:
+
 * Sourceforge.net: https://sourceforge.net/projects/jsondata/files/
+
 * Github: https://github.com/ArnoCan/jsondata/
 
 Documents
@@ -40,34 +42,19 @@ setup.py
 
 The installer adds a few options to the standard setuptools options.
 
-* build_sphinx: 
-Creates documentation for runtime system by Sphinx, html only.
-Calls 'callDocSphinx.sh'.
+* *build_sphinx*: Creates documentation for runtime system by Sphinx, html only. Calls 'callDocSphinx.sh'.
 
-* build_epydoc: 
-Creates documentation for runtime system by Epydoc, html only.
-Calls 'callDocEpydoc.sh'.
+* *build_epydoc*: Creates documentation for runtime system by Epydoc, html only. Calls 'callDocEpydoc.sh'.
 
-* build_testsphinx:
-Creates documentation for unit tests by Sphinx, html only.
-Calls 'callTestSphinx.sh'.
+* *build_testsphinx*: Creates documentation for unit tests by Sphinx, html only. Calls 'callTestSphinx.sh'.
 
-* build_testepydoc:
-Creates documentation for unit tests by Epydoc, html only.
-Calls 'callTestEpydoc.sh'.
+* *test*: Runs PyUnit tests by discovery.
 
-* test:
-Runs PyUnit tests by discovery.
+* *--help-jsondata*: Displays this help.
 
-* --help-jsondata: 
-Displays this help.
+* *--no-install-requires*: Suppresses installation dependency checks, requires appropriate PYTHONPATH.
 
-* --no-install-requires:
-Suppresses installation dependency checks, requires 
-appropriate PYTHONPATH.
+* *--offline*: Sets online dependencies to offline, or ignores online dependencies.
 
-* --offline: 
-Sets online dependencies to offline, or ignores online dependencies.
+* *--exit*: Exit 'setup.py'.
 
-* --exit:
-Exit 'setup.py'.
