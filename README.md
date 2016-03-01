@@ -23,6 +23,18 @@ resulting from Epydoc. The main priority was compatibility with the Google
 style guide for pydoc, thus the html documents may not utilize the full scope
 of presentation features.
 
+Available from:
+* Sourceforge.net: https://sourceforge.net/projects/jsondata/files/
+* Github: https://github.com/ArnoCan/jsondata/
+
+Documents
+---------
+
+Online documentation:
+
+* https://pypi.python.org/pypi/jsondata/0.0.1
+* https://pythonhosted.org/jsondata/
+
 setup.py
 --------
 

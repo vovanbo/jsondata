@@ -32,7 +32,6 @@
 # ez_setup.use_setuptools()
 
 import sys
-print "4TEST:"+str(sys.argv)
 
 #
 #*** common source header
@@ -41,7 +40,7 @@ __author__ = 'Arno-Can Uestuensoez'
 __author_email__ = 'acue_sf2@sourceforge.net'
 __license__ = "Apache-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 
@@ -208,7 +207,10 @@ _description=("The application '"+_name+"' provides the management of modular"
               "The data could be validated by JSON schemas, and stored persistent for"
               "later reuse."
               "The original request arose for the dynamic modular configuration of a"
-              "GUI, with low resource requirements. Thus this module was developed.")
+              "GUI, with low resource requirements. Thus this module was developed."
+              ""
+              "Available on Sourceforge.net(see below) and"
+              "github.com(https://github.com/ArnoCan/jsondata/)")
 
 # def read(fname):
 #     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -238,6 +240,7 @@ _package_data = {
     'jsondata': ['README','data.json','schema.jsd','jsondatacheck.json', 'jsondatacheck.jsd'],
 }
 
+#_download_url="https://github.com/ArnoCan/jsondata/"
 _download_url="https://sourceforge.net/projects/jsondata/files/"
 
 _url='https://sourceforge.net/projects/jsondata/'
