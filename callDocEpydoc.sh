@@ -1,6 +1,6 @@
 PROJECT='jsondata'
-VERSION="00.00.006"
-RELEASE="00.00.006"
+VERSION="0.0.7"
+RELEASE="0.0.7"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
 LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'
@@ -9,16 +9,19 @@ MYPATH=${BASH_SOURCE%/*}/
 if [ "X${MYPATH#./}" != "X$MYPATH" ];then
 	MYPATH=${PWD}${MYPATH#.}
 fi
-INDIR=${MYPATH}
-#OUTDIR=~/tmp/bld/data-objects/data-objects-core/doc/epydoc/
-OUTDIR=build/epydoc/
+
+# input base directory
+INDIR=${INDIR:-$MYPATH}
+
+# output base directory
+OUTDIR=${OUTDIR:-build/}
 if [ ! -e "${OUTDIR}" ];then
 	mkdir -p "${OUTDIR}"
 fi
 export PYTHONPATH=$PYTHONPATH:$PWD:${MYPATH}
 
+# source entities
 FILEDIRS=""
-#FILEDIRS="$FILEDIRS ${INDIR}"
 FILEDIRS="$FILEDIRS `find ${INDIR}jsondata -type f -name '*.py'`"
 FILEDIRS="$FILEDIRS `find ${INDIR}bin -type f -name '*.py'`"
 
@@ -27,7 +30,7 @@ CALL="$CALL --graph=all"
 CALL="$CALL --html"
 #CALL="$CALL --pdf"
 CALL="$CALL --pstat pstatfile"
-CALL="$CALL -o $OUTDIR"
+CALL="$CALL -o ${OUTDIR}/apidoc/epydoc/"
 CALL="$CALL "
 CALL="$CALL $@"
 CALL="$CALL ${FILEDIRS} "
@@ -40,5 +43,5 @@ echo "CALL=<$CALL>"
 eval $CALL
 
 echo
-echo "call: firefox ${OUTDIR}index.html"
+echo "call: firefox ${OUTDIR}/epydoc/index.html"
 echo

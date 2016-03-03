@@ -8,8 +8,6 @@
          Calls 'callDocSphinx.sh'.
       build_epydoc: Creates documentation for runtime system by Epydoc, html only.
          Calls 'callDocEpydoc.sh'.
-      build_testsphinx: Creates documentation for unit tests by Sphinx, html only.
-         Calls 'callTestSphinx.sh'.
 
       test: Runs PyUnit tests by discovery.
 
@@ -32,6 +30,7 @@
 # ez_setup.use_setuptools()
 
 import sys
+from polybori.plot import THEN
 
 #
 #*** common source header
@@ -40,7 +39,7 @@ __author__ = 'Arno-Can Uestuensoez'
 __author_email__ = 'acue_sf2@sourceforge.net'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 
@@ -131,6 +130,8 @@ def usage():
 #* shortcuts
 #
 
+exit_code = 0
+
 # custom doc creation by sphinx-apidoc
 if 'build_sphinx' in sys.argv:
     print "#---------------------------------------------------------"
@@ -146,14 +147,6 @@ if 'build_epydoc' in sys.argv:
     print "#---------------------------------------------------------"
     print "Called/Finished callDocEpydoc.sh => exit="+str(exit_code)
     sys.argv.remove('build_epydoc')
-
-# custom test-doc creation by sphinx-apidoc
-if 'build_testsphinx' in sys.argv:
-    print "#---------------------------------------------------------"
-    exit_code = os.system('./callTestsSphinx.sh') # create test-doc
-    print "#---------------------------------------------------------"
-    print "Called/Finished callTestsSphinx.sh => exit="+str(exit_code)
-    sys.argv.remove('build_testsphinx')
 
 # call of complete test suite by 'discover'
 if 'test' in sys.argv:
@@ -176,6 +169,10 @@ if '--offline' in sys.argv:
     __offline = True
     __no_install_requires = True
     sys.argv.remove('--offline')
+
+# Execution failed - Error.
+if exit_code != 0:
+    sys.exit(exit_code)
 
 # Help on addons.
 if '--help-jsondata' in sys.argv:

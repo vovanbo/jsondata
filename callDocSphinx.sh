@@ -1,20 +1,22 @@
 PROJECT='jsondata'
-VERSION="00.00.006"
-RELEASE="00.00.006"
+VERSION="0.0.7"
+RELEASE="0.0.7"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
 LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'
 
 MYPATH=${BASH_SOURCE%/*}/
-INDIR=${MYPATH}/
-#OUTDIR=~/tmp/bld/data-objects/data-objects-core/doc/sphinx/
-OUTDIR=build/sphinx/
+# input base directory
+INDIR=${INDIR:-$MYPATH}
+
+# output base directory
+OUTDIR=${OUTDIR:-build/}
 if [ ! -e "${OUTDIR}" ];then
 	mkdir -p "${OUTDIR}"
 fi
 export PYTHONPATH=$PYTHONPATH:$PWD:$MYPATH
 
-
+# source entities
 FILEDIRS=""
 FILEDIRS="${INDIR}jsondata"
 FILEDIRS="$FILEDIRS ${INDIR}bin"
@@ -27,7 +29,7 @@ CALL="$CALL -A '$AUTHOR'"
 CALL="$CALL -H '$PROJECT'"
 CALL="$CALL -V '$VERSION'"
 CALL="$CALL -R '$RELEASE'"
-CALL="$CALL -o ${OUTDIR}/apidoc"
+CALL="$CALL -o ${OUTDIR}/apidoc/sphinx"
 CALL="$CALL -f -F "
 CALL="$CALL $@"
 
@@ -87,13 +89,13 @@ is supported with a few inline macros only.
 
 
 EOF
-} > ${OUTDIR}/apidoc/index.rst
+} > ${OUTDIR}/apidoc/sphinx/index.rst
 
 
 #CALL="SPHINXOPTS= "
 CALL=" "
 #CALL="SPHINXBUILD=sphinx-build PYTHONPATH=$PYTHONPATH "
-CALL="$CALL cd ${OUTDIR}/apidoc;"
+CALL="$CALL cd ${OUTDIR}/apidoc/sphinx;"
 CALL="$CALL export PYTHONPATH=$PYTHONPATH "
 CALL="$CALL ;make html "
 CALL="$CALL ;cd - "
