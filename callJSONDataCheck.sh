@@ -1,7 +1,9 @@
-PROJECT='jsondata-tests'
-VERSION="00.00.003"
-RELEASE="00.00.003"
+PROJECT='jsondata'
+VERSION="00.00.006"
+RELEASE="00.00.006"
 AUTHOR='Arno-Can Uestuensoez'
+COPYRIGHT='Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
+LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'
 
 export PYTHONPATH=$PYTHONPATH:$PWD
 MYPATH=${BASH_SOURCE%/*}/
@@ -23,7 +25,7 @@ SYNOPSIS:
 
 DESCRIPTION: CALL-WRAPPER
   The "${0##*/}" is a slim call wrapper for R&D with a few settings.
-  The main task is to provide the current context for the 
+  The main task is to provide the current context for the
     "jsondatacheck.py"
   by temporary setting of PYTHONPATH.
 
@@ -33,7 +35,7 @@ OPTIONS:
 
   [jsondatacheck.py-options]
     See REMARKS.
- 
+
 REMARKS:
   Python options could be passed through the wrapper by the call:
 

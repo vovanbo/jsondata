@@ -34,7 +34,7 @@ Documents
 
 Online documentation:
 
-* https://pypi.python.org/pypi/jsondata/0.0.1
+* https://pypi.python.org/pypi/jsondata/
 * https://pythonhosted.org/jsondata/
 
 setup.py
@@ -58,3 +58,22 @@ The installer adds a few options to the standard setuptools options.
 
 * *--exit*: Exit 'setup.py'.
 
+
+Project Data
+------------
+
+* PROJECT: 'jsondata'
+
+* VERSION: 00.00.006
+
+* RELEASE: 00.00.006
+
+* AUTHOR: Arno-Can Uestuensoez
+
+* COPYRIGHT: Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez
+
+* LICENSE: Artistic-License-2.0 + Forced-Fairplay-Constraints
+  Refer to enclose documents:
+  
+  ArtisticLicense20.html - for base license: Artistic-License-2.0 
+  licenses-amendments.txt - for amendments: Forced-Fairplay-Constraints

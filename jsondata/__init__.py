@@ -12,12 +12,15 @@ load.
 
 """
 __author__ = 'Arno-Can Uestuensoez'
-__license__ = "Apache-2.0 + Forced-Fairplay-Constraints"
+__license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.0.3'
+__version__ = '0.0.6'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 __package__ = 'jsondata'
+__all__=["JSONDataSerializer"]
+from JSONDataSerializer import JSONDataSerializer
+
 #__import__('pkg_resources').declare_namespace(__name__)
 
 
@@ -33,3 +36,4 @@ __package__ = 'jsondata'
 #     warnings.warn("The virtualenv distutils package at %s appears to be in the same location as the system distutils?")
 # else:
 #     __path__.insert(0, distutils_path)
+

@@ -70,9 +70,9 @@ pattern refer to the project 'data-objects'.
 
 """
 __author__ = 'Arno-Can Uestuensoez'
-__license__ = "Apache-2.0 + Forced-Fairplay-Constraints"
+__license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.0.3'
+__version__ = '0.0.6'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import os,sys
@@ -169,7 +169,9 @@ class JSONDataSerializer:
                         remove: BRANCH_REMOVE(3)
                             Deletes.
                     default:= replace-object
-                configfile: Filepathname of JSON data file.
+                configfile: Filepathname of JSON data file, when provided a further
+                    search by pathlist, filelist, and filepathlist is suppressed.
+                    Therefore it has to be a valid filepathname.
                     default:= <appname>.json
                 filelist: List of valid filenames.
                     default:= <appname>.json
@@ -196,10 +198,13 @@ class JSONDataSerializer:
                 nosubdata: Supresses the load of sub-data files.
                     default:= False
                 pathlist: List of pathnames for search of a valid filename.
+                    Either a PATH like string, or a list of single paths.
                     default:= ../dirname(__file__)/etc/:dirname(__file__)/:/etc/:$HOME/etc/
                 requires: [all, base, one]
                     Defines how to handle missing or invalid files.
                     default:= all
+                schema: A valid in-meory JSONschema.
+                    default:= None
                 schemafile: Filepathname of JSONschema file.
                     default:= <appname>.jsd
                 validator: [default, draft3, off, ]
@@ -234,34 +239,34 @@ class JSONDataSerializer:
         afile=os.path.abspath(str(__file__))
 
         # The internal object schema for the framework - a fixed set of files as final default.
-        self.schemafile = None
+        self.schemafile = kargs.get('schemafile',None)
+        self.schema = kargs.get('schema',None)
+        if self.schema and self.schemafile:
+            # When a schema/schema file is provided, it is the only and one for the top-level,
+            raise BaseException("Only one of 'schemafile' or 'schema' is supported:"
+                +"\nschemafile="+str(self.schemafile)+"\nschema="+str(self.schema))
 
-        # Fixed set of configuration files for framework as final default.
-        self.JSONPATH_DEFAULT  = os.path.dirname(afile)+os.sep+'etc'+os.sep+appname+os.sep
-        self.JSONPATH_DEFAULT += os.pathsep+os.sep+'etc'+os.sep
-        self.JSONPATH_DEFAULT += os.pathsep+"$HOME"+os.sep+'etc'+os.sep
-        self.JSONPATH_DEFAULT  = os.path.expanduser(self.JSONPATH_DEFAULT)
-        self.JSONPATH_DEFAULT  = os.path.expandvars(self.JSONPATH_DEFAULT)
-        self.JSONPATH_DEFAULT  = self.JSONPATH_DEFAULT.split(os.pathsep)
+        self.nodefaultpath = kargs.get('nodefaultpath',False)
 
-        # the configuration
-        self.JSONCONFFILES_DEFAULT = [ appname+'.json', ]
+        self.pathlist = kargs.get('pathlist','')
+
+        self.filelist = kargs.get('filelist',None)
+        if not self.filelist:
+            # the configuration
+            self.filelist = [ appname+'.json', ]
 
         self.branch = None
         self.branchoperations = JSONDataSerializer.BRANCH_SUPERPOSE
         self.data = None
         self.schema = None
         self.filepathlist = []
-        self.filelist = self.JSONCONFFILES_DEFAULT
-        self.pathlist = None
         self.nodefaultpath = False
         self.nodesubdata = False
         self.requires = False
         self.indent = 4
         self.validator = JSONDataSerializer.DEFAULT
 
-        # This option is foreseen for test purposes only, refer to __debug__.
-        # Thus is just trusted to be valid when activated.
+        # Either provided explicitly, or for search.
         self.configfile = None
 
         printschema = False
@@ -290,8 +295,6 @@ class JSONDataSerializer:
                     raise BaseException("Unknown branchoperations:"+str(v))
             elif k == 'configfile':
                 self.configfile = v
-            elif k == 'filelist':
-                self.filelist = v
             elif k == 'filepathlist':
                 self.filepathlist = v
             elif k == 'filepriority':
@@ -304,16 +307,12 @@ class JSONDataSerializer:
                 self.nodefaultpath = v
             elif k == 'nodesubdata':
                 self.nodesubdata = v
-            elif k == 'pathlist':
-                self.pathlist = v
             elif k == 'printdata':
                 printdata = v
             elif k == 'printschema':
                 printschema = v
             elif k == 'requires':
                 self.requires = v
-            elif k == 'schemafile':
-                self.schemafile = v
             elif k == 'validator': # controls validation by JSONschema
                 if v == 'default' or v == JSONDataSerializer.DEFAULT:
                     self.validator = JSONDataSerializer.DEFAULT
@@ -340,41 +339,79 @@ class JSONDataSerializer:
                     self.filepathlist = args[i]
                 elif i == 3:
                     self.schemafile = args[i]
+                else:
+                    raise BaseException("Unknown parameter(max="+str(i)+"):"+str(args))
 
-        # if a schema file is provided, it is the only and one for the top-level,
-        # when defined -> has to be present
-        if self.schemafile and not os.path.isfile(self.schemafile):
-            raise BaseException("Mising selected schema file:"+str*(self.schemafile))
+        if type(self.pathlist) == list: # a list of single-paths
+            if not self.nodefaultpath:
+                # Fixed set of configuration files for framework as final default.
+                self.pathlist.extend(os.path.dirname(afile)+os.sep+'etc'+os.sep+appname+os.sep,
+                    os.pathsep+os.sep+'etc'+os.sep,
+                    os.pathsep+"$HOME"+os.sep+'etc'+os.sep)
 
+            # expand all
+            for i in range(0,len(self.pathlist)):
+                self.pathlist[i]  = os.path.expanduser(self.pathlist[i])
+                self.pathlist[i]  = os.path.expandvars(self.pathlist[i])
+
+        else: # a PATH like variable
+            if not self.nodefaultpath:
+                # Fixed set of configuration files for framework as final default.
+                self.pathlist += os.path.dirname(afile)+os.sep+'etc'+os.sep+appname+os.sep+os.pathsep+os.sep+'etc'+os.sep+os.pathsep+"$HOME"+os.sep+'etc'+os.sep
+            self.pathlist  = os.path.expanduser(self.pathlist)
+            self.pathlist  = os.path.expandvars(self.pathlist)
+            self.pathlist  = self.pathlist.split(os.pathsep)
+
+        if not self.configfile: # No explicit given
+            if self.filelist:
+                for f in self.filelist:
+                    if os.path.isabs(f):
+                        self.filepathlist.append(f)
+                        self.filelist.remove(f)
+                    else:
+                        for p in self.pathlist:
+                            fx=p+os.sep+f
+                            if os.path.isfile(fx):
+                                self.filepathlist.append(fx)
+                                self.filelist.remove(f)
+        elif not os.path.isfile(self.configfile): # a provided configfile has to exist
+            raise BaseException("Mising:configfile="+str(self.configfile))
 
         # Check whether validation is requested.
         # If so, do a last trial for plausible construction.
-        if self.validator != JSONDataSerializer.OFF and self.schemafile == None:
-            # when validation is requested, and no schema provided, than...
-            if self.configfile and os.path.isfile(os.path.splitext(self.configfile)[0]+'.jsd'):
-                self.schemafile = os.path.splitext(self.configfile)[0]+'.jsd'
-            else:
-                raise BaseException("Mising:Validation("+str(self.validator)+") data, requires explicit:configfile/schemafile="+str(self.configfile)+"/"+str(self.schemafile)
-                                    +"\nCall help for options:"+str(os.path.basename(sys.argv[0]))+" --help")
+        if not self.schema and self.validator != JSONDataSerializer.OFF:
+            # require schema for validation, no schema provided, now-than...
+            if not self.schemafile: # do we have a file
+                if self.configfile:
+                    if os.path.isfile(os.path.splitext(self.configfile)[0]+'.jsd'): # coallocated pair - configfile+schemafile
+                        self.schemafile = os.path.splitext(self.configfile)[0]+'.jsd'
+                elif self.filepathlist: # search, use the first found
+                    for f in self.filepathlist:
+                        if os.path.isfile(f) and os.path.isfile(os.path.splitext(f)[0]+".jsd"):
+                            self.schemafile = os.path.splitext(f)[0]+".jsd"
+                            break # just use the first valid-pair
+                else:
+                    raise BaseException("Mising:Validation("+str(self.validator)+") data, requires explicit:configfile/schemafile="
+                            +str(self.configfile)+"/"+str(self.schemafile)
+                            +"\nCall help for options:"+str(os.path.basename(sys.argv[0]))+" --help")
+
+            # when defined => has to be present
+            if self.schemafile and not os.path.isfile(self.schemafile):
+                raise BaseException("Mising selected schema file:"+str*(self.schemafile))
+
+            # initialize schema
+            kargs['schemafile'] = self.schemafile
+            self.set_schema(**kargs)
 
 
-        #
-        # check and set default path list
-        #
-        if not self.pathlist:
-            if not self.nodefaultpath:
-                self.pathlist = self.JSONPATH_DEFAULT
 
         if __debug__:
             if self.debug:
-                print "DBG:self.schemafile=  "+str(self.schemafile)
                 print "DBG:self.pathlist=    "+str(self.pathlist)
                 print "DBG:self.filelist=    "+str(self.filelist)
                 print "DBG:self.filepathlist="+str(self.filepathlist)
-
-        # initialize schema
-        kargs['schemafile'] = self.schemafile
-        self.set_schema(**kargs)
+                print "DBG:self.schemafile=  "+str(self.schemafile)
+                print "DBG:self.schema=       #["+str(self.schema)+"]#"
 
         #
         # load configuration, therefore search configuration files within pathlist
@@ -383,29 +420,12 @@ class JSONDataSerializer:
         onenok = False
         kx={'branchoperations':self.branchoperations}
         if not self.configfile: # No explicit given
-            if self.filelist:
-                for f in self.filelist:
-                    if os.path.isabs(f):
-                        self.filepathlist.append(f)
-                        self.filelist.remove(f)
-                        if self.import_data(f,self.schemafile,self.branch,**kx):
-                            confok=True
-                        else:
-                            onenok = True
-                        continue
+            if self.filepathlist:
+                for f in self.filepathlist:
+                    if self.import_data(f,self.schemafile,self.branch,**kx):
+                        confok=True
                     else:
-                        for p in self.pathlist:
-                            fx=p+os.sep+f
-
-                            if os.path.isfile(fx):
-                                self.filepathlist.append(fx)
-                                self.filelist.remove(f)
-                                if self.import_data(fx,self.schemafile,self.branch,**kx):
-                                    confok=True
-                                else:
-                                    onenok = True
-                            else:
-                                onenok = True
+                        onenok = True
 
                 if not confok: # base loaded only
                     if not self.requires: # there is a rule
@@ -413,6 +433,7 @@ class JSONDataSerializer:
                             pass
                         else:
                             raise NameError("Cannot load any application configuration, check installation.")
+
                 else: # at least one application configuration loaded
                     if self.requires != False: # there is a rule
                         if self.requires == 'all': # no exeception allowed
@@ -423,7 +444,7 @@ class JSONDataSerializer:
                         elif self.requires == 'one': # reaching this means is OK
                             pass
 
-        elif self.configfile != None:
+        else:
             if os.path.exists(self.configfile):
                 self.import_data(self.configfile,self.schemafile,self.branch,**kx)
 
@@ -433,7 +454,7 @@ class JSONDataSerializer:
         if printdata:
             self.printData()
 
-    def set_schema(self,schemafile=None,targetnode=None, **kargs):
+    def set_schema(self,schemafile=None, targetnode=None, **kargs):
         """Sets schema or a inserts a new branch.
 
         The main schema(targetnode==None) is the schema related to the current
@@ -490,6 +511,7 @@ class JSONDataSerializer:
         #
         #*** Fetch parameters
         #
+        configfile = None
         branchoperations = self.branchoperations # use class settings as default
         validator = self.validator # use class settings as default
         persistent = False
@@ -591,7 +613,7 @@ class JSONDataSerializer:
 
         return schema != None
 
-    def import_data(self,datafile,schemafile=None,targetnode=None, **kargs):
+    def import_data(self, datafile, schemafile=None,targetnode=None, **kargs):
         """ Imports and validates JSON based configuration data.
 
         The contained data in 'datafile' could be either the initial data
@@ -759,6 +781,97 @@ class JSONDataSerializer:
             print "VALID: json.schemafile: '"+str(schemafile)+"'"
 
         return ret # jval != None
+
+    def delete_data(self, datafile=None, schemafile=None,targetnode=None, **kargs):
+        """ Deletes branches from JSON based data trees with static and dynamic criteria.
+
+        The 'delete_data' function enables for extended checks of deletion, e.g the
+        detection of modified data, whereas the 'remove' function simply removes
+        by a subset of some static checks with 'isApplicable' validation.
+         
+        Handles several scenarios of plausibility and applicability checks. 
+        
+        0. Just do it:
+            delete_data(None, None,None)
+                Deletes self.data
+            delete_data(None, None,targetnode)
+                Deletes targetnode
+        1. Check datafile for applicability, no schema validation:
+            delete_data(datafile, None,None)
+                Deletes self.data
+            delete_data(datafile, None,targetnode)
+                Deletes targetnode
+        2. Check datafile for applicability, with schemafile validation:
+            delete_data(datafile, schemafile,None)
+                Deletes self.data
+            delete_data(datafile, schemafile,targetnode)
+                Deletes targetnode
+        3. Check datafile for applicability, with schema validation:
+            kargs={'schema':"<jsonschema-object>"}
+
+            delete_data(datafile, None,None,**kargs)
+                Deletes self.data
+            delete_data(datafile, None,targetnode,**kargs)
+                Deletes targetnode
+                
+        REMARK: Due to the huge amount of shared code with 'import_data',
+            this function is internally mapped to 'import_data'.
+        
+        Args:
+            datafile:
+                JSON data filename containing the subtree for the target branch.
+            schemafile:
+                JSON-Schema filename for validation of the subtree/branch.
+            targetnode:
+                Target container hook for the inclusion of the loaded branch.
+                The branch is treated as a child-branch, hooked into the
+                provided container 'targetnode'. Therefore the parameter
+                kargs['branchoperations'] defines the behaviour for the
+                various scenarios.
+                The default:='None', than 'self.data' is used as the default
+                container.
+            **kargs:
+                branchoperations: [remove,]
+                    Definition of the handling of redundancies in case of
+                    present previous object.
+                    For additional information refer to the '__init__' method.
+                matchcondition:
+                    Defines the criteria for comparison of present child nodes
+                    in the target container. The value is a list of critarias
+                    combined by logical AND. The criteria may vary due to
+                    the requirement and the type of applied container.
+
+                    For information on applicable values refer to:
+                        'JSONDataSerializer.isApplicable()'
+
+                validator: [default, draft3, off, ]
+                    Sets schema validator for the data file.
+                    The values are: default=validate, draft3=Draft3Validator,
+                    off=None.
+                    default:= validate
+
+        Returns:
+            When successful returns 'True', else returns either 'False', or
+            raises an exception.
+
+        Raises:
+            BaseException: Type-Mismatch: targetnode != branch.
+
+            BaseException: Type-Incompatible.
+
+            BaseException: Missing JSONschema.
+
+            BaseException: Unknown validator.
+
+        """
+        if kargs.get('branchoperations',JSONDataSerializer.BRANCH_REMOVE) != JSONDataSerializer.BRANCH_REMOVE:
+            raise BaseException("Unknown operation:"+str(self.branchoperations))
+
+        if __debug__:
+            if self.debug:
+                print "DBG:delete_data:datafile=  "+str(datafile)
+                print "DBG:delete_data:schemafile="+str(schemafile)
+        return self.import_data(datafile, schemafile, targetnode, **kargs)
 
     def isApplicable(self, targetnode, branch, matchcondition=None,**kargs):
         """ Checks applicability by validation of provided match criteria.
@@ -930,7 +1043,7 @@ class JSONDataSerializer:
                 raise BaseException("Type not applicable:"+str(type(targetnode)))
         return retOK
 
-    def set_replace(self, targetnode, branch,matchcondition=None):
+    def set_replace(self, targetnode, branch, matchcondition=None):
         """Replaces the complete set of child branches by branch.
 
         All present previous branches are removed and replaced by
@@ -973,7 +1086,7 @@ class JSONDataSerializer:
             raise BaseException("Type not applicable:"+str(type(targetnode)))
         return ret
 
-    def superpose(self,targetnode,branch,matchcondition=None):
+    def superpose(self, targetnode, branch, matchcondition=None):
         """Superposes a complete branch into a target structure.
 
         Present previous branches are replaced, non-existent
@@ -1018,7 +1131,7 @@ class JSONDataSerializer:
 
         return ret
 
-    def add(self,targetnode,branch,matchcondition=None):
+    def add(self, targetnode, branch, matchcondition=None):
         """Adds a branch into a target structure.
 
         The present previous values are kept untouched, non-existent
@@ -1067,8 +1180,8 @@ class JSONDataSerializer:
             raise BaseException("Type not supported:type="+str(branch))
         return ret
 
-    def remove(self,targetnode,branch,matchcondition=None):
-        """Removes a branch from a target structure.
+    def remove(self, targetnode, branch, matchcondition=None):
+        """Removes a branch from a target structure by basic static criteria.
 
         The corresponding elements of the 'source' tree are removed from
         the tree 'targetnode'. The remaining are kept untouched. For tree
@@ -1119,28 +1232,75 @@ class JSONDataSerializer:
             raise BaseException("Type not supported:type="+str(branch))
         return ret
 
-    def printData(self,pretty=True):
+    def printData(self, pretty=True, **kargs):
         """Prints structured data.
 
-        """
-        if pretty:
-            print str(self)
-        else:
-            print repr(self)
+        Args:
+            pretty: Activates pretty printer for treeview, else flat.
 
-    def printSchema(self,pretty=True):
+            sourcefile: Loads data from 'sourcefile' into 'source'.
+                default:=None
+            source: Prints data within 'source'.
+                default:=self.data
+
+        Returns:
+            When successful returns 'True', else returns either 'False', or
+            raises an exception.
+
+        Raises:
+            BaseException: Ambiguity:'source' and 'sourcefile'
+
+        """
+        source = kargs.get('source',None)
+        sourcefile = kargs.get('sourcefile',None)
+        if sourcefile and source:
+            raise BaseException("Ambiguity:'source' and 'sourcefile':\n"+str(sourcefile)+"\n"+str(source))
+        if sourcefile:
+            source = open(sourcefile)
+            source = json.load(source)
+        elif not source:
+            source = self.data # yes, almost the same...
+
+        if pretty:
+            print json.dumps(source,indent=self.indent)
+        else:
+            print json.dumps(source)
+
+    def printSchema(self, pretty=True, **kargs):
         """Prints structured schema.
-        """
-        schema = os.path.abspath(self.schemafile)
-        s = open(schema).read()
-        if pretty:
-            sch = json.loads(s)
-            print json.dumps(sch,indent=self.indent)
-        else:
-            sch = json.load(s)
-            print json.dump(sch,indent=self.indent)
 
-    def export_data(self,fname,base=None,**kargs):
+        Args:
+            pretty: Activates pretty printer for treeview, else flat.
+
+            sourcefile: Loads schema from 'sourcefile' into 'source'.
+                default:=None
+            source: Prints schema within 'source'.
+                default:=self.schema
+
+        Returns:
+            When successful returns 'True', else returns either 'False', or
+            raises an exception.
+
+        Raises:
+            BaseException: Ambiguity:'source' and 'sourcefile'
+
+        """
+        source = kargs.get('source',None)
+        sourcefile = kargs.get('sourcefile',None)
+        if sourcefile and source:
+            raise BaseException("Ambiguity:'source' and 'sourcefile':\n"+str(sourcefile)+"\n"+str(source))
+        if sourcefile:
+            source = open(sourcefile)
+            source = json.load(source)
+        elif not source:
+            source = self.schema # yes, almost the same...
+
+        if pretty:
+            print json.dumps(source,indent=self.indent)
+        else:
+            print json.dumps(source)
+
+    def export_data(self, fname, base=None, **kargs):
         """ Exports current configuration data for later import.
 
         The exported data is a snapshot of current configuration. This

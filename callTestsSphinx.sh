@@ -1,7 +1,9 @@
-PROJECT='jsondata-tests'
-VERSION="00.00.003"
-RELEASE="00.00.003"
+PROJECT='jsondata'
+VERSION="00.00.006"
+RELEASE="00.00.006"
 AUTHOR='Arno-Can Uestuensoez'
+COPYRIGHT='Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
+LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'
 
 MYPATH=${BASH_SOURCE%/*}/
 if [ "X${MYPATH#./}" != "X$MYPATH" ];then
@@ -10,7 +12,7 @@ fi
 INDIR=${MYPATH}tests/
 OUTDIR=~/tmp/bld/data-objects/data-objects-core/doc/sphinx/
 if [ ! -e "${OUTDIR}" ];then
-	mkdir -p "${OUTDIR}" 
+	mkdir -p "${OUTDIR}"
 fi
 export PYTHONPATH=$PYTHONPATH:$PWD:${MYPATH}:${MYPATH}tests
 

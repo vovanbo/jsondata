@@ -1,0 +1,2 @@
+"""Superposition of branches.
+"""

@@ -1,7 +1,7 @@
 """Distribute 'jsondata', a thin layer for the management of JSON data branches.
 
    Installs 'jsondata', adds/modifies the following helper features to standard
-   'setuptools' options. 
+   'setuptools' options.
 
    Args:
       build_sphinx: Creates documentation for runtime system by Sphinx, html only.
@@ -14,7 +14,7 @@
       test: Runs PyUnit tests by discovery.
 
       --help-jsondata: Displays this help.
-      --no-install-requires: Suppresses installation dependency checks, requires 
+      --no-install-requires: Suppresses installation dependency checks, requires
          appropriate PYTHONPATH.
       --offline: Sets online dependencies to offline, or ignores online dependencies.
 
@@ -38,9 +38,9 @@ import sys
 #
 __author__ = 'Arno-Can Uestuensoez'
 __author_email__ = 'acue_sf2@sourceforge.net'
-__license__ = "Apache-2.0 + Forced-Fairplay-Constraints"
+__license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.0.4'
+__version__ = '0.0.6'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 
@@ -210,7 +210,15 @@ _description=("The application '"+_name+"' provides the management of modular"
               "GUI, with low resource requirements. Thus this module was developed."
               ""
               "Available on Sourceforge.net(see below) and"
-              "github.com(https://github.com/ArnoCan/jsondata/)")
+              "github.com(https://github.com/ArnoCan/jsondata/)"
+              ""
+              "For License refer to enclosed documents:"
+              ""
+               "* ArtisticLicense20.html - for base license: Artistic-License-2.0" 
+               "* licenses-amendments.txt - for amendments: Forced-Fairplay-Constraints"
+              ""
+
+)
 
 # def read(fname):
 #     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -220,15 +228,20 @@ _long_description = open(_README).read() + 'nn'
 _platforms='any'
 
 _classifiers = [
-    "Topic :: Documentation",
     "Development Status :: 2 - Pre-Alpha",
-    "Programming Language :: Python",
     "Intended Audience :: Developers",
-    "Operating System :: POSIX",
-    "Operating System :: OS Independent",
     "License :: Free To Use But Restricted",
-    "Topic :: Software Development :: Documentation",
+    "License :: OSI Approved :: Artistic License",
+    "Natural Language :: English",
+    "Operating System :: Microsoft :: Windows :: Windows 7",
+    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: BSD :: OpenBSD",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: POSIX",
+    "Programming Language :: Python",
+    "Programming Language :: Unix Shell",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
 ]
 
 _keywords = 'JSON JSONschema persistency configuration plugins dynamic modules'
@@ -237,7 +250,9 @@ _packages = ["jsondata"]
 _scripts = ["bin/jsondatacheck"]
 
 _package_data = {
-    'jsondata': ['README','data.json','schema.jsd','jsondatacheck.json', 'jsondatacheck.jsd'],
+    'jsondata': ['README','ArtisticLicense20.html', 'licenses-amendments.txt',
+                 'data.json','schema.jsd','jsondatacheck.json', 'jsondatacheck.jsd'
+                 ],
 }
 
 #_download_url="https://github.com/ArnoCan/jsondata/"

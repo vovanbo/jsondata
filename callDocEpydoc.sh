@@ -1,7 +1,9 @@
 PROJECT='jsondata'
-VERSION="00.00.003"
-RELEASE="00.00.003"
+VERSION="00.00.006"
+RELEASE="00.00.006"
 AUTHOR='Arno-Can Uestuensoez'
+COPYRIGHT='Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
+LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'
 
 MYPATH=${BASH_SOURCE%/*}/
 if [ "X${MYPATH#./}" != "X$MYPATH" ];then
@@ -11,7 +13,7 @@ INDIR=${MYPATH}
 #OUTDIR=~/tmp/bld/data-objects/data-objects-core/doc/epydoc/
 OUTDIR=build/epydoc/
 if [ ! -e "${OUTDIR}" ];then
-	mkdir -p "${OUTDIR}" 
+	mkdir -p "${OUTDIR}"
 fi
 export PYTHONPATH=$PYTHONPATH:$PWD:${MYPATH}
 
@@ -20,7 +22,7 @@ FILEDIRS=""
 FILEDIRS="$FILEDIRS `find ${INDIR}jsondata -type f -name '*.py'`"
 FILEDIRS="$FILEDIRS `find ${INDIR}bin -type f -name '*.py'`"
 
-CALL=epydoc 
+CALL=epydoc
 CALL="$CALL --graph=all"
 CALL="$CALL --html"
 #CALL="$CALL --pdf"

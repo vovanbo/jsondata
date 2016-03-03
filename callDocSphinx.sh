@@ -1,14 +1,16 @@
 PROJECT='jsondata'
-VERSION="00.00.003"
-RELEASE="00.00.003"
+VERSION="00.00.006"
+RELEASE="00.00.006"
 AUTHOR='Arno-Can Uestuensoez'
+COPYRIGHT='Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
+LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'
 
 MYPATH=${BASH_SOURCE%/*}/
 INDIR=${MYPATH}/
 #OUTDIR=~/tmp/bld/data-objects/data-objects-core/doc/sphinx/
 OUTDIR=build/sphinx/
 if [ ! -e "${OUTDIR}" ];then
-	mkdir -p "${OUTDIR}" 
+	mkdir -p "${OUTDIR}"
 fi
 export PYTHONPATH=$PYTHONPATH:$PWD:$MYPATH
 
@@ -47,7 +49,7 @@ done
 echo "sys.path.insert(0, os.path.abspath('$PWD/..'))" >> ${OUTDIR}/apidoc/conf.py
 
 # put the packages together
-{ 
+{
 cat <<EOF
 
 .. jsondata documentation master file, created by
@@ -55,13 +57,13 @@ cat <<EOF
    You can adapt this file completely to your liking, but it should at least
    contain the root \`toctree\` directive.
 
-Welcome to jsondata's documentation!
-====================================
+'jsondata' - Modular JSON by trees and branches 
+===============================================
 
-This document provides the developer information for the API of the runtime package
-and the included PyUnit tests. 
+This document provides the developer information for the API of the runtime
+package and the included PyUnit tests.
 The Unit tests here serve in particular as examples and application pattern.
-Therefore these are included in the developer documentation. 
+Therefore these are included in the developer documentation.
 
 Contents:
 
@@ -81,7 +83,7 @@ Indices and tables
 
 
 *REMARK*: The master format of current documentation is PyDoc, thus the HTML formatting
-is supported with a few inline macros only. 
+is supported with a few inline macros only.
 
 
 EOF

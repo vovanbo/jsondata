@@ -1,5 +1,8 @@
 """Library module jsondata.JSONDataSerializer.
-"""
 
-#__all__ = [ "AttributesTst0000"]
+The 'JSONDataSerializer' manages in-memory JSON data including 
+load and write of trees and branches.
+Thus the branch-functions and read/write
+of JSON based structured data is tested here.
+"""
 

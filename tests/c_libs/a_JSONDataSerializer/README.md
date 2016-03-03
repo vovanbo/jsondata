@@ -1,23 +1,32 @@
 Library features
 ================
 
-00_init_base
+000_init
 ------------
-Basic calls for initial checks.
 
-01_data_replace_set
--------------------
-Replacement of a set of branches  by a new branch.
+Check creation and initialization of jsondat objects.
 
-02_data_superpose
------------------
-SUperpose branches, present branches are written over,
-new branches are just addes.
+010_print
+---------
 
-03_data_add
------------
-Non-present branches are added only, present are kept unaltered.
+Print of JSON data.
 
-04_data_remove
---------------
-Remove a branch.
+100_import
+----------
+
+Import of data and schema.
+
+200_export
+----------
+
+Export of data and schema.
+
+300_delete
+----------
+
+Deletion of data and schema - trees and branches - by static and dynamic criteria.
+
+400_remove
+----------
+
+Deletion of data and schema - trees and branches - by static criteria.
