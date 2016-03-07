@@ -3,14 +3,17 @@ INVARIANT_SECTION_BEG:The whole document
 Document Data:
 ==============
 
+ORIGINAL-AUTHOR: Arno-Can Uestuensoez - @Ingenieurbuero Arno-Can Uestuensoez
+
 TITLE: Forced-Fairplay-Constraints
-SUBTITLE: Enforcement of Fairplay for Opensource License - Trolls
-AUTHOR: Arno-Can Uestuensoez - @@Ingenieurbuero Arno-Can Uestuensoez
+SUBTITLE: Enforcement of Fairplay for Opensource Licenses - Con-Trolls
+AUTHOR: Arno-Can Uestuensoez - @Ingenieurbuero Arno-Can Uestuensoez
 COPYRIGHT: [2007,2008,2010,2013,2014,2015, 2016] Arno-Can Uestuensoez
-VERSION: 00.00.001
-RELEASE: 00.00.001
-DATE: 2016-03-03
+VERSION: 00.00.007
+RELEASE: 00.00.007
+DATE: 2016-03-04
 UUID: 6fb5eecc-310c-4147-98e4-7a41698113f4
+SCOPE: This release replaces and obsoletes any previous version.
 
 THIS-DOCUMENT:
 	LICENSE: CC-BY-ND-4.0 - The Craetive Commons
@@ -32,19 +35,19 @@ THIS-DOCUMENT:
 **OpenSource with enforcement of peer-to-peer fairness**
 ========================================================
 
-Still OpenSource, but not for Trolls - yust applying on them
+Still OpenSource, but not for Trolls - just applying on them
 their own rules, but full-scale.
 
-The following restriction are added to the assigned licenses as
-constraints under the following listed conditions by the original
+The following restrictions are added to the assigned base-licenses
+as constraints under the following listed conditions by the original
 author Arno-Can Uestuensoez Copyright(C) 2007-2016.
 
-As a tribute to the obvious neccesity of the @strong{enforcement 
-of peer-to-peer fairness the following constraints are included 
-in any assigned and license. These may in worst case withdraw
-the license from the licensee and the related group for lifetime,
-dating back to the beginning of use - which is considered as the 
-public release.
+As a tribute to the obvious neccesity of the enforcement of 
+peer-to-peer fairness the following constraints are included 
+in any assigned license to the provided Software. These may in worst 
+case withdraw the license from the licensee and the related group 
+for lifetime, dating back to the beginning of use - which is 
+considered as the public release.
 
 You are free to provide the parts of your own contribution by any
 license, as long as the original base remains in literal compliance
@@ -54,13 +57,15 @@ inherited to any derived work for conceptual and implementation
 parts. 
 
 This is due to the vast experiences of the original author in
-conjunction with CloudManagement System 'UnifiedSessionsManager'
-(C)2008-2016 above listed @Ingenieurbuero Arno-Can Uestuensoez
-sad, but inevitable.
+conjunction with the CloudManagement System 'UnifiedSessionsManager'
+(C)2008-2016 @Ingenieurbuero Arno-Can Uestuensoez, originally 
+published under GPL-3/2008. Thus the constraints on double-minded 
+smarties is sadly to say inevitable.
 
-   For the commom fraud in conjunction with misuse of skills 
-   profiles feel free to refer to: 
-   http://xkcd.com/1303/
+   For recommendations on the commom fraud in conjunction with the
+   misuse of skills profiles feel free to refer to: 
+   
+      http://xkcd.com/1303/
 
    Ask to arrange a confirmation call within 2-3 business days. If
    they cannot ...for whatever reason..., forward me the evidence 
@@ -88,7 +93,7 @@ In case unfair competion against the author, including cases not
 known to the author worldwide, this includes the forwarding of 
 unauthorized data about the author into any kind of legal, and/or 
 illegal network like procurement systems, in the past or from now on,
-permissions are rejected.
+all license permissions are rejected.
 
 The loss of license comprises all involved parties, including customers,
 subcontractors, and competitors as a whole, including chained, shifted, 
@@ -108,9 +113,9 @@ against any kind of challanges.
 Invariant Sections
 ==================
 
-The artefacts contain invariant sections, which comprise the information
-about the original author and the copyright. Changing these results in 
-immediate drop of any permission including previous licenses.
+The artefacts contain invariant sections, which comprise the 
+information about the original author and the copyright. Changing these 
+results in immediate drop of any permission including previous licenses.
 This is also the case for any change of any copyright statement from 
 any deployment package or copied information.
 
@@ -126,23 +131,24 @@ Software Patents
 ================
 
 You agree that in particular in the case that any previous constraint 
-has to be applied, the author is eventually going to apply his intellectual
-property rights arbitrarily and without the requirement of any previous 
-notice. Either personally, or by transferring his rights to third parties.
+has to be applied, the author is eventually going to apply his
+intellectual property rights arbitrarily and without the requirement of 
+any previous notice. Either personally, or by transferring his rights 
+to third parties.
 
 Remarks
 =======
 
 Any rejection caused by violation of the license conditions could be 
-withdrawn personally by the original author(s) by written statement 
+withdrawn personally by the original author(s) written statement 
 explicitly only, which requires the proactive disclosure of the whole
 issue in an official written and signed statement by the potentially 
 violating party.
 
-You have additionally to agree in any commercial issue to proof reversal 
-for using this software and related concepts. With using this software 
-you accept the authors choice of the country and court for clearing any 
-leagal issue.
+You have additionally to agree in any commercial issue to proof 
+reversal for using this software and related concepts. With using this
+software you accept the authors choice of the country and court for 
+clearing any leagal issue.
 
 
 INVARIANT_SECTION_END:The whole document

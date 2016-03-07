@@ -52,7 +52,7 @@ class CallUnits(unittest.TestCase):
         global appname
 
         kargs = {}
-        kargs['configfile'] = os.path.dirname(__file__)+os.sep+'testdata.json'
+        kargs['datafile'] = os.path.dirname(__file__)+os.sep+'testdata.json'
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True
         kargs['pathlist'] = os.path.dirname(__file__)

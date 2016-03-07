@@ -197,25 +197,16 @@ if len(sys.argv)==1:
 #
 _name='jsondata'
 
-_description=("The application '"+_name+"' provides the management of modular"
-              " JSON based data structures. The current version focuses on persistence"
-              "of configuration data. Therefore a master file could be loaded into"
-              "memory and extended, or reduced by substructures defined in JSON notation."
-              "The data could be validated by JSON schemas, and stored persistent for"
-              "later reuse."
-              "The original request arose for the dynamic modular configuration of a"
-              "GUI, with low resource requirements. Thus this module was developed."
-              ""
-              "Available on Sourceforge.net(see below) and"
-              "github.com(https://github.com/ArnoCan/jsondata/)"
-              ""
-              "For License refer to enclosed documents:"
-              ""
-               "* ArtisticLicense20.html - for base license: Artistic-License-2.0" 
-               "* licenses-amendments.txt - for amendments: Forced-Fairplay-Constraints"
-              ""
-
-)
+_description=("The 'jsondata' package provides the management of modular data structures based on JSON. "
+              "Current version supports for first features of JSONPointer and JSONPatch. "
+              "The following versions are going to support the full scope in accordance "
+              "RFC6901, and RFC6902. The syntax primitives of underlying layers are provided " 
+              "by the imported packages 'json' and 'jsonschema' in conformance to related ECMA and RFC "
+              "standards and proposals.  "
+              "The data is represented by in-memory tree structures with dynamically added "
+              "and/or removed branches. The data could be validated by JSON schemas, and stored "
+              "for later reuse."
+              )
 
 # def read(fname):
 #     return open(os.path.join(os.path.dirname(__file__), fname)).read()

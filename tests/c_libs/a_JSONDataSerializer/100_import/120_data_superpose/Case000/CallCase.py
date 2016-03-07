@@ -43,7 +43,7 @@ class CallUnits(unittest.TestCase):
         schemafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('schema.jsd')
 
         kargs = {}
-        kargs['configfile'] = datafile
+        kargs['datafile'] = datafile
         kargs['schemafile'] = schemafile
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True

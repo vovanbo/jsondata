@@ -71,7 +71,7 @@ class CallUnits(unittest.TestCase):
         global schemafile
 
         kargs = {}
-        kargs['configfile'] = datafile
+        kargs['datafile'] = datafile
         kargs['schemafile'] = schemafile
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True
@@ -89,7 +89,7 @@ class CallUnits(unittest.TestCase):
         global schemafile
 
         kargs = {}
-        kargs['configfile'] = datafile
+        kargs['datafile'] = datafile
         kargs['schemafile'] = schemafile
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True
@@ -107,7 +107,7 @@ class CallUnits(unittest.TestCase):
         global schemafile
 
         kargs = {}
-        kargs['configfile'] = datafile
+        kargs['datafile'] = datafile
         kargs['schemafile'] = schemafile
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True

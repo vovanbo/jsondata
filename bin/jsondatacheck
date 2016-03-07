@@ -42,10 +42,14 @@ OPTIONS:
      Name of application.
      default: jsondatacheck
   -c, --configfile= <configfile>
-     Configuration file - JSON data.
+     A single configuration file including path with JSON data.
      default: jsondatacheck.json
   -D, --print-data
      Pretty print data.
+  -f --filelist= <list-of-filenames>
+     List of colon seperated filenames to be searched for. These 
+     could be relative pathnames too.
+     default:=[<appname>.json]
   -n, --no-default-path
      Supress load of default path.
      default: False
@@ -71,6 +75,10 @@ OPTIONS:
      - off: None
     default:= validate
 
+  -i, --interactive
+     Dialog mode, displays formatted for interactive JSON and 
+     JSONschema design.
+      
   -d, --debug
      Debug entries, does NOT work with 'python -O ...'.
      Developer output, aimed for filtering.
@@ -92,7 +100,7 @@ PYTHON OPTIONS:
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 try:
@@ -106,7 +114,7 @@ _APPNAME = "jsondatacheck"
 #--- fetch options
 #
 import getopt, sys, os
-
+ 
 def usage():
     if __name__ == '__main__':
         import pydoc
@@ -115,55 +123,61 @@ def usage():
     else:
         help(str(os.path.basename(sys.argv[0]).split('.')[0]))
 
-kargs={}
+_kargs={}
 try:
-    longopts = [
+    _longopts = [
         "help","debug","verbose","version","Version",
         "appname=", "configfile=","schemafile=","validator=","no-default-path",
-        "no-sub-data","pathlist=","plugins-pathlist=","print-schema","print-data"
+        "no-sub-data","pathlist=","plugins-pathlist=","print-schema","print-data",
+        "interactive", "filelist"
     ]
-    opts, args = getopt.getopt(sys.argv[1:], "a:c:s:np:P:NDShdvV:", longopts)
+    _opts, _args = getopt.getopt(sys.argv[1:], "a:c:f:is:np:P:NDShdvV:", _longopts)
 except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)
 
-appname = _APPNAME
-for o, a in opts:
-    if o in ("-a","--appname"):
-        appname = a
-    elif o in ("-c","--configfile"):
-        kargs['configfile'] = a
-    elif o in ("-D","--print-data"):
-        kargs['printdata'] = True
-    elif o in ("-n","--no-default-path"):
-        kargs['nodefaultpath'] = True
-    elif o in ("-N","--no-sub-data"):
-        kargs['nosubdata'] = True
-    elif o in ("-p","--pathlist"):
-        kargs['pathlist'] = a
-    elif o in ("-P","--plugins-pathlist"):
-        kargs['pluginspathlist'] = a
-    elif o in ("-s","--schemafile"):
-        kargs['schemafile'] = a
-    elif o in ("-S","--print-schema"):
-        kargs['printschema'] = True
-    elif o in ("-V","--validator"):
-        kargs['validator'] = a
+_appname = _APPNAME
+for _o,_a in _opts:
+    if _o in ("-a","--appname"):
+        _appname = _a
+    elif _o in ("-c","--configfile"):
+        _kargs['configfile'] = _a
+    elif _o in ("-D","--print-data"):
+        _kargs['printdata'] = True
+    elif _o in ("-f","--filelist"):
+        _kargs['filelist'] = _a.split(":")
+    elif _o in ("-n","--no-default-path"):
+        _kargs['nodefaultpath'] = True
+    elif _o in ("-N","--no-sub-data"):
+        _kargs['nosubdata'] = True
+    elif _o in ("-p","--pathlist"):
+        _kargs['pathlist'] = _a
+    elif _o in ("-P","--plugins-pathlist"):
+        _kargs['pluginspathlist'] = _a
+    elif _o in ("-s","--schemafile"):
+        _kargs['schemafile'] = _a
+    elif _o in ("-S","--print-schema"):
+        _kargs['printschema'] = True
+    elif _o in ("-V","--validator"):
+        _kargs['validator'] = _a
 
-    elif o in ("-d","--debug"):
-        kargs['debug'] = True
-    elif o in ("-v","--verbose"):
-        kargs['verbose'] = True
+    elif _o in ("-i", "--interactive"):
+        _kargs['interactive'] = True
 
-    elif o in ("-h","--help"):
+    elif _o in ("-d","--debug"):
+        _kargs['debug'] = True
+    elif _o in ("-v","--verbose"):
+        _kargs['verbose'] = True
+
+    elif _o in ("-h","--help"):
         usage()
         sys.exit()
 
-    elif o in ("--version"):
+    elif _o in ("--version"):
         print str(__version__)
         sys.exit()
-    elif o in ("--Version"):
+    elif _o in ("--Version"):
         print "app:      "+str(_APPNAME)
         print "version:  "+str(__version__)
         print "author:   "+str(__author__)
@@ -176,4 +190,4 @@ for o, a in opts:
         assert False, "unhandled option"
 
 
-configdata = ConfigData(appname,**kargs)
+configdata = ConfigData(_appname,**_kargs)

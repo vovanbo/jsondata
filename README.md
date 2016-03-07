@@ -1,27 +1,24 @@
 jsondata
 ========
 
-This package contains library modules for the management of JSON based
-in-memory data. The data representation is based on the modules 'json',
-and 'jsonschema'.
+This package is aimed for the management of modular data structures based on JSON.
+The data is foreseen to be represented by an in-memory main data tree with
+dynamically added and/or removed branches. The branches of data structures in
+particular provide for the ease of custom data sets. 
 
-The managed unit of this package is the branch of a tree. Thus this
-package is in particular applicable for the dynamic configuration of
-software components.
+The main class JSONDataSerializer provides for the serialization and incremental
+load. Due to the complex scenarios of search and match for modular JSON data in trees
+and branches a number of distinctive exceptions are defined in addition.
 
-The features comprise the serialization, the addition and removal of
-modular branch data, and the validation by JSONschema.
+Current version supports for first features of JSONPointer and JSONPatch. 
+The following versions are going to support the full scope in accordance 
+RFC6901, and RFC6902. For syntax primitives of underlying layers the packages
+'json' and 'jsonschema' are applied for conformance to related ECMA and RFC 
+standards and proposals. Here ECMA-262, ECMA-404, RFC7159/RFC4627, 
+draft-zyp-json-schema-04, and others.
 
-Examples are provided as PyUnit tests for Eclipse, a commandline interface
-for the interactive test of JSON data and schema definitions is included.
-
-The code provides for the '-O/-OO' options of python, therefore some debugging
-is included by wrapping with the '__debug__' variable.
-
-The documents are available as Sphinx based documents and in addition
-resulting from Epydoc. The main priority was compatibility with the Google
-style guide for pydoc, thus the html documents may not utilize the full scope
-of presentation features.
+The documents provides the developer information for the API, and the 
+PyUnit tests as examples and application patterns.
 
 Available from:
 
@@ -46,8 +43,6 @@ The installer adds a few options to the standard setuptools options.
 
 * *build_epydoc*: Creates documentation for runtime system by Epydoc, html only. Calls 'callDocEpydoc.sh'.
 
-* *build_testsphinx*: Creates documentation for unit tests by Sphinx, html only. Calls 'callTestSphinx.sh'.
-
 * *test*: Runs PyUnit tests by discovery.
 
 * *--help-jsondata*: Displays this help.
@@ -64,16 +59,22 @@ Project Data
 
 * PROJECT: 'jsondata'
 
-* VERSION: 00.00.006
+* MISSION: Provide and extend JSONPointer and JSONPatch - RFC6901, RFC6902
 
-* RELEASE: 00.00.006
+* VERSION: 00.00.007
+
+* RELEASE: 00.00.007
+
+* STATUS: pre-alpha
 
 * AUTHOR: Arno-Can Uestuensoez
 
-* COPYRIGHT: Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez
+* COPYRIGHT: Copyright (C) 2010,2011,2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez
 
 * LICENSE: Artistic-License-2.0 + Forced-Fairplay-Constraints
   Refer to enclose documents:
   
-  ArtisticLicense20.html - for base license: Artistic-License-2.0 
-  licenses-amendments.txt - for amendments: Forced-Fairplay-Constraints
+  *  ArtisticLicense20.html - for base license: Artistic-License-2.0 
+
+  *  licenses-amendments.txt - for amendments: Forced-Fairplay-Constraints
+
