@@ -14,14 +14,14 @@ and branches a number of distinctive exceptions are defined in addition.
 Current version supports for first features of JSONPointer and JSONPatch. 
 The following versions are going to support the full scope in accordance 
 RFC6901, and RFC6902. For syntax primitives of underlying layers the packages
-'json' and 'jsonschema' are applied for conformance to related ECMA and RFC 
+'json' and 'jsonschema' are applied for conformance with related ECMA and RFC 
 standards and proposals. Here ECMA-262, ECMA-404, RFC7159/RFC4627, 
-draft-zyp-json-schema-04, and others.
+'draft-zyp-json-schema-04', and others.
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.0.7'
+__version__ = '0.1.0'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 __package__ = 'jsondata'
@@ -36,16 +36,23 @@ __all__=["JSONDataSerializer",
          "JSONDataSerializerErrorAmbiguity",
          "JSONDataSerializerErrorAttribute",
          "JSONDataSerializerErrorAttributeValue",
-         "JSONDataSerializerErrorValue"]
+         "JSONDataSerializerErrorValue",
+         "JSONPointer","JSONPointerException"
+         ]
 
+# Serializer
 from JSONDataSerializer import JSONDataSerializer
-
 from JSONDataSerializer import JSONDataSerializerError,JSONDataSerializerErrorTargetFile,JSONDataSerializerErrorTargetFileReason, JSONDataSerializerErrorSourceFile,JSONDataSerializerErrorSourceFileReason,JSONDataSerializerErrorSourceFromList,JSONDataSerializerErrorSourceFromAll,JSONDataSerializerErrorAmbiguity,JSONDataSerializerErrorAttribute,JSONDataSerializerErrorAttributeValue,JSONDataSerializerErrorValue
 
+# JSONPointer
+from JSONPointer import JSONPointer,JSONPointerException
 
+# JSSONPatch
+#from JSONPatch import JSONPatch,JSONPatchException
 
+#
+#TODO: ffs.
 #__import__('pkg_resources').declare_namespace(__name__)
-
 # import os
 # import sys
 # import warnings

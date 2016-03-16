@@ -1,22 +1,27 @@
-#!/usr/bin/env python
-"""A command line interface for the validation of JSON based configuration files.
 
-The command line interface is implemented as a front-end for the module
-'JSONData.Serializer'.
+"""A command line interface for the validation of JSON based data.
 
-The interface provides a callable generic validator for arbitrary JSON data files
-against a main JSON schema file with additional sub-configuration for an optional
-set of an arbitrary number of plugins. It provides the validation of JSON based
-configuration files by their corresponding JSONschemas. The call interface is
-Linux/Unix command line standard with a few conventions related to default values
-of file names and paths.
+The command line interface is implemented as a front-end for the package
+'jsondata'.
 
-The application of this call interface is mainly intended as a developer utility
-for the development of JSON based configuration data models in conjunction with
-custom GUI forms. The main requirement leading to the development was the
-necessity of the configuration of a modular ViewModel for a custom plugins based
-data viewer. Therefore the assembly of data tree models with basic branch
-functions for the incremental setup and serialization of JSON data is provided.
+The interface provides a callable generic validator(default:=Draft4) for arbitrary
+JSON data files. The validation is performed with a main JSON schema file linking 
+additional sub-configuration for an optional set of an arbitrary number of branches.
+It provides the validation of JSON based data/files by their corresponding JSONschemas.
+The call interface is Linux/Unix command line standard - on other supported OS too - 
+with a few conventions related to default values of file names and paths.
+
+The application of this call interface is mainly intended for the purposes::
+1. as a developer utility for the development of JSON based data
+2. as a user tool in order to enumerate the list of actually 
+   used JSON sources
+3. as a user tools in order to verify the present JSON data
+4. as a automation and test tool for various JSON specifications,
+   and JSON based applications
+
+Therefore the assembly of data tree models with basic branch functions 
+in accordance/complance to RFC6901 and RFC6902 is provided for the 
+incremental setup and serialization of JSON data.
 
 When no explicit filenames are provided the following convention is applied
 as default:
@@ -84,6 +89,12 @@ OPTIONS:
      Developer output, aimed for filtering.
   -v, --verbose
      Verbose, some relevant states for basic analysis.
+     When '--selftest' is set, repetition raises the display level.
+     
+  --selftest
+     Performs a basic functional selftest by load, verify, and validate.
+     0. jsondata/data.json + jsondata/schema.jsd
+     1. jsondata/selftest.json + jsondata/selftest.jsd
 
   --version
      Current version - terse.
@@ -100,7 +111,7 @@ PYTHON OPTIONS:
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.0.7'
+__version__ = '0.0.8'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 try:
@@ -129,7 +140,8 @@ try:
         "help","debug","verbose","version","Version",
         "appname=", "configfile=","schemafile=","validator=","no-default-path",
         "no-sub-data","pathlist=","plugins-pathlist=","print-schema","print-data",
-        "interactive", "filelist"
+        "interactive", "filelist",
+        "selftest"
     ]
     _opts, _args = getopt.getopt(sys.argv[1:], "a:c:f:is:np:P:NDShdvV:", _longopts)
 except getopt.GetoptError, err:
@@ -138,8 +150,14 @@ except getopt.GetoptError, err:
     sys.exit(2)
 
 _appname = _APPNAME
+
+_selftest = False
+_verbose = 0
+
 for _o,_a in _opts:
-    if _o in ("-a","--appname"):
+    if _o in ("--selftest"):
+        _selftest = True
+    elif _o in ("-a","--appname"):
         _appname = _a
     elif _o in ("-c","--configfile"):
         _kargs['configfile'] = _a
@@ -168,8 +186,8 @@ for _o,_a in _opts:
     elif _o in ("-d","--debug"):
         _kargs['debug'] = True
     elif _o in ("-v","--verbose"):
-        _kargs['verbose'] = True
-
+        _verbose += 1
+        
     elif _o in ("-h","--help"):
         usage()
         sys.exit()
@@ -189,5 +207,19 @@ for _o,_a in _opts:
     else:
         assert False, "unhandled option"
 
+if _selftest:
+    try:
+        from jsondata.Selftest import runselftest
+    except Exception as e:
+        print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+"\n"
+        print "\n#sys.path="+str(sys.path)+"\n#\n"
 
-configdata = ConfigData(_appname,**_kargs)
+    # name of application, used for several filenames as default
+    _appname = "selftest"
+    if _verbose>0:
+        _kargs['_verbose'] = _verbose 
+    stest = runselftest(_appname,**_kargs)
+else:
+    if _verbose>0:
+        _kargs['verbose'] = True 
+    configdata = ConfigData(_appname,**_kargs)

@@ -47,7 +47,7 @@ The installer adds a few options to the standard setuptools options.
 
 * *--help-jsondata*: Displays this help.
 
-* *--no-install-requires*: Suppresses installation dependency checks, requires appropriate PYTHONPATH.
+* *--no-install-required*: Suppresses installation dependency checks, requires appropriate PYTHONPATH.
 
 * *--offline*: Sets online dependencies to offline, or ignores online dependencies.
 
@@ -61,11 +61,11 @@ Project Data
 
 * MISSION: Provide and extend JSONPointer and JSONPatch - RFC6901, RFC6902
 
-* VERSION: 00.00.007
+* VERSION: 00.01.002
 
-* RELEASE: 00.00.007
+* RELEASE: 00.01.002
 
-* STATUS: pre-alpha
+* STATUS: alpha
 
 * AUTHOR: Arno-Can Uestuensoez
 
@@ -77,4 +77,50 @@ Project Data
   *  ArtisticLicense20.html - for base license: Artistic-License-2.0 
 
   *  licenses-amendments.txt - for amendments: Forced-Fairplay-Constraints
+
+VERSIONS and RELEASES
+---------------------
+
+**RELEASE: 00.01.002 - Alpha:**
+
+Although stable to be used partially in production from now on, released as 'Alpha'.
+This is mainly due to the ongoing tests and the included fragment parts for the
+RFC6902/JSONPatch - support.
+
+The growing number of unit test base has to reach a slightly bigger number too.
+
+Major Changes:
+
+* JSON - RFC7159 / RFC4627: STATE: Alpha: 
+
+  * Adapted JSONDataSerializer for RFC6901, RFC6902 refer to the methods named by the prefix pattern 'rfc6902'. 
+
+  * Cleared interfaces, another almost final round still required.
+
+* JSONPointer - RFC6901: added, STATE: Alpha
+
+  * adapted JSONDataSerializer
+  
+  * added JSONPointer
+
+  * adapted operators for pointer manipulation::
+    +(LHS), +(RHS), ==, >=, >, +=, <, <=, !=
+
+  * defined an extendible set of type mappings from altered
+    'json' data trees onto standard JSON types 
+
+  * Fragments notation of RFC6901/RFC3986 implemented.
+
+* JSONPatch - RFC6902: fragments for now, STATE: Pre-Alpha
+
+  *  adapted JSONDataSerializer
+     refer to the methods named by the prefix pattern
+     'rfc6902'.
+  
+  *  added JSONPatch
+
+* added a considerable amount of Unit tests
+
+* performance enhancements
+
 

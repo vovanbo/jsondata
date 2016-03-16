@@ -11,12 +11,14 @@
 
       test: Runs PyUnit tests by discovery.
 
-      --help-jsondata: Displays this help.
-      --no-install-requires: Suppresses installation dependency checks, requires
-         appropriate PYTHONPATH.
-      --offline: Sets online dependencies to offline, or ignores online dependencies.
+      --no-install-required: Suppresses installation dependency checks, 
+          requires appropriate PYTHONPATH.
+      --offline: Sets online dependencies to offline, or ignores online
+          dependencies.
 
       --exit: Exit 'setup.py'.
+
+      --help-jsondata: Displays this help.
 
    Returns:
       Results for success in installed 'jsondata'.
@@ -39,7 +41,7 @@ __author__ = 'Arno-Can Uestuensoez'
 __author_email__ = 'acue_sf2@sourceforge.net'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.0.7'
+__version__ = '0.1.2'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 
@@ -197,10 +199,9 @@ if len(sys.argv)==1:
 #
 _name='jsondata'
 
-_description=("The 'jsondata' package provides the management of modular data structures based on JSON. "
-              "Current version supports for first features of JSONPointer and JSONPatch. "
-              "The following versions are going to support the full scope in accordance "
-              "RFC6901, and RFC6902. The syntax primitives of underlying layers are provided " 
+_description=("The 'jsondata' package provides for the modular in-memory processing of JSON data by trees, branches, pointers, and patches" 
+              "Current version supports JSON/RFC7951, JSONPointer/RFC6901, and parts of JSONPatch/RFC6902. "
+              "The syntax primitives of underlying layers are provided " 
               "by the imported packages 'json' and 'jsonschema' in conformance to related ECMA and RFC "
               "standards and proposals.  "
               "The data is represented by in-memory tree structures with dynamically added "
@@ -216,7 +217,7 @@ _long_description = open(_README).read() + 'nn'
 _platforms='any'
 
 _classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: Free To Use But Restricted",
     "License :: OSI Approved :: Artistic License",
@@ -227,19 +228,22 @@ _classifiers = [
     "Operating System :: POSIX :: Linux",
     "Operating System :: POSIX",
     "Programming Language :: Python",
+    "Programming Language :: Python :: 2",    
+    "Programming Language :: Python :: 2.7",    
     "Programming Language :: Unix Shell",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Utilities",
 ]
 
-_keywords = 'JSON JSONschema persistency configuration plugins dynamic modules'
+_keywords = 'JSON JSONschema JSONPointer JSONPatch RFC7159 RFC4627 RFC6901 RFC6902 ECMA-262 ECMA-404 pointer path patch persistency configuration plugins dynamic modules'
 
 _packages = ["jsondata"]
 _scripts = ["bin/jsondatacheck"]
 
 _package_data = {
     'jsondata': ['README','ArtisticLicense20.html', 'licenses-amendments.txt',
-                 'data.json','schema.jsd','jsondatacheck.json', 'jsondatacheck.jsd'
+                 'data.json','schema.jsd','jsondatacheck.json', 'jsondatacheck.jsd',
+                 'selftest.json','selftest.jsd',
                  ],
 }
 

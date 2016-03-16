@@ -1,11 +1,13 @@
 PROJECT='jsondata'
-VERSION="0.0.7"
-RELEASE="0.0.7"
+VERSION="0.1.2"
+RELEASE="0.1.2"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2010,2011,2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
 LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'
-STATUS='pre-alpha'
+STATUS='alpha'
 MISSION='Provide and extend JSONPointer and JSONPatch - RFC6901, RFC6902'
+
+# the absolute pathname for this source
 MYPATH=${BASH_SOURCE%/*}/
 if [ "X${MYPATH#.}" != "X$MYPATH" ];then
 	MYPATH=${PWD}/${MYPATH#.};MYPATH=${MYPATH//\/\//\/}
@@ -27,6 +29,9 @@ if [ ! -e "${OUTDIR}" ];then
 fi
 export PYTHONPATH=$PWD:$MYPATH:$PYTHONPATH
 
+# import directory for entries of static reference 
+STATIC="${OUTDIR}/apidoc/sphinx/_static"
+
 # source entities
 FILEDIRS=""
 FILEDIRS="${INDIR}jsondata"
@@ -44,6 +49,11 @@ CALL="$CALL -o ${OUTDIR}/apidoc/sphinx"
 CALL="$CALL -f -F "
 CALL="$CALL $@"
 
+#
+#build=patches
+bin_jsondatacheck=bin/jsondatacheck
+cp $bin_jsondatacheck  ${bin_jsondatacheck}.py
+
 DOCHTML=${OUTDIR}apidoc/sphinx/_build/html/index.html
 cat <<EOF
 #
@@ -59,74 +69,272 @@ for fx in ${FX[@]};do
 	eval $CALL "$fx"
 done
 
-echo "sys.path.insert(0, os.path.abspath('$PWD/..'))" >> ${OUTDIR}/apidoc/conf.py
+echo "extensions.append('sphinx.ext.intersphinx.')" >> ${OUTDIR}/apidoc/sphinx/conf.py
+echo "sys.path.insert(0, os.path.abspath('$PWD/..'))" >> ${OUTDIR}/apidoc/sphinx/conf.py
 
 # put the packages together
 {
 cat <<EOF
 
-'jsondata' - Modul 
-==================
+jsondatacheck
+#############
+
+The *jsondatacheck* commandline interface provides access to several 
+tasks of the *jsondata* package, which internally rely on the standard 
+packages 'json' and 'jsonschema'.
+It offers access to the API of the classes and provides a selftest
+option for the quick verification of the package state.
+The runtime contained selftest class including it's test data serve
+as an example in addition to the unit test data.
+
+The interface provides a callable generic validator(default:=Draft4) for arbitrary
+JSON data files. The validation is performed with a main JSON schema file linking 
+additional sub-configuration for an optional set of an arbitrary number of branches.
+It provides the validation of JSON based data/files by their corresponding JSONschemas.
+The call interface is Linux/Unix command line standard - on other supported OS too - 
+with a few conventions related to default values of file names and paths.
+
+The application of this call interface is mainly intended for the purposes:
+
+1. as a developer utility for the development of JSON based data
+
+2. as a user tool in order to enumerate the list of actually 
+   used JSON sources
+
+3. as a user tools in order to verify the present JSON data
+
+4. as a automation and test tool for various JSON specifications,
+   and JSON based applications
+
+5. as a selftest and environment verification for the processing
+   of complex JSON data.
+ 
+Therefore the assembly of data tree models with basic branch functions 
+in accordance/complance to RFC6901 and RFC6902 is provided for the 
+incremental setup, continous modification, and serialization of JSON data.
+
+When no explicit filenames are provided the following convention is applied
+as default::
+
+    appname: "-a"
+        "JSONobjects"
+
+    JSON-schema: "-s"
+        dirname(__file__)/<appname>.jsd ("jsondata.jsd")
+
+    JSON-data: "-c"
+        <appname>.json ("jsondata.json")
+
+    Search-path-data: "-p"
+        Search path for JSON-data - refer to __file__=JSONData/Serializer.py:
+        default:= ../dirname(__file__)/:dirname(__file__)/:/etc/:$HOME/
+
+**SYNOPSIS:**::
+
+  jsondatacheck [OPTIONS]
+
+**OPTIONS:**::
+  -a --appname= <appname>
+     Name of application.
+     default: jsondatacheck
+  -c --configfile= <configfile>
+     A single configuration file including path with JSON data.
+
+     default: jsondatacheck.json
+  -D --print-data
+     Pretty print data.
+  -d --debug
+     Debug entries, does NOT work with 'python -O ...'.
+     Developer output, aimed for filtering.
+  -f --filelist= <list-of-filenames>
+     List of colon seperated filenames to be searched for. These 
+     could be relative pathnames too.
+
+     default:=[<appname>.json]
+  -h --help
+     This help.
+  -i --interactive
+     Dialog mode, displays formatted for interactive JSON and 
+     JSONschema design.
+  -n --no-default-path
+     Supress load of default path.
+
+     default: False
+  -N --no-sub-data
+     Supress load of sub-data files, e.g. from plugins.
+
+     default: False
+  -p --pathlist= <search-path-JSON-data>
+     Search path for JSON data file(s), standard list for current platform.
+
+     default:= ../dirname(__file__)/:dirname(__file__)/:/etc/:$HOME/
+  -P --plugins-pathlist= <search-path-JSON-data-branches>
+     Search path for JSON data file(s) to be inserted as additional branches,
+     standard list for current platform.
+
+     default:= ../dirname(__file__)/:dirname(__file__)/:/etc/:$HOME/
+  -s --schemafile= <schemafile>
+     Schema file - JSONschema.
+
+     default: jsondatacheck.jsd
+  -S --print-schema
+     Pretty print schema.
+  -selftest --selftest
+
+     Performs a basic functional selftest by load, verify, and validate.
+
+     0. jsondata/data.json + jsondata/schema.jsd
+     1. jsondata/selftest.json + jsondata/selftest.jsd
+
+  -V --validator= <validator>
+     Alternate validator provided by module 'jsonschema'
+     - default: validate
+     - draft3: Draft3Validator
+     - off: None
+
+    default:= validate
+  -Version --Version
+     Current version - detailed.
+  -v --verbose
+     Verbose, some relevant states for basic analysis.
+     When '--selftest' is set, repetition raises the display level.
+  -version --version
+     Current version - terse.
+
+**ENVIRONMENT**::
+  * PYTHON OPTIONS:
+    -O, -OO: Eliminates '__debug__' code.
+ 
+EOF
+} > ${OUTDIR}/apidoc/sphinx/jsondatacheck_doc.rst
+
+{
+cat <<EOF
+
+'jsondata' - package
+####################
 
 .. toctree::
    :maxdepth: 4
 
 .. automodule:: jsondata
 
+**Sources**
+
+* \`jsondatacheck [source] <jsondatacheck.html#>\`_
+
+* \`jsondata.JSONDataSerializer [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer>\`_
+
+* \`jsondata.JSONPointer [source] <_modules/jsondata/JSONPointer.html#JSONPointer>\`_
+	
+* \`jsondata.JSONPatch [source] <_modules/jsondata/JSONPatch.html#JSONPatch>\`_
+
+* \`jsondata.Selftest [source] <_modules/jsondata/Selftest.html#>\`_
+		
+
+**Exceptions**
+
+* \`jsondata.JSONDataSerializerError [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerError>\`_
+
+* \`jsondata.JSONDataSerializerErrorAmbiguity [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAmbiguity>\`_
+
+* \`jsondata.JSONDataSerializerErrorAttribute [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAttribute>\`_
+
+* \`jsondata.JSONDataSerializerErrorAttributeValue [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAttributeValue>\`_
+
+* \`jsondata.JSONDataSerializerErrorSourceFile [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFile>\`_
+
+* \`jsondata.JSONDataSerializerErrorSourceFileReason [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFileReason>\`_
+
+* \`jsondata.JSONDataSerializerErrorSourceFromAll [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFromAll>\`_
+
+* \`jsondata.JSONDataSerializerErrorSourceFromList [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFromList>\`_
+
+* \`jsondata.JSONDataSerializerErrorTargetFile [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorTargetFile>\`_
+
+* \`jsondata.JSONDataSerializerErrorTargetFileReason [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorTargetFileReason>\`_
+
+* \`jsondata.JSONDataSerializerErrorValue [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorValue>\`_
+
+* \`jsondata.JSONPointerException [source] <_modules/jsondata/JSONPointer.html#JSONPointerException>\`_
+
+
+
+'jsondata.JSONDataSerializer' - Module
+**************************************
+
+.. automodule:: jsondata.JSONDataSerializer
+
+Constants:
+----------
+
+  **Choices for branch operations**:
+
+    * BRANCH_SET_REPLACE = 0: replaces the complete set of branches.
+    
+    * BRANCH_SUPERPOSE = 1: drops-in the child nodes of the source into the target
+
+    * BRANCH_ADD = 2: similar to superpose, but does not replace existing
+
+    * BRANCH_REMOVE = 3: removes a node
+
+  **Compliance modes**:
+
+    * MODE_JSON_RFC4927 = 0: Compliant to IETF RFC4927.
+
+    * MODE_JSON_RF7951 = 2: Compliant to IETF RF7951.
+
+    * MODE_JSON_ECMA264 = 10: Compliant to ECMA-264, refer to Chapter 15.12 The JSON Object.
+
+    * MODE_POINTER_RFC6901 = 20: Compliant to IETF RFC6901.            
+
+    * MODE_PATCH_RFC6902 = 30: Compliant to IETF RFC6902.            
+
+    * MODE_SCHEMA_DRAFT3 = 43: Compliant to IETF DRAFT3.            
+
+    * MODE_SCHEMA_DRAFT4 = 44: Compliant to IETF DRAFT4.            
+
+  **Types of validator**:
+
+    * OFF = 0: No validation.
+
+    * DEFAULT = 1: Use default: jsonschema.validator(Draft4Validator)
+
+    * DRAFT3 = 2: Use draft3:jsonschema.Draft3Validator
+
+  **Match criteria for node comparison**:
+
+   * MATCH_INSERT = 0: for dicts
+
+   * MATCH_NO = 1: negates the whole set
+
+   * MATCH_KEY = 2: for dicts
+
+   * MATCH_CHLDATTR = 3: for dicts and lists
+
+   * MATCH_INDEX = 4: for lists
+
+   * MATCH_MEM = 5: for dicts(value) and lists
+
+
 Class: JSONDataSerializer
 -------------------------
-\`jsondata.JSONDataSerializer [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer>\`_
 		
 .. autoclass:: JSONDataSerializer
 
 Attributes
 ^^^^^^^^^^
 
-**JSON and JSONschema**:
+   * JSONDataSerializer.data: JSON object data tree.
 
-* JSONDataSerializer.data: JSON object data tree.
+   * JSONDataSerializer.schema: JSONschema object data tree.
 
-* JSONDataSerializer.schema: JSONschema object data tree.
-
-**Choices for branch operations**:
-
-* BRANCH_SET_REPLACE = 0: replaces the complete set of branches.
-    
-* BRANCH_SUPERPOSE = 1: drops-in the child nodes of the source into the target
-
-* BRANCH_ADD = 2: similar to superpose, but does not replace existing
-
-* BRANCH_REMOVE = 3: removes a node
-
-**Types of validator**:
-
-* OFF = 0: No validation.
-
-* DEFAULT = 1: Use default: jsonschema.validator(Draft4Validator)
-
-* DRAFT3 = 2: Use draft3:jsonschema.Draft3Validator
-
-**Match criteria for node comparison**:
-
-* MATCH_INSERT = 0: for dicts
-
-* MATCH_NO = 1: negates the whole set
-
-* MATCH_KEY = 2: for dicts
-
-* MATCH_CHLDATTR = 3: for dicts and lists
-
-* MATCH_INDEX = 4: for lists
-
-* MATCH_MEM = 5: for dicts(value) and lists
 
 Methods:
 ^^^^^^^^
 
 __init__
 """"""""
-	\`jsondata.JSONDataSerializer [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer>\`_
-
 	.. automethod:: JSONDataSerializer.__init__
 
 __str__
@@ -137,160 +345,358 @@ __repr__
 """"""""
 	.. automethod:: JSONDataSerializer.__repr__
 
-add
-"""
-	\`jsondata.JSONDataSerializerError.add [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.add>\`_
+branch_add
+""""""""""
+	.. automethod:: JSONDataSerializer.branch_add
+
+branch_add_only
+"""""""""""""""
+	.. automethod:: JSONDataSerializer.branch_add_only
 		
-	.. automethod:: JSONDataSerializer.add
-		
-delete_data
+branch_copy
 """""""""""
-	\`jsondata.JSONDataSerializerError.delete_data [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.delete_data>\`_
+	.. automethod:: JSONDataSerializer.branch_copy
 
-	.. automethod:: JSONDataSerializer.delete_data
+branch_delete
+"""""""""""""
+	.. automethod:: JSONDataSerializer.branch_delete
 
-export_data
+branch_diff
 """""""""""
-	\`jsondata.JSONDataSerializerError.export_data [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.export_data>\`_
-	
-	.. automethod:: JSONDataSerializer.export_data
+	.. automethod:: JSONDataSerializer.branch_diff
 
-import_data
+branch_move
+"""""""""""""
+	.. automethod:: JSONDataSerializer.branch_move
+
+branch_remove
+"""""""""""""
+	.. automethod:: JSONDataSerializer.branch_remove
+
+branch_replace
+""""""""""""""
+	.. automethod:: JSONDataSerializer.branch_replace
+
+branch_replace_set
+""""""""""""""""""
+	.. automethod:: JSONDataSerializer.branch_replace_set
+
+branch_test
 """""""""""
-	\`jsondata.JSONDataSerializerError.import_data [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.import_data>\`_
+	.. automethod:: JSONDataSerializer.branch_test
 
-	.. automethod:: JSONDataSerializer.import_data
+getNodeForPointer
+"""""""""""""""""
+	.. automethod:: JSONDataSerializer.getNodeForPointer
+
+getPointerForNode
+"""""""""""""""""
+	.. automethod:: JSONDataSerializer.getPointerForNode
 
 isApplicable
 """"""""""""
-	\`jsondata.JSONDataSerializerError.isApplicable [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.isApplicable>\`_
-
 	.. automethod:: JSONDataSerializer.isApplicable
+
+json_export
+"""""""""""
+	.. automethod:: JSONDataSerializer.json_export
+
+json_import
+"""""""""""
+	.. automethod:: JSONDataSerializer.json_import
 
 printData
 """""""""
-	\`jsondata.JSONDataSerializerError.printData [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.printData>\`_
-
 	.. automethod:: JSONDataSerializer.printData
 
 printSchema
 """""""""""
-	\`jsondata.JSONDataSerializerError.printSchema [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.printSchema>\`_
-
 	.. automethod:: JSONDataSerializer.printSchema
-        
-remove
-""""""
-	\`jsondata.JSONDataSerializerError.remove [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.remove>\`_
 
-	.. automethod:: JSONDataSerializer.remove
-
-replace_set
+rfc6902_add
 """""""""""
-	\`jsondata.JSONDataSerializerError.replace_set [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.replace_set>\`_
+	.. automethod:: JSONDataSerializer.rfc6902_add
 
-	.. automethod:: JSONDataSerializer.replace_set
+rfc6902_copy
+""""""""""""
+	.. automethod:: JSONDataSerializer.rfc6902_copy
+
+rfc6902_move
+""""""""""""
+	.. automethod:: JSONDataSerializer.rfc6902_move
+
+rfc6902_remove
+""""""""""""""
+	.. automethod:: JSONDataSerializer.rfc6902_remove
+
+rfc6902_replace
+"""""""""""""""
+	.. automethod:: JSONDataSerializer.rfc6902_replace
+
+rfc6902_test
+""""""""""""
+	.. automethod:: JSONDataSerializer.rfc6902_test
 
 set_schema
 """"""""""
-	\`jsondata.JSONDataSerializerError.set_schema [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.set_schema>\`_
-
 	.. automethod:: JSONDataSerializer.set_schema
-
-superpose
-"""""""""
-	\`jsondata.JSONDataSerializerError.superpose [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.superpose>\`_
-
-	.. automethod:: JSONDataSerializer.superpose
 
 Exceptions: JSONDataSerializerError*
 ------------------------------------
 
-Error
-^^^^^
-\`jsondata.JSONDataSerializerError [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerError>\`_
+The current implementation is not hierarchical, thus does not
+fully provide the advances of inherited exception types. 
 
-.. autoclass:: JSONDataSerializerError
+* \`jsondata.JSONDataSerializerError [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerError>\`_
 
-ErrorAmbiguity
-^^^^^^^^^^^^^^
-\`jsondata.JSONDataSerializerErrorAmbiguity [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAmbiguity>\`_
+* \`jsondata.JSONDataSerializerErrorAmbiguity [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAmbiguity>\`_
 
-.. autoclass:: JSONDataSerializerErrorAmbiguity
+* \`jsondata.JSONDataSerializerErrorAttribute [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAttribute>\`_
 
-ErrorAttribute
-^^^^^^^^^^^^^^
-\`jsondata.JSONDataSerializerErrorAttribute [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAttribute>\`_
+* \`jsondata.JSONDataSerializerErrorAttributeValue [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAttributeValue>\`_
 
-.. autoclass:: JSONDataSerializerErrorAttribute 
+* \`jsondata.JSONDataSerializerErrorSourceFile [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFile>\`_
 
-ErrorAttributeValue
-^^^^^^^^^^^^^^^^^^^
-\`jsondata.JSONDataSerializerErrorAttributeValue [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAttributeValue>\`_
+* \`jsondata.JSONDataSerializerErrorSourceFileReason [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFileReason>\`_
 
-.. autoclass:: JSONDataSerializerErrorAttributeValue 
+* \`jsondata.JSONDataSerializerErrorSourceFromAll [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFromAll>\`_
 
-ErrorSourceFile
-^^^^^^^^^^^^^^^
-\`jsondata.JSONDataSerializerErrorSourceFile [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFile>\`_
+* \`jsondata.JSONDataSerializerErrorSourceFromList [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFromList>\`_
 
-.. autoclass:: JSONDataSerializerErrorSourceFile 
+* \`jsondata.JSONDataSerializerErrorTargetFile [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorTargetFile>\`_
 
-ErrorSourceFileReason
-^^^^^^^^^^^^^^^^^^^^^
-\`jsondata.JSONDataSerializerErrorSourceFileReason [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFileReason>\`_
+* \`jsondata.JSONDataSerializerErrorTargetFileReason [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorTargetFileReason>\`_
 
-.. autoclass:: JSONDataSerializerErrorSourceFileReason
+* \`jsondata.JSONDataSerializerErrorValue [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorValue>\`_
 
-ErrorSourceFromAll
-^^^^^^^^^^^^^^^^^^
-\`jsondata.JSONDataSerializerErrorSourceFromAll [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFromAll>\`_
+'jsondata.JSONPointer' - Module
+*******************************
 
-.. autoclass:: JSONDataSerializerErrorSourceFromAll 
+.. automodule:: jsondata.JSONPointer
 
-ErrorSourceFromList
-^^^^^^^^^^^^^^^^^^^
-\`jsondata.JSONDataSerializerErrorSourceFromList [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFromList>\`_
+Class: JSONPointer
+-------------------
+.. autoclass:: JSONPointer
 
-.. autoclass:: JSONDataSerializerErrorSourceFromList
-
-ErrorTargetFile
-^^^^^^^^^^^^^^^
-\`jsondata.JSONDataSerializerErrorTargetFile [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorTargetFile>\`_
-
-.. autoclass:: JSONDataSerializerErrorTargetFile
-
-ErrorTargetFileReason
-^^^^^^^^^^^^^^^^^^^^^
-\`jsondata.JSONDataSerializerErrorTargetFileReason [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorTargetFileReason>\`_
-
-.. autoclass:: JSONDataSerializerErrorTargetFileReason 
-
-ErrorValue
+Attributes
 ^^^^^^^^^^
-\`jsondata.JSONDataSerializerErrorValue [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorValue>\`_
 
-.. autoclass:: JSONDataSerializerErrorValue 
+**JSONPointer**:
+
+* JSONPointer.ptr: JSONPointer data.
+
+* JSONPointer.raw: Raw input string for JSONPointer.
+
+Methods:
+^^^^^^^^
+
+__init__
+""""""""
+	.. automethod:: JSONPointer.__init__
+
+__repr__
+""""""""
+	.. automethod:: JSONPointer.__repr__
+
+__str__
+"""""""
+	.. automethod:: JSONPointer.__str__
+
+copy_path_list
+""""""""""""""
+	.. automethod:: JSONPointer.copy_path_list
+
+get_node
+""""""""
+	.. automethod:: JSONPointer.get_node
+
+get_path_list
+"""""""""""""
+	.. automethod:: JSONPointer.get_path_list
+
+get_pointer
+"""""""""""
+	.. automethod:: JSONPointer.get_pointer
+
+get_raw
+"""""""
+	.. automethod:: JSONPointer.get_raw
+
+get_node_or_value
+"""""""""""""""""
+	.. automethod:: JSONPointer.get_node_or_value
+
+iter_path
+"""""""""
+	.. automethod:: JSONPointer.iter_path
+
+iter_path_nodes
+"""""""""""""""
+	.. automethod:: JSONPointer.iter_path_nodes
+
+Operators:
+^^^^^^^^^^
+
+    The syntax displayed for provided operators is::
+
+      S: self
+      x: parameter
+      n: numerical parameter for shift operators.
+
+    Thus the position of the opreator and parameteres is defined as follows::
+
+      z = S + x: LHS: __add__
+      z = x + S: RHS: __radd__
+      S += x:    LHS: __iadd__
 
 
-Indices and tables
-==================
+  
+'S+x'
+"""""
+	.. automethod:: JSONPointer.__add__
 
-* :ref:\`genindex\`
-* :ref:\`modindex\`
-* :ref:\`search\`
+'S==x'
+""""""
+	.. automethod:: JSONPointer.__eq__
+
+'S>=x'
+""""""
+	.. automethod:: JSONPointer.__ge__
+
+'S>x'
+"""""
+	.. automethod:: JSONPointer.__gt__
+
+'S+=x'
+""""""
+	.. automethod:: JSONPointer.__iadd__
+
+'S<x'
+"""""
+	.. automethod:: JSONPointer.__le__
+
+'S<x'
+"""""
+	.. automethod:: JSONPointer.__lt__
+
+'S!=x'
+""""""
+	.. automethod:: JSONPointer.__ne__
+
+'x+S'
+"""""
+	.. automethod:: JSONPointer.__radd__
 
 
-*REMARK*: The master format of current documentation is PyDoc, thus the HTML formatting
-is supported with a few inline macros only.
+'jsondata.JSONPatch' - Module
+******************************
+
+.. automodule:: jsondata.JSONPatch
+
+Class: JSONPatch
+----------------
+.. autoclass:: JSONPatch
+
+Attributes
+^^^^^^^^^^
+
+**JSONPatch**:
+
+* JSONPatch.data: JSONPatch object data tree.
+
+Methods:
+^^^^^^^^
+
+__init__
+""""""""
+	.. automethod:: JSONPatch.__init__
+
+__str__
+"""""""
+	.. automethod:: JSONPatch.__str__
+
+                                
+__repr__
+""""""""
+	.. automethod:: JSONPatch.__repr__
+
+add_item
+""""""""
+	.. automethod:: JSONPatch.add_item
+
+add_patch
+"""""""""
+	.. automethod:: JSONPatch.add_patch
+
+apply_patch
+"""""""""""
+	.. automethod:: JSONPatch.apply_patch
+
+createPatch
+"""""""""""
+	.. automethod:: JSONPatch.createPatch
+
+export_patch
+""""""""""""
+	.. automethod:: JSONPatch.export_patch
+
+import_patch
+""""""""""""
+	.. automethod:: JSONPatch.import_patch
+
+merge_patch
+"""""""""""
+	.. automethod:: JSONPatch.merge_patch
 
 
+'jsondata.Selftest' - Module
+****************************
+
+.. automodule:: jsondata.Selftest
+
+Functions:
+^^^^^^^^^^
+
+runselftest
+"""""""""""
+	.. autofunction:: runselftest
+
+case00
+""""""
+	.. autofunction:: case00
+
+case01
+""""""
+	.. autofunction:: case01
+
+case02
+""""""
+	.. autofunction:: case02
+
+case03
+""""""
+	.. autofunction:: case03
+
+case04
+""""""
+	.. autofunction:: case04
+
+case05
+""""""
+	.. autofunction:: case05
+
+case06
+""""""
+	.. autofunction:: case06
+
+ 
 EOF
 } > ${OUTDIR}/apidoc/sphinx/jsondata_doc.rst
 
+
+
 #
 # static - literal data
-STATIC="${OUTDIR}/apidoc/sphinx/_static"
 cp ArtisticLicense20.html "${STATIC}"
 cp licenses-amendments.txt "${STATIC}"
 
@@ -304,33 +710,95 @@ cat <<EOF
    You can adapt this file completely to your liking, but it should at least
    contain the root \`toctree\` directive.
 
-'jsondata' - Modular JSON by trees and branches - JSONPointer and JSONPatch 
-===========================================================================
+'jsondata' - Modular processing of JSON data by trees, branches, pointers, and patches 
+======================================================================================
 
 The 'jsondata' package provides the management of modular data structures based on JSON. 
 The data is represented by in-memory tree structures with dynamically added
 and/or removed branches. The data could be validated by JSON schemas, and stored 
-for later reuse.
+for the later reuse.
 
-Current version supports for first features of JSONPointer and JSONPatch. 
-The following versions are going to support the full scope in accordance 
-RFC6901, and RFC6902. The syntax primitives of underlying layers are provided 
+Current version supports the full scope of strict addressing by JSONPointer including 
+extensions by operators for pointer arithmetics. 
+The JSONPatch standard is present in first parts, going to be operational in the next releases. 
+The syntax primitives of underlying layers are provided 
 by the imported packages 'json' and 'jsonschema' in conformance to related ECMA and RFC 
 standards and proposals. Here ECMA-262, ECMA-404, RFC7159/RFC4627, 
 draft-zyp-json-schema-04, and others.
 
-This document provide the developer information for the API, and the 
-PyUnit tests as examples and application patterns.
+The 'jsondata' package provides a standard conform layer for the processing of JSON
+based data with emphasis on in-memory performance and low resource consume.
+The other priority is to use contained standard interfaces of Python(>=2.7)
+as possible. This provides for unchanged implementation of the JSON processing
+and validation, whereas higher level features of additional standards are
+introduced on top.
+Therefore the designed architecture is based on the packages 'json' and
+'jsonschema'::
 
-* jsondatacheck
+            +-------------------------+
+            |    application-layer    |
+            +-------------------------+  (1++) (1),
+          .  . | .  .  . | .  .  .  | .        RFC3986,
+               |         | RFC6901  |          draft_luff_json_hyper_schema_00,
+               |         | RFC6902  |          draft_fge_json_schema_validation_00,
+               |         V (1++)    |          IETF-Draft - JSON Hyper-Schema:
+               |   +----------+     |             Hypertext definitions for JSON Schema, 
+               |   | jsondata |     |          IETF-Draft - JSON Schema: 
+               |   +----------+     |             interactive and non interactive 
+  RFC7159      | .  . | .  | .  .   | .  .        validation json-schema-validation,
+  RFC4267      +---+--+    +---+----+          +others
+  ECMA-262         |           |               
+  ECMA-262         V           V (1)      (1)  draft-zyp-json-schema-04,         
+            +------------+------------+        IETF-Draft - JSON Schema: 
+            |    json    | jsonschema |           core definitions and terminology
+            +------------+------------+      
 
-  For help on the command line interface call onlinehelp:: 
+The examples from the standards with some extensions, are included in order to 
+verify implementation details for the recommendations.
+This serves also as a first introduction to JSON processing including the
+package 'jsondata'.
+Refer to the PyUnit test suite within the subdirectory 'tests' of the source 
+package for these and the additional set of unit tests.
+
+Current state of main features:
+
+* RFC7159/RFC4627: Wrapper for 'json' and 'jsonschema' with file management, Beta.
+
+* RFC6901: JSONPointer - JSON notation, Alpha.
+
+* RFC6901: JSONPointer - HTTP-Fragments notation(RFC3986), Alpha.
+
+* RFC6902: JSONPatch, first parts only, Pre-Alpha - non-usable.
+
+* Extensions for RFC6901: Extended pointer expressions - JSON notation, Alpha.
+
+* Extensions for RFC6902: Extended branch management, Alpha + API Pre-Alpha.
+
+* Interactive JSON data design, current min-cli only, Alpha.
+
+This document provides the developer information for the API, and the 
+documentation of the PyUnit tests as examples and application patterns.
+
+* Commandline tools.
+ 
+  * \`jsondatacheck <jsondatacheck_doc.html>\`_ : validates and presents JSON data
+
+  * jsondatadiff: displays the differences, similar to 'diff'
+
+  * jsondatapatch: applies patches, similar to 'patch'
+
+  For help on the command line tools call e.g.:: 
 
     jsondatacheck --help
 
+  For quick verification of the setup and basic features call:: 
+
+    jsondatacheck --selftest
+
+
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
    jsondata_doc.rst
    tests
@@ -340,6 +808,15 @@ PyUnit tests as examples and application patterns.
   For help on extensions to standard options call onlinehelp:: 
 
     python setup.py --help-jsondata
+
+
+
+Indices and tables
+==================
+
+* :ref:\`genindex\`
+* :ref:\`modindex\`
+* :ref:\`search\`
 
 
 Resources
@@ -380,16 +857,6 @@ Project data summary:
 *REMARK*: The master format of current documentation is PyDoc, thus the HTML formatting
 is supported with a few inline macros only.
 
-
-
-Indices and tables
-==================
-
-* :ref:\`genindex\`
-* :ref:\`modindex\`
-* :ref:\`search\`
-
-
 EOF
 } > ${OUTDIR}/apidoc/sphinx/index.rst
 
@@ -414,3 +881,6 @@ eval $CALL
 echo
 echo "display with: firefox ${DOCHTML}"
 echo
+
+#build=patches
+rm ${bin_jsondatacheck}.py

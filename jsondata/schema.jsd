@@ -36,10 +36,30 @@
 				"properties":{
 					"number": {
 						"type":"string",
-						"required":false
+						"required":true
 					},
 					"type": {
 						"type":"string",
+						"required":true
+					},
+					"activate": {
+						"type":"boolean",
+						"required":false
+					},
+					"private": {
+						"type":"boolean",
+						"required":false
+					},
+					"addons": {
+						"type":"boolean",
+						"required":false
+					},
+					"index": {
+						"type":"integer",
+						"required":false
+					},
+					"testnumber": {
+						"type":"number",
 						"required":false
 					}
 				}

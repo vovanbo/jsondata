@@ -8,7 +8,12 @@
     [
     {
       "type":"home",
-      "number":"212 555-1234"
+      "number":"212 555-1234",
+      "active":true,
+      "private":false,
+      "addons":null,
+      "index": 0,
+      "testnumber":1.5
     }
   ]
 }
