@@ -1,6 +1,6 @@
 PROJECT='jsondata'
-VERSION="0.1.2"
-RELEASE="0.1.2"
+VERSION="0.1.4"
+RELEASE="0.1.4"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2010,2011,2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
 LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'
@@ -221,8 +221,6 @@ cat <<EOF
 
 **Sources**
 
-* \`jsondatacheck [source] <jsondatacheck.html#>\`_
-
 * \`jsondata.JSONDataSerializer [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer>\`_
 
 * \`jsondata.JSONPointer [source] <_modules/jsondata/JSONPointer.html#JSONPointer>\`_
@@ -258,6 +256,7 @@ cat <<EOF
 
 * \`jsondata.JSONPointerException [source] <_modules/jsondata/JSONPointer.html#JSONPointerException>\`_
 
+* \`jsondata.JSONPatchException [source] <_modules/jsondata/JSONPatch.html#JSONPatchException>\`_
 
 
 'jsondata.JSONDataSerializer' - Module
@@ -620,33 +619,68 @@ __repr__
 """"""""
 	.. automethod:: JSONPatch.__repr__
 
-add_item
+__add__
+"""""""
+	.. automethod:: JSONPatch.__add__
+
+__iadd__
 """"""""
-	.. automethod:: JSONPatch.add_item
+	.. automethod:: JSONPatch.__iadd__
 
-add_patch
-"""""""""
-	.. automethod:: JSONPatch.add_patch
+__len__
+"""""""
+	.. automethod:: JSONPatch.__len__
 
-apply_patch
-"""""""""""
-	.. automethod:: JSONPatch.apply_patch
 
-createPatch
-"""""""""""
-	.. automethod:: JSONPatch.createPatch
 
-export_patch
+apply
+"""""
+	.. automethod:: JSONPatch.apply
+
+patch_export
 """"""""""""
-	.. automethod:: JSONPatch.export_patch
+	.. automethod:: JSONPatch.patch_export
 
-import_patch
+patch_import
 """"""""""""
-	.. automethod:: JSONPatch.import_patch
+	.. automethod:: JSONPatch.patch_import
 
-merge_patch
-"""""""""""
-	.. automethod:: JSONPatch.merge_patch
+Class: JSONPatchItem
+--------------------
+.. autoclass:: JSONPatchItem
+
+Methods:
+^^^^^^^^
+
+__init__
+""""""""
+	.. automethod:: JSONPatchItem.__init__
+
+
+Class: JSONPatchItemRaw
+-----------------------
+.. autoclass:: JSONPatchItemRaw
+
+Methods:
+^^^^^^^^
+
+__init__
+""""""""
+	.. automethod:: JSONPatchItemRaw.__init__
+
+
+Class: JSONPatchFilter
+----------------------
+.. autoclass:: JSONPatchFilter
+
+Methods:
+^^^^^^^^
+
+__init__
+""""""""
+	.. automethod:: JSONPatchFilter.__init__
+
+
 
 
 'jsondata.Selftest' - Module
@@ -710,69 +744,70 @@ cat <<EOF
    You can adapt this file completely to your liking, but it should at least
    contain the root \`toctree\` directive.
 
-'jsondata' - Modular processing of JSON data by trees, branches, pointers, and patches 
-======================================================================================
+'jsondata' - Modular processing of JSON data by trees and branches, pointers and patches 
+========================================================================================
 
 The 'jsondata' package provides the management of modular data structures based on JSON. 
 The data is represented by in-memory tree structures with dynamically added
 and/or removed branches. The data could be validated by JSON schemas, and stored 
 for the later reuse.
 
-Current version supports the full scope of strict addressing by JSONPointer including 
-extensions by operators for pointer arithmetics. 
-The JSONPatch standard is present in first parts, going to be operational in the next releases. 
+The 'jsondata' package provides a standards conform layer for the processing
+with emphasis on in-memory performance and low resource consume.
+The implementation integrates seamless into the standard interfaces of Python(>=2.7),
+whereas higher level features of additional standards and extensions are introduced
+on top. The main interface classes are:
+
+* **JSONDataSerializer** - Core for RFC7159/RFC4627 based data structures and persistency
+
+* **JSONPointer** - RFC6901 for addressing nodes and values
+
+* **JSONPatch** - RFC6902 for modification of branches and values 
+
 The syntax primitives of underlying layers are provided 
 by the imported packages 'json' and 'jsonschema' in conformance to related ECMA and RFC 
 standards and proposals. Here ECMA-262, ECMA-404, RFC7159/RFC4627, 
 draft-zyp-json-schema-04, and others.
 
-The 'jsondata' package provides a standard conform layer for the processing of JSON
-based data with emphasis on in-memory performance and low resource consume.
-The other priority is to use contained standard interfaces of Python(>=2.7)
-as possible. This provides for unchanged implementation of the JSON processing
-and validation, whereas higher level features of additional standards are
-introduced on top.
 Therefore the designed architecture is based on the packages 'json' and
 'jsonschema'::
 
-            +-------------------------+
-            |    application-layer    |
-            +-------------------------+  (1++) (1),
-          .  . | .  .  . | .  .  .  | .        RFC3986,
-               |         | RFC6901  |          draft_luff_json_hyper_schema_00,
-               |         | RFC6902  |          draft_fge_json_schema_validation_00,
-               |         V (1++)    |          IETF-Draft - JSON Hyper-Schema:
-               |   +----------+     |             Hypertext definitions for JSON Schema, 
-               |   | jsondata |     |          IETF-Draft - JSON Schema: 
-               |   +----------+     |             interactive and non interactive 
-  RFC7159      | .  . | .  | .  .   | .  .        validation json-schema-validation,
-  RFC4267      +---+--+    +---+----+          +others
-  ECMA-262         |           |               
-  ECMA-262         V           V (1)      (1)  draft-zyp-json-schema-04,         
-            +------------+------------+        IETF-Draft - JSON Schema: 
-            |    json    | jsonschema |           core definitions and terminology
-            +------------+------------+      
+
+                   +-------------------------+
+    Applications   |    application-layer    |
+                   +-------------------------+  
+    .   .  .  .  .  . | .  .  . | .  .  .  | .  .  .  .  .  .  .  .  .
+                      |         V          |     
+                      |   +----------+     |      
+    Data              |   | jsondata |     |         RFC6901
+    Structures        |   +----------+     |         RFC6902      
+    .  .  .  .  .  .  | .  . | .  | .  .  .| .  .  .  .  .  .  .  .  .
+                      +---+--+    +---+----+           
+                          |           |                           
+                          V           V                            
+                   +------------+------------+       RFC7159/RFC4267
+    JSON           |    json    | jsonschema |       ECMA-262/ECMA-404    
+    Syntax         +------------+------------+       draft-zyp-json-schema-04   
+
 
 The examples from the standards with some extensions, are included in order to 
 verify implementation details for the recommendations.
-This serves also as a first introduction to JSON processing including the
+This serves also as a first introduction to JSON processing with the
 package 'jsondata'.
-Refer to the PyUnit test suite within the subdirectory 'tests' of the source 
-package for these and the additional set of unit tests.
 
 Current state of main features:
 
-* RFC7159/RFC4627: Wrapper for 'json' and 'jsonschema' with file management, Beta.
+* RFC7159/RFC4627: Wrapper for 'json' and 'jsonschema' with file management, Alpha.
 
 * RFC6901: JSONPointer - JSON notation, Alpha.
 
 * RFC6901: JSONPointer - HTTP-Fragments notation(RFC3986), Alpha.
 
-* RFC6902: JSONPatch, first parts only, Pre-Alpha - non-usable.
+* RFC6902: JSONPatch - dynamic JSON data modification, Alpha.
 
 * Extensions for RFC6901: Extended pointer expressions - JSON notation, Alpha.
 
-* Extensions for RFC6902: Extended branch management, Alpha + API Pre-Alpha.
+* Extensions for RFC6902: Extended branch management, Alpha.
 
 * Interactive JSON data design, current min-cli only, Alpha.
 
@@ -879,7 +914,7 @@ echo "CALL=<$CALL>"
 eval $CALL
 
 echo
-echo "display with: firefox ${DOCHTML}"
+echo "display with: firefox -P preview.simple -new-instance ${DOCHTML}"
 echo
 
 #build=patches

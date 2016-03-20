@@ -2,34 +2,60 @@ jsondata
 ========
 
 This package is aimed for the management of modular data structures based on JSON.
-The data is foreseen to be represented by an in-memory main data tree with
-dynamically added and/or removed branches. The branches of data structures in
-particular provide for the ease of custom data sets. 
+The data is represented by an in-memory main data tree with
+dynamically added and/or removed branches and values. The logical branches of data 
+structures in particular provide for the ease of custom data sets. 
 
-The main class JSONDataSerializer provides for the serialization and incremental
-load. Due to the complex scenarios of search and match for modular JSON data in trees
-and branches a number of distinctive exceptions are defined in addition.
+The 'jsondata' package provides a standards conform layer for the processing of JSON
+based data with emphasis on in-memory performance and low resource consume.
+The implementation integrates seamless into the standard interfaces of Python(>=2.7),
+whereas higher level features of additional standards are introduced on top.
 
-Current version supports for first features of JSONPointer and JSONPatch. 
-The following versions are going to support the full scope in accordance 
-RFC6901, and RFC6902. For syntax primitives of underlying layers the packages
-'json' and 'jsonschema' are applied for conformance to related ECMA and RFC 
+The main interface classes are:
+
+* **JSONDataSerializer** - Core for RFC7159 based data structures and persistency
+
+* **JSONPointer** - RFC6901 for addressing
+
+* **JSONPatch** - RFC6902 for modification
+
+The syntax primitives of underlying layers are provided 
+by the imported packages 'json' and 'jsonschema' in conformance to related ECMA and RFC 
 standards and proposals. Here ECMA-262, ECMA-404, RFC7159/RFC4627, 
 draft-zyp-json-schema-04, and others.
 
-The documents provides the developer information for the API, and the 
-PyUnit tests as examples and application patterns.
+The architecture is based on the packages 'json' and
+'jsonschema'::
 
-Available from:
+                   +-------------------------+
+    Applications   |    application-layer    |
+                   +-------------------------+  
+    .   .  .  .  .  . | .  .  . | .  .  .  | .  .  .  .  .  .  .  .  .
+                      |         V          |     
+                      |   +----------+     |      
+    Data              |   | jsondata |     |         RFC6901
+    Structures        |   +----------+     |         RFC6902      
+    .  .  .  .  .  .  | .  . | .  | .  .  .| .  .  .  .  .  .  .  .  .
+                      +---+--+    +---+----+           
+                          |           |                           
+                          V           V                            
+                   +------------+------------+       RFC7159/RFC4267
+    JSON           |    json    | jsonschema |       ECMA-262/ECMA-404    
+    Syntax         +------------+------------+       draft-zyp-json-schema-04   
+
+The examples from the standards with some extensions, are included in order to 
+verify implementation details for the recommendations.
+This serves also as a first introduction to JSON processing with the
+package 'jsondata'.
+
+
+**Downloads**:
 
 * Sourceforge.net: https://sourceforge.net/projects/jsondata/files/
 
 * Github: https://github.com/ArnoCan/jsondata/
 
-Documents
----------
-
-Online documentation:
+**Online documentation**:
 
 * https://pypi.python.org/pypi/jsondata/
 * https://pythonhosted.org/jsondata/
@@ -61,9 +87,9 @@ Project Data
 
 * MISSION: Provide and extend JSONPointer and JSONPatch - RFC6901, RFC6902
 
-* VERSION: 00.01.002
+* VERSION: 00.01.003
 
-* RELEASE: 00.01.002
+* RELEASE: 00.01.003
 
 * STATUS: alpha
 
@@ -81,46 +107,25 @@ Project Data
 VERSIONS and RELEASES
 ---------------------
 
+**RELEASE: 00.00.00x - Pre-Alpha:**
+
+Extraction of the features from hard-coded application into a reusable package.
+
 **RELEASE: 00.01.002 - Alpha:**
 
 Although stable to be used partially in production from now on, released as 'Alpha'.
-This is mainly due to the ongoing tests and the included fragment parts for the
-RFC6902/JSONPatch - support.
+Includes support of RFC7591 by the package 'json', JSONSchema drafts4 by 'jsonschema',
+RFC6901 JSONPointer native, internal calls for RFC6902 JSONPatch.
 
-The growing number of unit test base has to reach a slightly bigger number too.
+**RELEASE: 00.01.003 - Alpha:**
 
 Major Changes:
 
-* JSON - RFC7159 / RFC4627: STATE: Alpha: 
+* General fixes and enhancements 
 
-  * Adapted JSONDataSerializer for RFC6901, RFC6902 refer to the methods named by the prefix pattern 'rfc6902'. 
+* First step of performance enhancements
 
-  * Cleared interfaces, another almost final round still required.
+* JSONPatch - RFC6902: introduced first release for now, STATE: Alpha
 
-* JSONPointer - RFC6901: added, STATE: Alpha
-
-  * adapted JSONDataSerializer
-  
-  * added JSONPointer
-
-  * adapted operators for pointer manipulation::
-    +(LHS), +(RHS), ==, >=, >, +=, <, <=, !=
-
-  * defined an extendible set of type mappings from altered
-    'json' data trees onto standard JSON types 
-
-  * Fragments notation of RFC6901/RFC3986 implemented.
-
-* JSONPatch - RFC6902: fragments for now, STATE: Pre-Alpha
-
-  *  adapted JSONDataSerializer
-     refer to the methods named by the prefix pattern
-     'rfc6902'.
-  
-  *  added JSONPatch
-
-* added a considerable amount of Unit tests
-
-* performance enhancements
-
+* added a considerable amount of Unit tests, now in total 498
 

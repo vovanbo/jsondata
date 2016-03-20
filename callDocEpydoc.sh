@@ -1,6 +1,6 @@
 PROJECT='jsondata'
-VERSION="0.0.8"
-RELEASE="0.0.8"
+VERSION="0.1.4"
+RELEASE="0.1.4"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
 LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'
@@ -43,5 +43,5 @@ echo "CALL=<$CALL>"
 eval $CALL
 
 echo
-echo "call: firefox ${OUTDIR}/epydoc/index.html"
+echo "call: firefox -P preview.simple -new-instance ${OUTDIR}/epydoc/index.html"
 echo

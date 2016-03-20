@@ -121,7 +121,7 @@ Constants:
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.1.0'
+__version__ = '0.1.4'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import os,sys
@@ -133,7 +133,7 @@ if version < '2.7': # pragma: no cover
 try:
     from urllib import unquote
     from itertools import izip
-    str = unicode
+    #str = unicode
 except ImportError: # Python 3
     from urllib.parse import unquote
     izip = zip
@@ -678,9 +678,10 @@ class JSONDataSerializer:
     def __repr__(self):
         """Dump data.
         """
-        io = StringIO()
-        json.dump(self.data, io)
-        return io.getvalue()
+#         io = StringIO()
+#         json.dump(self.data, io)
+#         return io.getvalue()
+        return repr(self.data)
 
     def __str__(self):
         """Dumps data by pretty print.
@@ -774,6 +775,12 @@ class JSONDataSerializer:
             for v in branch:
                 if self.isApplicable(targetnode[k], [v], matchcondition):
                     targetnode.append(v)
+        elif isinstance(targetnode,JSONPointer):
+            x = targetnode.get_node(self.data,True) 
+            ret = self.branch_add(x, branch, matchcondition)
+
+            #= branch
+            
         else:
             raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
 
@@ -808,6 +815,126 @@ class JSONDataSerializer:
         else:
             return self.branch_add_only(targetnode, sourcenode,matchcondition)
         pass
+
+    def branch_create(self,targetnode,branch,value=None):
+        """Creates a branch located at targetnode.
+
+        The requested branch as created as child value of provided 'targetnode'.
+        'targetnode' is required to exist.
+         
+        **REMARK**: Current version relies for the created nodes on the
+            content type of the key(str,unicode)/index(int), later 
+            versions may use a provided schema.
+  
+        Args:
+            targetnode: Base node for the insertion of branch.
+                Supported input types are:
+                An absolute pointer address path within current document.
+
+                    JSONPointer: RFC6901 class representation.
+                    <RFC6901-string>: A string in accordance 
+                        to RFC6901.
+                    <list-of-bath-components>: A list representation 
+                        of a pointer path in accordance to RFC6901.
+                    <node>: A node within a data tree based on the
+                        package 'json'.
+
+            branch: New branch to be inserted into target tree.
+                A Pointer address path relative to the targetnode. 
+    
+                Supported input types are:
+                    JSONPointer: RFC6901 class representation. 
+                    <RFC6901-string>: A string in accordance 
+                        to RFC6901.
+                    <list-of-bath-components>: A list representation 
+                        of a pointer path in accordance to RFC6901.
+                    <node>: A node within a data tree based on the
+                        package 'json'.
+
+                **REMARK**: The address has to begin with 
+                    a '/' in accordance to RFC6901.
+
+            value: Optional value for the leaf.
+            
+        Returns:
+            When successful returns the leaf node, else returns either 'False',
+            or raises an exception.
+
+        Raises:
+            JSONDataSerializerError:
+
+        """
+        ret = targetnode
+
+        def getNewNode(key):
+            if key == '-':
+                return []
+            elif type(key) is int:
+                return []
+            elif type(key) in ( str, unicode, ):
+                return {}
+            elif not key:
+                return None
+            else:
+                raise JSONDataSerializerError("Unknown key/index type:"+str(key))
+            
+        if isinstance(targetnode,JSONPointer):
+            hook = targetnode.get_node(self.data)
+        else:
+            hook = targetnode
+        if isinstance(branch,JSONPointer):
+            
+            #FIXME: iterator
+            branch = branch.get_path_list()
+
+        if not branch:
+            raise JSONDataSerializerError("missing branch")
+            
+        if hook in ('', u''):
+            hook = self.data
+        
+        if type(hook) == dict:
+            if type(branch[0]) not in (str,unicode,):
+                raise JSONDataSerializerError("branch not compatible with container:"+str(type(hook))+" / "+str(type(branch[0])))
+
+#             if len(branch)>1:
+#                 hook[unicode(branch[0])] = getNewNode(branch[1])
+#                 ret = self.branch_create(hook[branch[0]], branch[1:], value)
+#             if not hook.get(branch[0]): # if not present
+#                 hook[unicode(branch[0])] = self.getValueNode(value)
+
+            if len(branch)>1:
+                if not hook.get(unicode(branch[0]),False):
+                    hook[unicode(branch[0])] = getNewNode(branch[1])
+                ret = self.branch_create(hook[branch[0]], branch[1:], value)
+            else:
+                hook[unicode(branch[0])] = self.getValueNode(value)
+                                
+        elif type(hook) == list:
+            if type(branch[0]) in (int,) and branch[0] < len(hook): # see RFC6902 for '-'/append
+                pass
+            elif branch[0] == '-': # see RFC6902 for '-'/append
+                pass
+            else:
+                raise JSONDataSerializerError("failed hook in branch:"+str(type(hook))+" / "+str(type(branch[0])))
+
+            if len(branch) == 1:            
+                if branch[0] == '-':
+                    branch[0] = len(hook)
+                    hook.append(self.getValueNode(value))
+                else:
+                    hook[branch[0]] = self.getValueNode(value)
+                ret = hook
+            else:
+                if branch[0] == '-':
+                    branch[0] = len(hook)
+                    hook.append(getNewNode(branch[1]))
+                ret = self.branch_create(hook[branch[0]], branch[1:], value)
+
+        else:
+            raise JSONDataSerializerError("Type not applicable:"+str(type(hook)))
+
+        return ret
     
     def branch_delete(self, datafile=None, schemafile=None,targetnode=None, **kargs):
         """ Deletes branches from JSON based data trees with static and dynamic criteria.
@@ -938,6 +1065,7 @@ class JSONDataSerializer:
 
         """
         ret = True
+
         if type(branch) == dict:
             for k,v in branch.items():
                 if matchcondition:
@@ -1027,6 +1155,39 @@ class JSONDataSerializer:
         """
         #FIXME:
         pass
+
+    def getValueNode(self,value):
+        """
+        Args:
+            value: Value pointer to be evaluated to the actual value.
+                Valid input types are:
+                    int: Integer, kept as integer. 
+                    dict,list: Assumed to be a valid node for 'json' package.
+                    str,unicode: Assumed to be a string representation of a
+                        JSON type path or value.
+                    JSONPointer: A JSON pointer compatible to RFC6901.
+
+        Returns:
+            When successful returns the value, else returns either 'False', or
+            raises an exception.
+
+        Raises:
+            JSONDataSerializerError:
+
+        """
+        if type(value) in (int,dict,list): # assumes a 'json' package type node
+            return value
+        elif type(value) in ( str, unicode, ): # assume a 'JSON' RFC7159 string
+            if value[0].replace(" ","") in ('{','[',u'{',u'['):
+                return json.loads(value) # a valid json object or array
+            return unicode(value) # a simple value
+        elif isinstance(value,JSONPointer): # assume the pointed value
+            return value.get_node_or_value(self.data)
+        elif not value:
+            return None
+        else:
+            raise JSONDataSerializerError("Unknown value type:"+str(value))
+    
     
     def isApplicable(self, targetnode, branch, matchcondition=None,**kargs):
         """ Checks applicability by validation of provided match criteria.
@@ -1492,74 +1653,6 @@ class JSONDataSerializer:
             print json.dumps(source,indent=self.indent)
         else:
             print json.dumps(source)
-
-    def rfc6902_add(self):
-        """In-memory add in accordance to RFC6902.
-        """
-        pass
-    
-    def rfc6902_copy(self):
-        """In-memory copy in accordance to RFC6902.
-        """
-        pass
-
-    def rfc6902_move(self):
-        """In-memory move in accordance to RFC6902.
-        """
-        pass
-
-    def rfc6902_remove(self,target,childnode=None):
-        """In-memory remove in accordance to RFC6902.
-
-        Removes a node.
-        
-        Args:
-            target: Either the targetnode, or a JSONPointer object.
-                In case of a targetnode, the cildnode of the targetnode is removed,
-                else the JSONPointer from it's parent.
-            childnode: Required when targetnode is provided. 
- 
-        Returns:
-            When successful returns 'True', else returns either 'False', or
-            raises an exception.
-
-        Raises:
-            JSONDataSerializerError:
-        """
-        if type(childnode) is str: # string input JSON pointer
-            target = JSONPointer(target)
-            
-        if type(target) is JSONPointer: # it is JSONPointer object
-            #FIXME:
-            target.get_path()
-            
-            return True
-
-        elif type(target) == dict: # a in-mem node
-            if childnode:
-                for k,v in target.items():
-                    if childnode == v:
-                        target.pop(k)
-                        return True
-
-        elif type(target) == list: # a in-mem node
-            for v in target:
-                if childnode == v:
-                    target.remove(k)
-                    return True
-        else: # unknown
-            raise JSONDataSerializerError("Type not supported:type="+str(target))
-        return False
-
-    def rfc6902_replace(self):
-        """In-memory replace in accordance to RFC6902.
-        """
-        pass
-
-    def rfc6902_test(self):
-        """In-memory test in accordance to RFC6902.
-        """
-        pass
 
     def set_schema(self,schemafile=None, targetnode=None, **kargs):
         """Sets schema or inserts a new branch.

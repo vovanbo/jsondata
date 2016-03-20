@@ -1,27 +1,101 @@
-""" Basic features for modular JSON based in-memory data and their persistency.
+"""Modular processing of JSON data by trees and branches, pointers and patches.
 
-This package is aimed for the management of modular data structures based on JSON.
-The data is foreseen to be represented by an in-memory main data tree with
-dynamically added and/or removed branches. The branches of data structures in
-particular provide for custom data. The data could either be related to a module,
-and/or to specific classes. A typical application for branch data is the persistent
-storage of GUI models for dynamically loaded and released user elements.
+The package 'jsondata' is aimed for the management of modular in-memory data 
+structures based on JSON. The data is foreseen to be represented by a main data
+tree with dynamically added and/or removed branches. The branches of data 
+structures in particular provide for custom data. The data could either be 
+related to a module, and/or to specific classes. The components provides by 
+the package are:
 
-The main class JSONDataSerializer provides for the serialization and incremental
-load. Due to the complex scenarios of search and match for modular JSON data in trees
-and branches a number of distinctive exceptions are defined in addition.
+* **JSONDataSerializer**:
+  The main class JSONDataSerializer provides for the core interface of the
+  integration of JSON based documents and sub-documents including the 
+  validation by JSONschema - RFC7159/RFC4629 and DRAFT4schema.
 
-Current version supports for first features of JSONPointer and JSONPatch. 
-The following versions are going to support the full scope in accordance 
-RFC6901, and RFC6902. For syntax primitives of underlying layers the packages
-'json' and 'jsonschema' are applied for conformance with related ECMA and RFC 
-standards and proposals. Here ECMA-262, ECMA-404, RFC7159/RFC4627, 
-'draft-zyp-json-schema-04', and others.
+  The data is organized into trees and branches managed by the packages 
+  'json' ad 'jsonschema'. The serialization and integration of documents
+  and sub-documents provides for dynamic incremental construction of data
+  and the persistent storage of the modified tree.
+
+* **JSONPointer**:
+  The JSONPointer module provides for addressing of components within
+  JSON based data structures in accordance to RCF7159 and RFC6901. 
+  The integrated caching of the in-memory address of the pointed node
+  provides for native speed in case of repetition, aimed for nested
+  hierarchical loop constructs.
+   
+  The class JSONPointer in particular provides operators for pointer 
+  arithmetics in order to simplify the application of navigation 
+  and loop constructs.
+  
+* **JSONPatch**:
+  The JSONPatch module provides features for the alteration of JSON based
+  data structures in accordance to RFC6902. The close design enables the
+  fast addressing by combined usage with the class JSONPointer. 
+
+  The class JSONPatch in particular provides operators for patch arithmetics
+  in order to simplify the modular patch management and loop constructs.
+  The patch task lists could be assembled by modules, modified as required 
+  and stored persistently for reuse. 
+
+* **Selftest** / **'jsondatacheck --selftest'**:
+  Last but not least, the selftest feature provides for a quick verification
+  of the package itself.
+ 
+The close design to the presented in-memory interface by the packages 'json'
+and 'jsonschema' provides for reliable and fast access based on the standard 
+Python packages, while the 'jsondata' package adds high-level abstractions
+provided by standards for addressing and data assembly. The native Python 
+access to the data entries remains compatible, while due to the collaborative
+caching of in-memory addresses of the nodes the access by the 'jsondata' 
+add-ons is close to native Python. 
+
+The integration of 'jsondata' into the JSON processing flow could be extended
+by custom classes as required::
+
+                 +-------------------------+
+                 |    application-layer    |
+                 +-------------------------+
+            .  .  .  |  .  . | .  .  . | .  .  .  . <= combined API  
+                     |       V         |
+                     | +-----------+   | 
+    RFC6902          | | JSONPatch |   |            <= modify JSON data 
+                     | +-----------+   | 
+                     |     |     |     |
+                     V     V     |     |
+                +-------------+  |     | 
+    RFC6901     | JSONPointer |  |     |            <= address JSON data
+                +-------------+  |     |
+                       |         |     | 
+                       V         V     V
+    RFC7159         +---------------------+
+       +            | JSONDataSerializer  |         <= integrate JSON+JSONschema
+    DRAFT4          +---------------------+
+                          |          |
+            .  .  .  .  . V .  .  .  V .  .  .  .  .<= common transparent access for all
+    RFC7159   +----------------+-----------------+ 
+       &&     |     json       |   jsonschema    |  <= provide JSON and JSONschema
+    DRAFT4    +----------------+-----------------+      
+
+
+The package 'jsondata' supports the standards RFC6901, RFC6902, and the
+integration of RFC7159 with DRAFT4Schema, while relying for the syntax
+primitives of underlying layers presented by the packages 'json' and
+'jsonschema'. The JSON language primitives for JSON are conform with
+related ECMA and RFC standards and proposals. Here ECMA-262, ECMA-404, 
+RFC7159/RFC4627, 'draft-zyp-json-schema-04', and others.
+
+JSON based data provides for low resource data structure descriptions, 
+thus fits in general quite good to distributed interface APIs, beneath 
+JavaScript itself to protocols like those based on REST. But it also is 
+applicable in case of numerous other requirements, a typical application
+for branch data and VV is the persistent storage of GUI models for 
+dynamically loaded and released user elements.
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.1.0'
+__version__ = '0.1.3'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 __package__ = 'jsondata'
@@ -40,12 +114,18 @@ __all__=["JSONDataSerializer",
          "JSONPointer","JSONPointerException"
          ]
 
+
+
 # Serializer
-from JSONDataSerializer import JSONDataSerializer
-from JSONDataSerializer import JSONDataSerializerError,JSONDataSerializerErrorTargetFile,JSONDataSerializerErrorTargetFileReason, JSONDataSerializerErrorSourceFile,JSONDataSerializerErrorSourceFileReason,JSONDataSerializerErrorSourceFromList,JSONDataSerializerErrorSourceFromAll,JSONDataSerializerErrorAmbiguity,JSONDataSerializerErrorAttribute,JSONDataSerializerErrorAttributeValue,JSONDataSerializerErrorValue
+#from JSONDataSerializer import JSONDataSerializer
+#from JSONDataSerializer import JSONDataSerializerError,JSONDataSerializerErrorTargetFile,JSONDataSerializerErrorTargetFileReason, JSONDataSerializerErrorSourceFile,JSONDataSerializerErrorSourceFileReason,JSONDataSerializerErrorSourceFromList,JSONDataSerializerErrorSourceFromAll,JSONDataSerializerErrorAmbiguity,JSONDataSerializerErrorAttribute,JSONDataSerializerErrorAttributeValue,JSONDataSerializerErrorValue
 
 # JSONPointer
-from JSONPointer import JSONPointer,JSONPointerException
+#from JSONPointer import JSONPointer,JSONPointerException
+
+
+
+
 
 # JSSONPatch
 #from JSONPatch import JSONPatch,JSONPatchException

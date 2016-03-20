@@ -1,22 +1,27 @@
 # -*- coding:utf-8   -*-
-"""Provides classes for the JSONPointer definition accordance to IETF-RFC6901.
+"""Provides classes for the JSONPointer definition in accordance to RFC6901.
 
 The provided class JSONPointer internally stores and applies pointer data
-as a list of keys and indexes for fast access on in-memory data provided by
+as a list of keys and indexes with the additional cooperative caching of
+the pointed in-memory node reference for fast access on data provided by
 the packages 'json' and 'jsonschema'. Requests for the string representation
 are transformed into a pointer path in accordance to RFC6901. 
 
-This combines fast in-memory operations and pointer arithmetics with standards
-compliant path strings at the API.
+The JSONPointer class combines fast in-memory operations and pointer 
+arithmetics with standards compliant path strings at the API.
+
+The JSONPointer class by itself is focused on the path pointer itself, though
+the provided operations do not touch the content value. The pointer provides
+the hook where the value has to be inserted. 
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.1.0'
+__version__ = '0.1.4'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
-import os,sys
-from types import *
+import sys
+from types import StringTypes,NoneType
 
 version = '{0}.{1}'.format(*sys.version_info[:2])
 if version < '2.7': # pragma: no cover
@@ -31,8 +36,8 @@ except ImportError: # Python 3
     izip = zip
 
 import re
-import json, jsonschema
-from StringIO import StringIO
+#import json, jsonschema
+#from StringIO import StringIO
 
 # Sets display for inetractive JSON/JSONschema design.
 _interactive = False
@@ -45,6 +50,9 @@ NOTATION_JSON = 0 # this is the default
 NOTATION_HTTP_FRAGMENT = 1
 """JSON notation in accordance to RFC7159 with RFC3986.
 """
+
+VALID_NODE_TYPE = (dict, list, str, unicode, int, float, bool, NoneType,)
+"""Valid types of in-memory JSON node types."""
 
 class JSONPointerException(Exception):
     pass
@@ -136,7 +144,7 @@ class JSONPointer(object):
     VALID_INDEX = re.compile('0|[1-9][0-9]*$')
     """Regular expression for valid numerical index."""
     
-    def __init__(self,ptr,**kargs):
+    def __init__(self,ptr,replace=True,**kargs):
         """ Converts and stores a JSONPointer as a list.
 
         Processes the ABNF of a JSON Pointer from RFC6901.
@@ -149,6 +157,7 @@ class JSONPointer(object):
                         into this, see 'deep'.
                     'list': expects a path list, where each item
                         is processed for escape and unquote.
+            replace: Replaces masked characters.
             **kargs:
                 deep: Applies for copy operations on structured data
                     'deep' when 'True', else 'swallow' only, which is 
@@ -222,12 +231,13 @@ class JSONPointer(object):
         else:
             return None
 
-        self.ptr = map(unquote,self.ptr) # generic chars-quote
-        self.ptr = [p.replace('~1', '/').replace('~0', '~') for p in self.ptr] # 6901-escaped
+        if replace:
+            self.ptr = map(lambda p: type(p) in (str,unicode) and unquote(p).replace('~1', '/').replace('~0', '~') or p,self.ptr) # 6901-escaped, generic chars-quote
 
+        #FIXME: check wheter the assumption is viable
         # SPECIAL: assumes digit only as array index
         def checkint(ix):
-            if ix.isdigit():
+            if type(ix) in (str,unicode,) and ix.isdigit():
                 return int(ix)
             return ix
         self.ptr = map(checkint,self.ptr)
@@ -530,7 +540,11 @@ class JSONPointer(object):
     def __repr__(self):
         """Returns the attribute self.raw, which is the raw input JSONPointer.
         """
-        return self.raw
+        ret = unicode(self.get_pointer())
+        if ret == '':
+            return "''"
+        return ret
+#         return self.raw
 
     def __str__(self):
         """Returns the string for the processed path.
@@ -542,6 +556,46 @@ class JSONPointer(object):
     #
     # ---
     #
+
+    def check_node_or_value(self,jsondata,parent=False):
+        """Checks the existance of the corresponding node within the JSON document.
+
+        Args:
+            jsondata: A valid JSON data node.
+            parent: Return the parent node of the pointed value.
+
+        Returns:
+            True or False
+            
+        Raises:
+            JSONPointerException:
+            forwarded from json
+        """
+        if self.ptr == []: # special RFC6901, whole document
+            return jsondata
+        if self.ptr == ['']: # special RFC6901, '/' empty top-tag
+            return jsondata['']
+        
+        if type(jsondata) not in VALID_NODE_TYPE:
+            # concrete info for debugging for type mismatch
+            raise JSONPointerException("Invalid nodetype parameter:"+str(type(jsondata)))
+
+        if parent:
+            for x in self.ptr[:-1]:
+                jsondata=jsondata.get(x,False)
+                if not jsondata:
+                    return False
+        else:
+            for x in self.ptr:
+                jsondata=jsondata.get(x,False)
+                if not jsondata:
+                    return False
+
+        if type(jsondata) not in VALID_NODE_TYPE:
+            # concrete info for debugging for type mismatch
+            raise JSONPointerException("Invalid path nodetype:"+str(type(jsondata)))
+        self.node = jsondata # cache for reuse
+        return True
 
     def copy_path_list(self,parent=False):
         """Returns a deep copy of the objects pointer path list.
@@ -566,7 +620,11 @@ class JSONPointer(object):
             return map(lambda s:s[:],self.ptr[:])
 
     def get_node(self,jsondata,parent=False):
-        """Gets the corresponding node reference to the JSON value.
+        """Gets the corresponding node reference for a JSON container type.
+        
+        This method gets nodes of container types. Container 
+        types of JSON are 'array' a.k.a. in Python 'list', 
+        and 'objects' a.k.a. in Python 'dict'.
 
         Args:
             jsondata: A valid JSON data node.
@@ -603,6 +661,24 @@ class JSONPointer(object):
         self.node = jsondata # cache for reuse
         return jsondata
 
+    def get_node_and_child(self,jsondata):
+        """Returns a tuple containing the parent node and the child.
+
+        Args:
+            jsondata: A valid JSON data node.
+
+        Returns:
+            The the tuple:
+            (n,c):  n: Node reference to parent container.
+                    c: Key for the child entry, either an 
+                       index 'int', or a key ('str', 'unicode'). 
+        Raises:
+            JSONPointerException:
+            forwarded from json
+        """
+        n = self.get_node(jsondata,True)
+        return n,self.ptr[-1]
+    
     def get_node_or_value(self,jsondata,valtype=None,parent=False):
         """Gets the corresponding node reference or the JSON value of a leaf.
 
@@ -740,7 +816,7 @@ class JSONPointer(object):
         if self.ptr == ['']: # special RFC6901, '/' empty top-tag
             return jsondata['']
 
-        if type(jsondata) not in (dict, list): # requires an object or an array as input
+        if type(jsondata) not in VALID_NODE_TYPE: # requires an object or an array as input
             # concrete info for debugging for type mismatch
             raise JSONPointerException("Invalid nodetype parameter:"+str(type(jsondata)))
 
@@ -766,7 +842,7 @@ class JSONPointer(object):
             if not type(jsondata) is valtype:
                 raise JSONPointerException("Invalid path value type:"+str(type(valtype))+" != "+str(type(jsondata)))
         else: # in general valid value types - RFC4729,RFC7951
-            if type(jsondata) not in (dict, list,str,unicode,bool,NoneType,int,float):
+            if type(jsondata) not in VALID_NODE_TYPE:
                 raise JSONPointerException("Invalid path nodetype:"+str(type(jsondata)))
         self.node = jsondata # cache for reuse
         return jsondata
@@ -808,9 +884,9 @@ class JSONPointer(object):
             return '/'
 
         if parent:
-            return '/'+'/'.join(map(unicode,self.ptr[:-1]))
+            return unicode('/'+'/'.join(map(unicode,self.ptr[:-1])))
         else:
-            return '/'+'/'.join(map(unicode,self.ptr))
+            return unicode('/'+'/'.join(map(unicode,self.ptr)))
 
     def get_raw(self):
         """Gets the objects raw 6901-pointer.
