@@ -8,7 +8,14 @@ import unittest
 import os
 import sys
 
-import json,jsonschema
+
+if 'ujson' in sys.argv:
+    import ujson as myjson
+else:
+    import json as myjson
+import jsonschema
+
+
 jval = None
 
 from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData

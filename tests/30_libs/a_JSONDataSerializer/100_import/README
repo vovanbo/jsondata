@@ -1,19 +1,16 @@
-Library features
-================
+Import data
+===========
+Imports data from another source, here from a file.
 
-100_data_replace_set
+020_add_new
+-----------
+Non-present branches are added.
+
+040_add_present_item
 --------------------
-Replacement of a set of branches  by a new branch.
+Present branch items are replaced.
 
-120_data_superpose
-------------------
-SUperpose branches, present branches are written over,
-new branches are just addes.
+060_add_present_item_for_set
+----------------------------
+Present branches are replaced by one new item.
 
-140_data_add
-------------
-Non-present branches are added only, present are kept unaltered.
-
-160_data_delete
----------------
-Remove a branch.

@@ -71,12 +71,14 @@ by custom classes as required::
     RFC7159         +---------------------+
        +            | JSONDataSerializer  |         <= integrate JSON+JSONschema
     DRAFT4          +---------------------+
-                          |          |
-            .  .  .  .  . V .  .  .  V .  .  .  .  .<= common transparent access for all
-    RFC7159   +----------------+-----------------+ 
-       &&     |     json       |   jsonschema    |  <= provide JSON and JSONschema
-    DRAFT4    +----------------+-----------------+      
 
+                *         *          *        *
+            .  .| .  .  . | .  .  .  | .  .  .| .  .<= common access to JSON data
+                V         V          V        V
+             +----------------+-----------------+ 
+    RFC7159  |     json       |   jsonschema    |  <= provide JSON data and JSONschema
+       &&    |     ujson      |                 |      
+    DRAFT4   +----------------+-----------------+
 
 The package 'jsondata' supports the standards RFC6901, RFC6902, and the
 integration of RFC7159 with DRAFT4Schema, while relying for the syntax
@@ -95,54 +97,20 @@ dynamically loaded and released user elements.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.1.3'
+__version__ = '0.2.0'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 __package__ = 'jsondata'
-__all__=["JSONDataSerializer",
-         "JSONDataSerializerError",
-         "JSONDataSerializerErrorTargetFile",
-         "JSONDataSerializerErrorTargetFileReason",
-         "JSONDataSerializerErrorSourceFile",
-         "JSONDataSerializerErrorSourceFileReason",
-         "JSONDataSerializerErrorSourceFromList",
-         "JSONDataSerializerErrorSourceFromAll",
-         "JSONDataSerializerErrorAmbiguity",
-         "JSONDataSerializerErrorAttribute",
-         "JSONDataSerializerErrorAttributeValue",
-         "JSONDataSerializerErrorValue",
-         "JSONPointer","JSONPointerException"
-         ]
-
-
-
-# Serializer
-#from JSONDataSerializer import JSONDataSerializer
-#from JSONDataSerializer import JSONDataSerializerError,JSONDataSerializerErrorTargetFile,JSONDataSerializerErrorTargetFileReason, JSONDataSerializerErrorSourceFile,JSONDataSerializerErrorSourceFileReason,JSONDataSerializerErrorSourceFromList,JSONDataSerializerErrorSourceFromAll,JSONDataSerializerErrorAmbiguity,JSONDataSerializerErrorAttribute,JSONDataSerializerErrorAttributeValue,JSONDataSerializerErrorValue
-
-# JSONPointer
-#from JSONPointer import JSONPointer,JSONPointerException
-
-
-
-
-
-# JSSONPatch
-#from JSONPatch import JSONPatch,JSONPatchException
-
-#
-#TODO: ffs.
-#__import__('pkg_resources').declare_namespace(__name__)
-# import os
-# import sys
-# import warnings
-# import ConfigParser # ConfigParser is not a virtualenv module, so we can use it to find the stdlib
-#
-# dirname = os.path.dirname
-#
-# distutils_path = os.path.join(os.path.dirname(ConfigParser.__file__), 'distutils')
-# if os.path.normpath(distutils_path) == os.path.dirname(os.path.normpath(__file__)):
-#     warnings.warn("The virtualenv distutils package at %s appears to be in the same location as the system distutils?")
-# else:
-#     __path__.insert(0, distutils_path)
+__all__=[
+    "jsoondata.JSONDataSerializer.JSONDataSerializer",
+    "JSONDataException",
+    "JSONDataKeyError",
+    "JSONDataNodeType",
+    "JSONDataSourceFile",
+    "JSONDataTargetFile",
+    "JSONDataValue",
+    "JSONDataAmbiguity",
+    "JSONPointer","JSONPointerException"
+    "JSONPatch","JSONPatchException"
+]
 

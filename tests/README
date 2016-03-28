@@ -4,41 +4,52 @@ PyUnit tests
 These tests could either be called from the command line,
 or within Eclipse by the plugin PyDev / PyUnit.
 
-* CLI: Python setup.py test 
+* CLI: '*python setup.py test*' 
 
 * Eclipse: Install PyDev, open the view PyUnit and proceed.
 
-a_selftest
-----------
+Choose a JSON package, current 'json', or 'ujson':
+
+* Eclipse: set parameters for PyDev testrunner, 
+  e.g.: '*--verbosity 0 -- --ujson*'
+
+00_IETF_RFC_compliance
+----------------------
+
+01_ECMA_compliance
+------------------
+
+10_selftest
+-----------
 Basic self test of PyUnit.
 
-b_system
---------
+20_system
+---------
 System API calls for libraries and binaries.
 
-c_libs
-------
+30_libs
+-------
 Provided library modules of 'jsondata' for JSON data.
 
-d_utils
--------
+40_utils
+--------
 Utilities for the development of 'jsondata'.
 
 Used for build only.
 
-e_tools
--------
+50_tools
+--------
 Tools of 'jsondata'.
 
 Used for production and development for 'jsondata' itself,
 and by the end user and application developers.
 
-f_bins
-------
+60_bins
+-------
 Official binaries of 'jsondata'.
 
-g_datasets
-----------
+70_datasets
+-----------
 Complex data sets for advanced test cases.
 
 These comprising tests involve sophisticated and exotic

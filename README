@@ -2,9 +2,12 @@ jsondata
 ========
 
 This package is aimed for the management of modular data structures based on JSON.
+Therefore it is based on and supports JSON patch and JSON pointer standards, in 
+addition extended features are provided.
 The data is represented by an in-memory main data tree with
 dynamically added and/or removed branches and values. The logical branches of data 
-structures in particular provide for the ease of custom data sets. 
+structures in particular provide for the ease of custom data sets.
+The in-memory data could be serialized as JSON files for persistent storage and reuse. 
 
 The 'jsondata' package provides a standards conform layer for the processing of JSON
 based data with emphasis on in-memory performance and low resource consume.
@@ -13,18 +16,18 @@ whereas higher level features of additional standards are introduced on top.
 
 The main interface classes are:
 
-* **JSONDataSerializer** - Core for RFC7159 based data structures and persistency
+* **JSONDataSerializer** - Core for RFC7159 based data structures and persistence. Provides modular data components and serialization.
 
-* **JSONPointer** - RFC6901 for addressing
+* **JSONPointer** - RFC6901 for addressing by pointer paths. Provides pointer arithmetics.
 
-* **JSONPatch** - RFC6902 for modification
+* **JSONPatch** - RFC6902 for modification by patch lists. Provides the assembly of modular patch entries and the serialization of resulting patch lists.
 
 The syntax primitives of underlying layers are provided 
-by the imported packages 'json' and 'jsonschema' in conformance to related ECMA and RFC 
+by the imported packages '**json**' or the package ultra-json '**ujson**', and '**jsonschema**' in conformance to related ECMA and RFC 
 standards and proposals. Here ECMA-262, ECMA-404, RFC7159/RFC4627, 
 draft-zyp-json-schema-04, and others.
 
-The architecture is based on the packages 'json' and
+The architecture is based on the packages 'json' or 'ujson', and
 'jsonschema'::
 
                    +-------------------------+
@@ -32,22 +35,28 @@ The architecture is based on the packages 'json' and
                    +-------------------------+  
     .   .  .  .  .  . | .  .  . | .  .  .  | .  .  .  .  .  .  .  .  .
                       |         V          |     
-                      |   +----------+     |      
-    Data              |   | jsondata |     |         RFC6901
-    Structures        |   +----------+     |         RFC6902      
+                      |   +----------+     |         RFC6901
+    Data              |   | jsondata |     |         RFC6902
+    Structures        |   +----------+     |         +others +extensions
+                      |      |    |        |
     .  .  .  .  .  .  | .  . | .  | .  .  .| .  .  .  .  .  .  .  .  .
                       +---+--+    +---+----+           
                           |           |                           
                           V           V                            
                    +------------+------------+       RFC7159/RFC4267
-    JSON           |    json    | jsonschema |       ECMA-262/ECMA-404    
-    Syntax         +------------+------------+       draft-zyp-json-schema-04   
+    JSON           |    json,   | jsonschema |       ECMA-262/ECMA-404    
+    Syntax         |    ujson   |            |       draft-zyp-json-schema-04   
+                   +------------+------------+
 
 The examples from the standards with some extensions, are included in order to 
 verify implementation details for the recommendations.
 This serves also as a first introduction to JSON processing with the
 package 'jsondata'.
+For the compliance tests extracted from IETF and ECMA standards refer to the directories:
 
+* tests/00\_IETF\_RFC_compliance
+ 
+* tests/01\_ECMA_compliance
 
 **Downloads**:
 
@@ -79,6 +88,16 @@ The installer adds a few options to the standard setuptools options.
 
 * *--exit*: Exit 'setup.py'.
 
+After successful installation the 'selftest' verifies basic checks by:
+
+  *jsondatacheck --selftest*
+
+with the exit value '0' when OK.
+
+The option '-v' raises the degree of verbosity for inspection
+
+  *jsondatacheck --selftest -v -v -v -v*
+ 
 
 Project Data
 ------------
@@ -87,9 +106,9 @@ Project Data
 
 * MISSION: Provide and extend JSONPointer and JSONPatch - RFC6901, RFC6902
 
-* VERSION: 00.01.003
+* VERSION: 00.02.000
 
-* RELEASE: 00.01.003
+* RELEASE: 00.02.000
 
 * STATUS: alpha
 
@@ -107,25 +126,33 @@ Project Data
 VERSIONS and RELEASES
 ---------------------
 
-**RELEASE: 00.00.00x - Pre-Alpha:**
+**Planned Releases:**
 
-Extraction of the features from hard-coded application into a reusable package.
+* RELEASE: 00.00.00x - Pre-Alpha: Extraction of the features from hard-coded application into a reusable package.
 
-**RELEASE: 00.01.002 - Alpha:**
+* RELEASE: 00.01.00x - Alpha: Completion of basic features. 
 
-Although stable to be used partially in production from now on, released as 'Alpha'.
-Includes support of RFC7591 by the package 'json', JSONSchema drafts4 by 'jsonschema',
-RFC6901 JSONPointer native, internal calls for RFC6902 JSONPatch.
+* RELEASE: 00.02.00x - Alpha: Completion of features, stable interface. 
 
-**RELEASE: 00.01.003 - Alpha:**
+* RELEASE: 00.03.00x - Beta: Accomplish test cases for medium to high complexity.
+
+* RELEASE: 00.04.00x - Production: First production release. Estimated number of UnitTests := 1000.
+
+**Current Release: 00.02.000 - Alpha:**
 
 Major Changes:
 
-* General fixes and enhancements 
+* Mostly reworked and streamlined the interface by change and reorder.
+  
+* Switched to fully RFC compliant branch operations with in-memory
+  implementation parameters 'targetnode' + 'key' for performance 
+  reasons. This implies a minor change of all branch interfaces 
+  by additional key parameter. 
 
-* First step of performance enhancements
+* General fixes and enhancements .
 
-* JSONPatch - RFC6902: introduced first release for now, STATE: Alpha
+* Included unit tests for 'selftest'.
 
-* added a considerable amount of Unit tests, now in total 498
+* Included support for multiple verified base packages for JSON: '**json**'(standard), '**ujson**'(ultra-json),
 
+* Current UnitTests: >600

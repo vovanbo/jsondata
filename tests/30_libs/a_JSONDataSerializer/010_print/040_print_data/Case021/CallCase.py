@@ -6,7 +6,12 @@ import unittest
 import os, sys
 from StringIO import StringIO
 
-import json #,jsonschema
+#
+if 'ujson' in sys.argv:
+    import ujson as myjson
+else:
+    import json as myjson
+#import jsonschema
 jval = None
 
 from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
@@ -93,7 +98,7 @@ class CallUnits(unittest.TestCase):
         sys.stdout = StringIO()
         
         source = open(os.path.dirname(__file__)+os.sep+"testdata.json").read()
-        source = json.loads(source)
+        source = myjson.loads(source)
         kargs = {'source':source}
         configdata.printData(False,**kargs)
         sout = sys.stdout.getvalue()

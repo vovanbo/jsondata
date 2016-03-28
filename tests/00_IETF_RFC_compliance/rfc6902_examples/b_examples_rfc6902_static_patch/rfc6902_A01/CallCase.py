@@ -8,7 +8,14 @@ import unittest
 import os
 import sys
 
-import json,jsonschema
+
+if 'ujson' in sys.argv:
+    import ujson as myjson
+else:
+    import json as myjson
+import jsonschema
+
+
 jval = None
 
 try:
@@ -75,7 +82,9 @@ class CallUnits(unittest.TestCase):
         jsonpatchlist.apply(configdata)
 
         ref = repr(configdata)
+        #print "4TEST:"+str(ref)
         ref = """{u'foo': u'bar', u'baz': u'qux'}"""
+        #print "4TEST:"+str(ref)
 
         assert ref == repr(configdata)
 

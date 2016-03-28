@@ -6,7 +6,14 @@ import unittest
 import os
 import sys
 
-import json,jsonschema
+
+if 'ujson' in sys.argv:
+    import ujson as myjson
+else:
+    import json as myjson
+import jsonschema
+
+
 jval = None
 
 #
@@ -29,7 +36,7 @@ class CallUnits(unittest.TestCase):
             raise BaseException("Missing JSON data:file="+str(datafile))
         # load data
         with open(datafile) as data_file:
-            jval = json.load(data_file)
+            jval = myjson.load(data_file)
         if jval == None:
             raise BaseException("Failed to load data:"+str(data_file))
 
@@ -65,7 +72,7 @@ class CallUnits(unittest.TestCase):
         if not os.path.isfile(schemafile):
             raise BaseException("Missing JSONschema:file="+str(schemafile))
         with open(schemafile) as schema_file:
-            sval = json.load(schema_file)
+            sval = myjson.load(schema_file)
         if sval == None:
             raise BaseException("Failed to load schema:"+str(schema_file))
 

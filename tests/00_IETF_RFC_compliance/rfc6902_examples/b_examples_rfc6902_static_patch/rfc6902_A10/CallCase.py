@@ -8,7 +8,14 @@ import unittest
 import os
 import sys
 
-import json,jsonschema
+
+if 'ujson' in sys.argv:
+    import ujson as myjson
+else:
+    import json as myjson
+import jsonschema
+
+
 jval = None
 
 try:
@@ -76,15 +83,15 @@ class CallUnits(unittest.TestCase):
         global jsonpatchlist
 
         cnt,failed = jsonpatchlist.apply(configdata) # apply all patches
-        ref=repr(configdata)
-        #print ref
-        ref = """{u'foo': u'bar', u'child': {u'grandchild': {}}}"""
-        #print ref
-        
         assert cnt == 1 # number of patch items
         assert failed == [] # list of failed patch items
-        assert ref == repr(configdata) # the final result of cumulated patches
 
+        ref=repr(configdata)
+        #print "4TEST:"+str(ref)
+        ref = """{u'foo': u'bar', u'child': {u'grandchild': {}}}"""
+        #print "4TEST:"+str(ref)
+        assert ref == repr(configdata) # the final result of cumulated patches
+        pass
 
 #
 #######################

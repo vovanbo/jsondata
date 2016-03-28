@@ -1,6 +1,6 @@
 PROJECT='jsondata'
-VERSION="0.1.4"
-RELEASE="0.1.4"
+VERSION="0.2.0"
+RELEASE="0.2.0"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2010,2011,2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
 LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'
@@ -227,37 +227,10 @@ cat <<EOF
 	
 * \`jsondata.JSONPatch [source] <_modules/jsondata/JSONPatch.html#JSONPatch>\`_
 
+* \`jsondata.JSONDataExceptions [source] <_modules/jsondata/JSONDataExceptions.html#>\`_
+
 * \`jsondata.Selftest [source] <_modules/jsondata/Selftest.html#>\`_
 		
-
-**Exceptions**
-
-* \`jsondata.JSONDataSerializerError [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerError>\`_
-
-* \`jsondata.JSONDataSerializerErrorAmbiguity [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAmbiguity>\`_
-
-* \`jsondata.JSONDataSerializerErrorAttribute [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAttribute>\`_
-
-* \`jsondata.JSONDataSerializerErrorAttributeValue [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAttributeValue>\`_
-
-* \`jsondata.JSONDataSerializerErrorSourceFile [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFile>\`_
-
-* \`jsondata.JSONDataSerializerErrorSourceFileReason [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFileReason>\`_
-
-* \`jsondata.JSONDataSerializerErrorSourceFromAll [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFromAll>\`_
-
-* \`jsondata.JSONDataSerializerErrorSourceFromList [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFromList>\`_
-
-* \`jsondata.JSONDataSerializerErrorTargetFile [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorTargetFile>\`_
-
-* \`jsondata.JSONDataSerializerErrorTargetFileReason [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorTargetFileReason>\`_
-
-* \`jsondata.JSONDataSerializerErrorValue [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorValue>\`_
-
-* \`jsondata.JSONPointerException [source] <_modules/jsondata/JSONPointer.html#JSONPointerException>\`_
-
-* \`jsondata.JSONPatchException [source] <_modules/jsondata/JSONPatch.html#JSONPatchException>\`_
-
 
 'jsondata.JSONDataSerializer' - Module
 **************************************
@@ -266,16 +239,6 @@ cat <<EOF
 
 Constants:
 ----------
-
-  **Choices for branch operations**:
-
-    * BRANCH_SET_REPLACE = 0: replaces the complete set of branches.
-    
-    * BRANCH_SUPERPOSE = 1: drops-in the child nodes of the source into the target
-
-    * BRANCH_ADD = 2: similar to superpose, but does not replace existing
-
-    * BRANCH_REMOVE = 3: removes a node
 
   **Compliance modes**:
 
@@ -297,7 +260,9 @@ Constants:
 
     * OFF = 0: No validation.
 
-    * DEFAULT = 1: Use default: jsonschema.validator(Draft4Validator)
+    * *DEFAULT* = *DRAFT4* = 1: Default 
+
+    * DRAFT4 = 1: Use draft4: jsonschema.validator(Draft4Validator)
 
     * DRAFT3 = 2: Use draft3:jsonschema.Draft3Validator
 
@@ -315,6 +280,7 @@ Constants:
 
    * MATCH_MEM = 5: for dicts(value) and lists
 
+   * MATCH_NEW = 6: for the creation of new
 
 Class: JSONDataSerializer
 -------------------------
@@ -339,7 +305,7 @@ __init__
 __str__
 """""""
 	.. automethod:: JSONDataSerializer.__str__
-                                                                                                                                                                                                
+
 __repr__
 """"""""
 	.. automethod:: JSONDataSerializer.__repr__
@@ -348,24 +314,16 @@ branch_add
 """"""""""
 	.. automethod:: JSONDataSerializer.branch_add
 
-branch_add_only
-"""""""""""""""
-	.. automethod:: JSONDataSerializer.branch_add_only
-		
 branch_copy
 """""""""""
 	.. automethod:: JSONDataSerializer.branch_copy
 
-branch_delete
+branch_create
 """""""""""""
-	.. automethod:: JSONDataSerializer.branch_delete
-
-branch_diff
-"""""""""""
-	.. automethod:: JSONDataSerializer.branch_diff
+	.. automethod:: JSONDataSerializer.branch_create
 
 branch_move
-"""""""""""""
+"""""""""""
 	.. automethod:: JSONDataSerializer.branch_move
 
 branch_remove
@@ -376,21 +334,13 @@ branch_replace
 """"""""""""""
 	.. automethod:: JSONDataSerializer.branch_replace
 
-branch_replace_set
-""""""""""""""""""
-	.. automethod:: JSONDataSerializer.branch_replace_set
-
 branch_test
 """""""""""
 	.. automethod:: JSONDataSerializer.branch_test
 
-getNodeForPointer
-"""""""""""""""""
-	.. automethod:: JSONDataSerializer.getNodeForPointer
-
-getPointerForNode
-"""""""""""""""""
-	.. automethod:: JSONDataSerializer.getPointerForNode
+getValueNode
+""""""""""""
+	.. automethod:: JSONDataSerializer.getValueNode
 
 isApplicable
 """"""""""""
@@ -412,61 +362,29 @@ printSchema
 """""""""""
 	.. automethod:: JSONDataSerializer.printSchema
 
-rfc6902_add
-"""""""""""
-	.. automethod:: JSONDataSerializer.rfc6902_add
-
-rfc6902_copy
-""""""""""""
-	.. automethod:: JSONDataSerializer.rfc6902_copy
-
-rfc6902_move
-""""""""""""
-	.. automethod:: JSONDataSerializer.rfc6902_move
-
-rfc6902_remove
-""""""""""""""
-	.. automethod:: JSONDataSerializer.rfc6902_remove
-
-rfc6902_replace
-"""""""""""""""
-	.. automethod:: JSONDataSerializer.rfc6902_replace
-
-rfc6902_test
-""""""""""""
-	.. automethod:: JSONDataSerializer.rfc6902_test
-
 set_schema
 """"""""""
 	.. automethod:: JSONDataSerializer.set_schema
 
-Exceptions: JSONDataSerializerError*
-------------------------------------
+Operators:
+^^^^^^^^^^
 
-The current implementation is not hierarchical, thus does not
-fully provide the advances of inherited exception types. 
+'[]'
+""""
+	.. automethod:: JSONDataSerializer.__getitem__
 
-* \`jsondata.JSONDataSerializerError [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerError>\`_
+Iterators:
+^^^^^^^^^^
 
-* \`jsondata.JSONDataSerializerErrorAmbiguity [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAmbiguity>\`_
+__iter__
+""""""""
+	.. automethod:: JSONDataSerializer.__iter__
 
-* \`jsondata.JSONDataSerializerErrorAttribute [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAttribute>\`_
+Exceptions
+----------
 
-* \`jsondata.JSONDataSerializerErrorAttributeValue [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorAttributeValue>\`_
+* \`jsondata.JSONDataAmbiguity [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataAmbiguity>\`_
 
-* \`jsondata.JSONDataSerializerErrorSourceFile [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFile>\`_
-
-* \`jsondata.JSONDataSerializerErrorSourceFileReason [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFileReason>\`_
-
-* \`jsondata.JSONDataSerializerErrorSourceFromAll [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFromAll>\`_
-
-* \`jsondata.JSONDataSerializerErrorSourceFromList [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorSourceFromList>\`_
-
-* \`jsondata.JSONDataSerializerErrorTargetFile [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorTargetFile>\`_
-
-* \`jsondata.JSONDataSerializerErrorTargetFileReason [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorTargetFileReason>\`_
-
-* \`jsondata.JSONDataSerializerErrorValue [source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializerErrorValue>\`_
 
 'jsondata.JSONPointer' - Module
 *******************************
@@ -525,14 +443,6 @@ get_node_or_value
 """""""""""""""""
 	.. automethod:: JSONPointer.get_node_or_value
 
-iter_path
-"""""""""
-	.. automethod:: JSONPointer.iter_path
-
-iter_path_nodes
-"""""""""""""""
-	.. automethod:: JSONPointer.iter_path_nodes
-
 Operators:
 ^^^^^^^^^^
 
@@ -586,11 +496,34 @@ Operators:
 """""
 	.. automethod:: JSONPointer.__radd__
 
+Iterators:
+^^^^^^^^^^
+
+iter_path
+"""""""""
+	.. automethod:: JSONPointer.iter_path
+
+iter_path_nodes
+"""""""""""""""
+	.. automethod:: JSONPointer.iter_path_nodes
+
+Exceptions
+----------
+* \`jsondata.JSONPointerException [source] <_modules/jsondata/JSONPointer.html#JSONPointerException>\`_
+
 
 'jsondata.JSONPatch' - Module
 ******************************
 
 .. automodule:: jsondata.JSONPatch
+
+Functions:
+----------
+
+getOp
+^^^^^
+
+	.. autofunction:: getOp
 
 Class: JSONPatch
 ----------------
@@ -619,23 +552,17 @@ __repr__
 """"""""
 	.. automethod:: JSONPatch.__repr__
 
-__add__
-"""""""
-	.. automethod:: JSONPatch.__add__
-
-__iadd__
-""""""""
-	.. automethod:: JSONPatch.__iadd__
-
 __len__
 """""""
 	.. automethod:: JSONPatch.__len__
 
-
-
 apply
 """""
 	.. automethod:: JSONPatch.apply
+
+get
+"""
+	.. automethod:: JSONPatch.get
 
 patch_export
 """"""""""""
@@ -644,6 +571,37 @@ patch_export
 patch_import
 """"""""""""
 	.. automethod:: JSONPatch.patch_import
+
+Operators:
+^^^^^^^^^^
+
+'[]'
+""""
+	.. automethod:: JSONPatch.__getitem__
+
+'S+x'
+"""""
+	.. automethod:: JSONPatch.__add__
+
+'S+=x'
+""""""
+	.. automethod:: JSONPatch.__iadd__
+
+'S-=x'
+""""""
+	.. automethod:: JSONPatch.__isub__
+
+'S-x'
+"""""""
+	.. automethod:: JSONPatch.__sub__
+
+Iterators:
+^^^^^^^^^^
+
+__iter__
+""""""""
+	.. automethod:: JSONPatch.__iter__
+
 
 Class: JSONPatchItem
 --------------------
@@ -655,6 +613,18 @@ Methods:
 __init__
 """"""""
 	.. automethod:: JSONPatchItem.__init__
+
+__repr__
+""""""""
+	.. automethod:: JSONPatchItem.__repr__
+
+__str__
+"""""""
+	.. automethod:: JSONPatchItem.__str__
+
+apply
+"""""
+	.. automethod:: JSONPatchItem.apply
 
 
 Class: JSONPatchItemRaw
@@ -680,6 +650,33 @@ __init__
 """"""""
 	.. automethod:: JSONPatchFilter.__init__
 
+Exceptions
+----------
+
+* \`jsondata.JSONPatchException [source] <_modules/jsondata/JSONPatch.html#JSONPatchException>\`_
+
+* \`jsondata.JSONPatchItemException [source] <_modules/jsondata/JSONPatch.html#JSONPatchItemException>\`_
+
+
+'jsondata.JSONDataExceptions' - Module
+**************************************
+
+This module contains the generic exceptions for the package 'jsondata'.
+
+* \`jsondata.JSONDataException [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataException>\`_
+
+
+* \`jsondata.JSONDataAmbiguity [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataAmbiguity>\`_
+
+* \`jsondata.JSONDataKeyError [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataKeyError>\`_
+
+* \`jsondata.JSONDataNodeType [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataNodeType>\`_
+
+* \`jsondata.JSONDataSourceFile [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataSourceFile>\`_
+
+* \`jsondata.JSONDataTargetFile [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataTargetFile>\`_
+
+* \`jsondata.JSONDataValue [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataValue>\`_
 
 
 
@@ -769,8 +766,8 @@ by the imported packages 'json' and 'jsonschema' in conformance to related ECMA 
 standards and proposals. Here ECMA-262, ECMA-404, RFC7159/RFC4627, 
 draft-zyp-json-schema-04, and others.
 
-Therefore the designed architecture is based on the packages 'json' and
-'jsonschema'::
+Therefore the designed architecture is based on the interfaces of the packages 'json' and
+'jsonschema', and compatible packages::
 
 
                    +-------------------------+
@@ -778,22 +775,28 @@ Therefore the designed architecture is based on the packages 'json' and
                    +-------------------------+  
     .   .  .  .  .  . | .  .  . | .  .  .  | .  .  .  .  .  .  .  .  .
                       |         V          |     
-                      |   +----------+     |      
-    Data              |   | jsondata |     |         RFC6901
-    Structures        |   +----------+     |         RFC6902      
+    Data              |   +----------+     |         RFC6901
+    Structures        |   | jsondata |     |         RFC6902
+                      |   +----------+     |         +extensions
     .  .  .  .  .  .  | .  . | .  | .  .  .| .  .  .  .  .  .  .  .  .
                       +---+--+    +---+----+           
                           |           |                           
                           V           V                            
                    +------------+------------+       RFC7159/RFC4267
     JSON           |    json    | jsonschema |       ECMA-262/ECMA-404    
-    Syntax         +------------+------------+       draft-zyp-json-schema-04   
+    Syntax         |    ujson   |            |       draft-zyp-json-schema-04   
+                   +------------+------------+ 
+                                                     Support/verified: json, ujson
+                                                        simply import package 
+                                                        before 'jsondata'
 
 
 The examples from the standards with some extensions, are included in order to 
 verify implementation details for the recommendations.
 This serves also as a first introduction to JSON processing with the
 package 'jsondata'.
+The current version is verified at the JSON-Syntax layer for the packages 
+'json' and 'ujson'.
 
 Current state of main features:
 
@@ -914,7 +917,7 @@ echo "CALL=<$CALL>"
 eval $CALL
 
 echo
-echo "display with: firefox -P preview.simple -new-instance ${DOCHTML}"
+echo "display with: firefox -P preview.simple ${DOCHTML}"
 echo
 
 #build=patches

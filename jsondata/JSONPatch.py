@@ -36,7 +36,7 @@ by the class JSONPointer in accordance to RFC6901.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.1.4'
+__version__ = '0.2.0'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import sys
@@ -47,10 +47,20 @@ if version < '2.7': # pragma: no cover
 
 #import re
 #import json, jsonschema
-import json
+
+if sys.modules.get('json'):
+    import json as myjson
+elif sys.modules.get('ujson'):
+    import ujson as myjson
+else:
+    import json as myjson
+
+# for now the only one supported
+#import jsonschema
+
 from StringIO import StringIO
 from jsondata.JSONPointer import JSONPointer
-from jsondata.JSONDataSerializer import JSONDataSerializer,MODE_SCHEMA_OFF
+from jsondata.JSONDataSerializer import JSONDataSerializer,MODE_SCHEMA_OFF,MODE_SCHEMA_ON
 
 # default
 _appname = "jsonpatch"
@@ -88,6 +98,8 @@ str2op = {
     "test": RFC6902_TEST
 }
 def getOp(x):
+    """Converts input into corresponding enumeration.
+    """
     if type(x) in (int,float,):
         return int(x)
     elif type(x) is (str,unicode,) and x.isdigit():
@@ -97,6 +109,7 @@ def getOp(x):
 
 class JSONPatchException(Exception):
     pass
+
 class JSONPatchItemException(JSONPatchException):
     pass
 
@@ -209,7 +222,8 @@ class JSONPatchItem(object):
             #n,b = self.target.get_node_and_child(jsondata)
 
             nbranch = jsondata.branch_create(
-                    '', # requires absolute address of document
+                    '', # == '' - requires absolute address of document
+                    None,
                     self.target, # target pointer
                     self.value) # value
             return True
@@ -259,8 +273,8 @@ class JSONPatchItemRaw(JSONPatchItem):
         """Parse a raw patch string in accordance to RFC6902.
         """
         if type(patchstring) in (str,unicode,):
-            ps = json.loads(patchstring)
-            sx = json.dumps(ps)
+            ps = myjson.loads(patchstring)
+            sx = myjson.dumps(ps)
             #print "<"+str(sx)+">"
             #print "<"+str(patchstring)+">"
             #l0 = len(sx.replace(" ",""))
@@ -451,7 +465,15 @@ class JSONPatch(object):
             if not p.apply(jsondata):
                 status.append(self.patch.index(p)) # should not be called frequently
         return len(self.patch),status
- 
+
+    def get(self,x=None):
+        """
+        """
+        ret = self.patch
+        
+        #FIXME:
+        return ret
+
     def patch_export(self):
         """Exports the current task list.
         
@@ -465,12 +487,31 @@ class JSONPatch(object):
 
         Supports the formats:
             RFC6902
+
+        Args:
+            patchfile:
+                JSON patch filename containing the list of patch operations.
+            schemafile:
+                JSON-Schema filename for validation of the patch list.
+            **kargs:
+                validator: [default, draft3, off, ]
+                    Sets schema validator for the data file.
+                    The values are: default=validate, draft3=Draft3Validator,
+                    off=None.
+                    default:= validate
+
+        Returns:
+            When successful returns 'True', else raises an exception.
+
+        Raises:
+            JSONPatchException:
+
         """
+        appname = _appname
         kargs = {}
         kargs['datafile'] = patchfile
         kargs['schemafile'] = schemafile
         kargs['validator'] = MODE_SCHEMA_OFF
-        appname = _appname
         for k,v in kargs.items():
             if k == 'nodefaultpath':
                 kargs['nodefaultpath'] = True
@@ -484,13 +525,6 @@ class JSONPatch(object):
 
         for pi in patchdata.data:
             self += JSONPatchItemRaw(pi)
-
-    def get(self,x=None):
-        """
-        """
-        ret = self.patch
-        
-        #FIXME:
-        return ret
+        return True
 
 

@@ -41,7 +41,7 @@ __author__ = 'Arno-Can Uestuensoez'
 __author_email__ = 'acue_sf2@sourceforge.net'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.1.4'
+__version__ = '0.2.0'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 
@@ -155,7 +155,7 @@ if 'test' in sys.argv:
     print "#"
     exit_code = os.system('python -m unittest discover -s tests -p CallCase.py') # traverse tree
     print "#"
-    print "Called/Finished callDocSphinx.sh => exit="+str(exit_code)
+    print "Called/Finished PyUnit tests => exit="+str(exit_code)
     print "exit setup.py now: exit="+str(exit_code)
     sys.argv.remove('test')
 
@@ -200,13 +200,13 @@ if len(sys.argv)==1:
 _name='jsondata'
 
 _description=("The 'jsondata' package provides for the modular in-memory processing of JSON data by trees, branches, pointers, and patches" 
-              "Current version supports JSON/RFC7951, JSONPointer/RFC6901, and parts of JSONPatch/RFC6902. "
+              "Current version supports JSON/RFC7951, JSON pointer / RFC6901, and JSON patch / RFC6902. "
               "The syntax primitives of underlying layers are provided " 
               "by the imported packages 'json' and 'jsonschema' in conformance to related ECMA and RFC "
               "standards and proposals.  "
               "The data is represented by in-memory tree structures with dynamically added "
               "and/or removed branches. The data could be validated by JSON schemas, and stored "
-              "for later reuse."
+              "by serialization for later reuse."
               )
 
 # def read(fname):
@@ -235,7 +235,7 @@ _classifiers = [
     "Topic :: Utilities",
 ]
 
-_keywords = 'JSON JSONschema JSONPointer JSONPatch RFC7159 RFC4627 RFC6901 RFC6902 ECMA-262 ECMA-404 pointer path patch persistency configuration plugins dynamic modules'
+_keywords = 'JSON json json-schema jsonschema json-pointer jsonpointer JSONschema JSONPointer JSONPatch RFC7159 RFC4627 RFC6901 RFC6902 ECMA-262 ECMA-404 pointer schema path patch persistence serialization configuration plugins dynamic modules'
 
 _packages = ["jsondata"]
 _scripts = ["bin/jsondatacheck"]
@@ -244,6 +244,7 @@ _package_data = {
     'jsondata': ['README','ArtisticLicense20.html', 'licenses-amendments.txt',
                  'data.json','schema.jsd','jsondatacheck.json', 'jsondatacheck.jsd',
                  'selftest.json','selftest.jsd',
+                 'rfc6902.jsonp',
                  ],
 }
 

@@ -6,7 +6,12 @@ import unittest
 import os
 import sys
 
-import json
+#
+if 'ujson' in sys.argv:
+    import ujson as myjson
+else:
+    import json as myjson
+#import jsonschema
 
 
 #
@@ -29,7 +34,7 @@ class CallUnits(unittest.TestCase):
             raise BaseException("Missing JSON data:file="+str(datafile))
         # load data
         with open(datafile) as data_file:
-            jval = json.load(data_file)
+            jval = myjson.load(data_file)
         if jval == None:
             raise BaseException("Failed to load data:"+str(data_file))
 

@@ -69,15 +69,6 @@ including a View-Model for a modular data browser GUI. For the
 pattern refer to the project 'data-objects'.
 
 Constants:
-    branchoperations:
-        BRANCH_REPLACE_SET(0): Replace all previous loaded branches.
-
-        BRANCH_SUPERPOSE(1): Creates, or maps onto present by replacing.
-
-        BRANCH_ADD(2): Creates, does not branch_replace.
-
-        BRANCH_REMOVE(3): Deletes.
-
     Compliance modes:
         MODE_JSON_RFC4927(0): Compliant to IETF RFC4927.
                         
@@ -115,32 +106,75 @@ Constants:
         MATCH_INDEX(4): For lists.
 
         MATCH_MEM(5): For dicts(value) and lists.
+        
+        MATCH_NEW(6): If not present create a new only, else ignore and 
+            keep present untouched.
 
-                                      
+        MATCH_PRESENT(7): Check all are present, else fails.
+
+
+Setting of utilized **JSON** package:
+    This module uses for the syntax of JSON data either a preloaded
+    module, or loads the standard module by default. Current supported
+    packages are:
+    
+    - **json**: The standard json package of the Python distribution.
+    
+    - **ujson**: 'Ultra-JSON', a wrapped C implementation with 
+        high-performance conversion. 
+    
+    The current default module is 'json'.
+
+Setting of utilized **JSONschema** package:
+    This module uses for the optional validation of the JSON data 
+    the standard package 'jsonschema' only.
+    
+    
+**REMARK**: The API design is intentionally close to the related standards,
+thus some method are quite close in their functionality with resulting
+few differences if at all.
+
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.1.4'
+__version__ = '0.2.0'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import os,sys
-from jsondata.JSONPointer import JSONPointer 
 version = '{0}.{1}'.format(*sys.version_info[:2])
 if version < '2.7': # pragma: no cover
     raise Exception("Requires Python-2.7.* or higher")
 
-try:
-    from urllib import unquote
-    from itertools import izip
-    #str = unicode
-except ImportError: # Python 3
-    from urllib.parse import unquote
-    izip = zip
+import copy
 
-import re
-import json, jsonschema
-from StringIO import StringIO
+#
+# ffs.: reminder
+#
+# try:
+#     #from urllib import unquote
+#     from itertools import izip
+#     #str = unicode
+# except ImportError: # Python 3
+#     #from urllib.parse import unquote
+#     izip = zip
+#
+#import re
+#from StringIO import StringIO
+
+from types import NoneType
+
+#
+# Check whether the application has selected a verified JSON package
+if sys.modules.get('json'):
+    import json as myjson
+elif sys.modules.get('ujson'):
+    import ujson as myjson
+else:
+    import json as myjson
+
+# for now the only one supported
+import jsonschema
 
 # Constants.
 MODE_JSON_RFC4927 = 0
@@ -165,27 +199,10 @@ MODE_SCHEMA_DRAFT3 = 43
 """The first supported JSONSchema IETF-Draft."""
 
 MODE_SCHEMA_DRAFT4 = 44
-"""The curren supported JSONSchema IETF-Draft."""
+"""The current supported JSONSchema IETF-Draft."""
 
-
-# Choices for branch operations
-BRANCH_REPLACE = 0 
-"""replaces the single branches."""
-
-BRANCH_REPLACE_SET = 1 
-"""replaces the complete set of branches."""
-
-BRANCH_SUPERPOSE = 2
-"""drops-in the child nodes of the source into the target, superposes complete branches only"""
-
-BRANCH_SUPERPOSE_ITEMS = 3
-"""drops-in the child nodes of the source into the target, superposes each item when present"""
-
-BRANCH_ADD = 4
-"""similar to branch_add, but does not branch_replace existing"""
-
-BRANCH_REMOVE = 5
-"""removes a node"""
+MODE_SCHEMA_ON = 44
+"""The current default, DRAFT4."""
 
 
 # match criteria for node comparison
@@ -207,73 +224,24 @@ MATCH_INDEX = 4
 MATCH_MEM = 5
 """for dicts(value) and lists"""
 
+MATCH_NEW = 6
+"""If not present create a new, else ignore and keep present untouched."""
+
+MATCH_PRESENT = 7
+"""Check all are present, else fails."""
 
 # Sets display for inetractive JSON/JSONschema design.
 _interactive = False
 
-class JSONDataSerializerError(Exception):
-    """JSONData Error."""
-    def __init__(self,err):
-        s="ERROR:"+str(err)
-        Exception.__init__(self,s)
+# generic exceptions for 'jsondata'
+from JSONDataExceptions import JSONDataException,JSONDataValue,JSONDataKeyError,JSONDataSourceFile,JSONDataTargetFile,JSONDataNodeType
 
-class JSONDataSerializerErrorTargetFile(Exception):
-    """JSONData Error on writing a file."""
-    def __init__(self,targetname):
-        s="Failed on target file:"+str(targetname)
-        Exception.__init__(self,s)
-
-class JSONDataSerializerErrorTargetFileReason(Exception):
-    """JSONData Error on writing a file with the reason from the original exception."""
-    def __init__(self,targetname,reason):
-        if _interactive:
-            s="Failed on target file:\n  "+str(targetname)+":"+str(reason)
-        else:
-            s="Failed on target file:"+str(targetname)+":"+str(reason)
-        Exception.__init__(self,s)
-
-class JSONDataSerializerErrorSourceFile(Exception):
-    """JSONData Error on reading a source file."""
-    def __init__(self,sourcename,sources):
-        if _interactive:
-            s="Missing source file:\n  "+str(sourcename)+":"+str(sources)
-        else:
-            s="Missing source file:"+str(sourcename)+":"+str(sources)
-        Exception.__init__(self,s)
-
-class JSONDataSerializerErrorSourceFileReason(Exception):
-    """JSONData Error on reading a source file with the reason from the original exception."""
-    def __init__(self,sourcename,sources,reason):
-        if _interactive:
-            s="Missing source file:\n  "+str(sourcename)+":"+str(sources)+":"+str(reason)
-        else:
-            s="Missing source file:"+str(sourcename)+":"+str(sources)+":"+str(reason)
-        Exception.__init__(self,s)
-
-class JSONDataSerializerErrorSourceFromList(Exception):
-    """JSONData Error on search for a source file by a provided list."""
-    def __init__(self,sourcename,searched):
-        if _interactive:
-            s="Missing source file:\n  "+str(sourcename)+":searched:"+str(searched)
-        else:
-            s="Missing source file:"+str(sourcename)+":searched:"+str(searched)
-        Exception.__init__(self,s)
-
-class JSONDataSerializerErrorSourceFromAll(Exception):
-    """JSONData Error on resolving a source file name from available parameters."""
-    def __init__(self,sourcename,sources,*searched):
-        if _interactive:
-            s="Missing source filelist:\n  "+str(sourcename)+":"+str(sources)+"\n  pathlist:"
-            for sx in searched:
-                s += "\n    "+str(sx)
-        else:
-            s="Missing source filelist:"+str(sourcename)+":"+str(sources)+":pathlist"
-            for sx in searched:
-                s += ":"+str(sx)
-        Exception.__init__(self,s)
-
-class JSONDataSerializerErrorAmbiguity(Exception):
-    """JSONData Error ambiguity of provided parameters."""
+#
+# special cases of exceptions
+#
+class JSONDataAmbiguity(Exception):
+    """ Error ambiguity of provided parameters."""
+    
     def __init__(self,requested,*sources):
         if _interactive:
             s="Ambiguious input for:\n  "+str(requested)
@@ -285,24 +253,16 @@ class JSONDataSerializerErrorAmbiguity(Exception):
                 s+=":"+str(sx)
         Exception.__init__(self,s)
 
-class JSONDataSerializerErrorAttribute(Exception):
-    """JSONData Error on unknown and/or missing attribute."""
-    def __init__(self,requested):
-        s="Attribute unknown:"+str(requested)
-        Exception.__init__(self,s)
+    def __str__(self):
+        return "JSONDataAmbiguity:"+self.s
 
-class JSONDataSerializerErrorAttributeValue(Exception):
-    """JSONData Error on unknown and/or missing attribute value."""
-    def __init__(self,requested,val):
-        s="Attribute value:"+str(requested)+":"+str(val)
-        Exception.__init__(self,s)
+class JSONpl(list):
+    """A wrapper for a 'list' representing a path pointer
+    at the method interfaces. Required due to possible 
+    ambiguity with the other type of in-memory node.  
+    """
+    pass
 
-class JSONDataSerializerErrorValue(Exception):
-    """JSONData Error on a value."""
-    def __init__(self,requested,val):
-        s="Value:"+str(requested)+":"+str(val)
-        Exception.__init__(self,s)
-    
 class JSONDataSerializer:
     """ Representation of a JSON based object data tree.
     
@@ -318,10 +278,99 @@ class JSONDataSerializer:
     operation on the native JSON representation.
 
     Attributes:
-        data: The data tree of JSON based objects provided
+        **data**: The data tree of JSON based objects provided
             by the module 'json'.
-        schema: The validator for 'data' provided by 
+        **schema**: The validator for 'data' provided by 
             the module 'jsonschema'.
+
+    Common call parameters provided by the methods of this class are:
+        *targetnode := addressreference*
+            The target node of called method. The 'targetnode' in general 
+            represents the target of the called method. In most cases this
+            has to be a reference to a container for the modification 
+            and/or insertion of resulting elements. The methods require
+            the change of contained items, which involves the application
+            of a 'key' pointing to the hook in point of the reference
+            to the modification.
+            
+        *key := key-value* 
+            The hook-in point for references of modified entries within
+            the targetnode container. The following values are supported:
+                       
+        *sourcenode := addressreference*
+            The in-memory node address of the source branch for the method,
+            e.g. 'copy' or 'move' operation.
+
+    The address references supported in this class refer the resulting
+    in-memory representation of a pointer path. The target is a node 
+    within a Python data representation as provided by the package 
+    '**json**' and compatible packages, e.g. '**ujson**'. The supported input
+    syntax is one of the following interchangeable formats::
+        
+        # The reference to a in-memory-node.
+        addressreference := (
+              nodereference
+            | addressreference-source
+        )
+
+        nodereference:= (
+              <in-memory>
+            | ''
+        )
+        
+        <in-memory> := "Memory representation of a JSON node, a 'dict'
+            or a 'list'. The in-memory Python node reference has to be
+            located within the document, due to performance reasons this
+            is not verified by default.
+            
+            The 'nodereference' could be converted from the
+            'addressreference-source' representation."
+
+        '' := "Represents the whole document in accordance to RFC6901.
+            Same as 'self.data'." 
+        
+        # The source of the syntax for the description of the reference
+        # pointer path to a node. This is applicable on paths to be created.
+        addressreference-source := (
+            JSONPointer
+        )
+              
+        JSONPointer:="A JSONPointer object in accordance to RFC6901.
+            for additional information on input formats refer to the 
+            class documentation.
+            This class provides a fully qualified path pointer, which
+            could be converted into any of the required representations."
+
+    For hooks by 'key-value' within addressed containers::
+
+        key-value:=(None|<list-index>|<dict-key>) 
+            
+        None := "When the 'key' parameter is 'None', the action 
+            optionally could be based on the keys of the 'sourcenode'.  
+            The contents of the branch replace the node contents
+            when the type of the branch matches the hook."
+
+        <list-index>:=('-'|int)
+        
+        <dict-key>:="Valid for a 'dict' only, sets key/value pair, 
+            where present is replace, new is created."
+
+        '-' := "Valid for a 'list' only, appends to present."
+        
+        int := "Valid for a 'list' only, replaces present when
+            0 < #int < len(Node)."
+       
+    In the parameter lists of methods used term 'pointer' is either 
+    an object of class 'JSONPointer', or a list of pointer path 
+    entries.
+    
+    The JSON types 'object' and 'array' behave in Python slightly 
+    different in accordance to RFC6902. The main difference arise 
+    from the restrictions on applicable key values. Whereas the
+    ranges are limited logically by the actual container sizes, 
+    the object types provide free and unlimited keys. The limit 
+    is set by type restriction to unicode and 'non-nil' only 
+    for keys.  
 
     """
     def __init__(self,appname,*args,**kargs):
@@ -334,69 +383,73 @@ class JSONDataSerializer:
                  parameters.
                 filelist, pathlist, filepathlist, schemafile
             **kargs:
-                branchoperations: [branch_add_only, branch_remove, branch_replace-set, branch_add, ]
-                    Defines the behavior for for the load of data when redundant
-                    tree parts exist.
-                        set-branch_replace: BRANCH_REPLACE_SET(0)
-                            Replace all previous loaded branches.
-                        branch_add: BRANCH_SUPERPOSE(1)
-                            Creates, or maps onto present by replacing.
-                        branch_add_only: BRANCH_ADD(2)
-                            Creates, does not branch_replace.
-                        branch_remove: BRANCH_REMOVE(3)
-                            Deletes.
-                    default:= branch_replace-object
                 datafile: Filepathname of JSON data file, when provided a further
                     search by pathlist, filelist, and filepathlist is suppressed.
                     Therefore it has to be a valid filepathname.
+                    
                     default:= <appname>.json
                 filelist: List of valid filenames.
+                    
                     default:= <appname>.json
                 filepathlist: List of filepathnames. These are not prefixed by search
                     path components, but made absolute.
+                    
                     default:= []
                 filepriority: [firstonly, lastonly, all]
                     Defines the handling of multiple occurrences of a filename at varios
                     positions. This option thus may only be altered in conjunction with 'pathlist'.
+                    
                     default:= all
                 indent_str: Defied the indentation of 'str'.
+                    
                     default:= 4
                 loadcached: Caching of load for JSON data files.
                     Loads either completely into cache before transferring to
                     production entries, or immediately into production parameters,
                     which may take an effect on the remaining parameters to be loaded.
+                    
                     default:= False
                 nodefaultpath: Ignores the default paths, the exception is the
                     base configuration, which still is searched within the default
                     paths exclusively.
+                    
                     default:= False
                 nosubdata: Supresses the load of sub-data files.
                     default:= False
                 pathlist: List of pathnames for search of a valid filename.
                     Either a PATH like string, or a list of single paths.
+                    
                     default:= ../dirname(__file__)/etc/:dirname(__file__)/:/etc/:$HOME/etc/
                 requires: [all, base, one]
                     Defines how to handle missing or invalid files.
+                    
                     default:= all
                 schema: A valid in-meory JSONschema.
+                    
                     default:= None
                 schemafile: Filepathname of JSONschema file.
+                    
                     default:= <appname>.jsd
                 validator: [default, draft3, off, ]
                     Sets schema validator for the data file.
-                    The values are: default=validate, draft3=Draft3Validator, off=None
+                    The values are: default=validate, draft3=Draft3Validator,
+                    off=None
+                    
                     default:= validate
 
                 printdata: branch=None
                     Pretty print resulting final data of branch.
+                    
                     default:= top
                 printschema: branch=None
                     Pretty print resulting schema.
+                    
                     default:= top
 
                 debug: Displays extended state data for developers.
                     Requires __debug__==True.
-                verbose: Extends the amount of the display of processing data.
+                verbose: Extends the amount of the display of 
+                    processing data.
 
         Returns:
             Results in an initialized object.
@@ -404,32 +457,52 @@ class JSONDataSerializer:
         Raises:
             NameError:
 
-            JSONDataSerializerErrorSourceFile:
+            JSONDataSourceFile:
 
-            JSONDataSerializerErrorSourceFromList:
+            JSONDataAmbiguity:
 
-            JSONDataSerializerErrorAmbiguity:
-
-            JSONDataSerializerErrorAttribute:
-
-            JSONDataSerializerErrorAttributeValue:
-
+            JSONDataValue:
 
             jsonschema.ValidationError:
 
             jsonschema.SchemaError:
 
         """
-        # set display mode for errors
-        _interactive = kargs.get('interactive',False)
+        # static final defaults
 
-        afile=os.path.abspath(str(__file__))
-
+        # prep import subcall
+        kimp={}
+        
         # JSON-Syntax modes
         self.mode_json = MODE_JSON_RF7951
         self.mode_schema = MODE_SCHEMA_DRAFT4
         self.mode_pointer = MODE_POINTER_RFC6901
         self.mode_patch = MODE_PATCH_RFC6902
+
+        self.branch = None
+        self.data = None
+        self.schema = None
+        self.nodefaultpath = False
+        self.nodesubdata = False
+        self.requires = False
+        self.indent = 4
+        self.validator = MODE_SCHEMA_DRAFT4 # default validator 
+
+        # Either provided explicitly, or for search.
+        self.datafile = None
+
+        printschema = False
+        printdata = False
+        
+        if __debug__:
+            self.debug = False
+        self.verbose = False
+
+        # set display mode for errors
+        global _interactive
+        _interactive = kargs.get('interactive',False)
+
+        afile=os.path.abspath(str(__file__))
 
         # The internal object schema for the framework - a fixed set of files as final MODE_SCHEMA_DRAFT4.
         self.schemafile = kargs.get('schemafile',None)
@@ -437,7 +510,7 @@ class JSONDataSerializer:
         if self.schema and self.schemafile:
             # When a schema/schema file is provided, it is the only and one
             # for the top-level,
-            raise JSONDataSerializerErrorAmbiguity('schemafile/schema',
+            raise JSONDataAmbiguity('schemafile/schema',
                 "schemafile="+str(self.schemafile),
                 "schema="+str(self.schema)
                 )
@@ -452,27 +525,19 @@ class JSONDataSerializer:
 
         self.filepathlist = kargs.get('filepathlist',[])
 
-        self.branch = None
-        self.branchoperations = BRANCH_SUPERPOSE
-        self.data = None
-        self.schema = None
-        self.nodefaultpath = False
-        self.nodesubdata = False
-        self.requires = False
-        self.indent = 4
-        self.validator = MODE_SCHEMA_DRAFT4
-
-        # Either provided explicitly, or for search.
-        self.datafile = None
-
-        printschema = False
-        printdata = False
-
-        global _interactive
-        
-        if __debug__:
-            self.debug = False
-        self.verbose = False
+        # positional parameters dominate, remaining are MODE_SCHEMA_DRAFT4
+        if args:
+            for i in range(0,len(args)):
+                if i == 0:
+                    self.filelist = args[i]
+                elif i == 1:
+                    self.pathlist = args[i]
+                elif i == 2:
+                    self.filepathlist = args[i]
+                elif i == 3:
+                    self.schemafile = args[i]
+                else:
+                    raise JSONDataValue("unknown","args["+str(i)+"]",str(args))
 
         #
         #*** Fetch parameters
@@ -480,19 +545,6 @@ class JSONDataSerializer:
         for k,v in kargs.items():
             if k == 'branch':
                 self.branch = v
-            elif k == 'branchoperations':
-                if v == 'branch_replace-set' or v == BRANCH_REPLACE_SET:
-                    self.branchoperations = BRANCH_REPLACE_SET
-                elif v == 'branch_replace' or v == BRANCH_REPLACE:
-                    self.branchoperations = BRANCH_REPLACE
-                elif v == 'branch_add' or v == BRANCH_SUPERPOSE:
-                    self.branchoperations = BRANCH_SUPERPOSE
-                elif v == 'branch_add_only' or v == BRANCH_ADD:
-                    self.branchoperations = BRANCH_ADD
-                elif v == 'branch_remove' or v == BRANCH_REMOVE:
-                    self.branchoperations = BRANCH_REMOVE
-                else:
-                    raise JSONDataSerializerErrorAttributeValue(k,str(v))
             elif k == 'datafile':
                 self.datafile = v
             elif k == 'filepathlist':
@@ -521,7 +573,7 @@ class JSONDataSerializer:
                 elif v == 'off' or v == MODE_SCHEMA_OFF:
                     self.validator = MODE_SCHEMA_OFF
                 else:
-                    raise JSONDataSerializerErrorAttributeValue(k,str(v))
+                    raise JSONDataValue("unknown",k,str(v))
             elif k == 'verbose':
                 self.verbose = v
             elif __debug__:
@@ -529,23 +581,12 @@ class JSONDataSerializer:
                     self.debug = v
             elif k == 'interactive':
                 _interactive = v
-                
-        # positional parameters dominate, remaining are MODE_SCHEMA_DRAFT4
-        if args:
-            for i in range(0,len(args)):
-                if i == 0:
-                    self.filelist = args[i]
-                elif i == 1:
-                    self.pathlist = args[i]
-                elif i == 2:
-                    self.filepathlist = args[i]
-                elif i == 3:
-                    self.schemafile = args[i]
-                else:
-                    raise JSONDataSerializerErrorAttributeValue(("args["+str(i)+"]",str(args)))
 
+        if self.verbose:
+                print "VERB:JSON=             "+str(myjson.__name__)+" / "+str(myjson.__version__)
         if __debug__:
             if self.debug:
+                print "DBG:JSON=             "+str(myjson.__name__)+" / "+str(myjson.__version__)
                 print "DBG:self.pathlist=    "+str(self.pathlist)
                 print "DBG:self.filelist=    "+str(self.filelist)
                 print "DBG:self.filepathlist="+str(self.filepathlist)
@@ -562,7 +603,6 @@ class JSONDataSerializer:
 
             # expand all
             self.pathlist = [os.path.expandvars(os.path.expanduser(p)) for p in self.pathlist]
-
             #parts = [part.branch_replace('~', '~0') for part in self.parts]
 
         else: # a PATH like variable, so do it at once
@@ -589,12 +629,11 @@ class JSONDataSerializer:
                                     self.filelist.remove(f)
 
         elif not os.path.isfile(self.datafile): # a provided datafile has to exist
-            raise JSONDataSerializerErrorSourceFile("datafile",str(self.datafile))
+            raise JSONDataSourceFile("open","datafile",str(self.datafile))
 
         if not self.filepathlist:
             if not self.datafile:
-                raise JSONDataSerializerErrorSourceFromAll("datafile",
-                    str(self.filelist), self.pathlist)
+                raise JSONDataSourceFile("value","datasource",str(self.filelist)+":"+str(self.pathlist))
 
         # Check whether validation is requested.
         # If so, do a last trial for plausible construction.
@@ -609,14 +648,13 @@ class JSONDataSerializer:
                         if os.path.isfile(f) and os.path.isfile(os.path.splitext(f)[0]+".jsd"):
                             self.schemafile = os.path.splitext(f)[0]+".jsd"
                             break # just use the first valid-pair
-                        raise JSONDataSerializerErrorSourceFile("datafile",str(self.filepathlist))
+                        raise JSONDataSourceFile("open","schemafile",str(self.filepathlist))
                 else:
-                    raise JSONDataSerializerErrorSourceFromAll("datafile",
-                        str(self.filelist), self.pathlist)
+                    raise JSONDataSourceFile("value","datasource",str(self.filelist)+":"+str(self.pathlist))
 
             # when defined => has to be present
             if self.schemafile and not os.path.isfile(self.schemafile):
-                raise JSONDataSerializerErrorSourceFile("schemafile",str(self.schemafile))
+                raise JSONDataSourceFile("open","schemafile",str(self.schemafile))
 
             # initialize schema
             kargs['schemafile'] = self.schemafile
@@ -635,11 +673,10 @@ class JSONDataSerializer:
         #
         confok=False
         onenok = False
-        kx={'branchoperations':self.branchoperations}
         if not self.datafile: # No explicit given
             if self.filepathlist:
                 for f in self.filepathlist:
-                    if self.json_import(f,self.schemafile,self.branch,**kx):
+                    if self.json_import(self.branch,None,f,self.schemafile,**kimp):
                         confok=True
                     else:
                         onenok = True
@@ -649,17 +686,13 @@ class JSONDataSerializer:
                         if self.requires == 'base': # is mandatory, reaching this means is OK
                             pass
                         else:
-                            raise JSONDataSerializerErrorSourceFromAll("datafiles",
-                                str(self.filepathlist),str(self.filelist),str(self.pathlist),
-                                )
+                            raise JSONDataSourceFile("value","datasource",str(self.filepathlist)+":"+str(self.filelist)+":"+str(self.pathlist))
 
                 else: # at least one application configuration loaded
                     if self.requires != False: # there is a rule
                         if self.requires == 'all': # no exeception allowed
                             if onenok: # one has failed
-                                raise JSONDataSerializerErrorSourceFromAll("datafiles",
-                                    str(self.filepathlist),str(self.filelist),str(self.pathlist),
-                                    )
+                                raise JSONDataSourceFile("value","datasource",str(self.filepathlist)+":"+str(self.filelist)+":"+str(self.pathlist))
                         elif self.requires == 'base': # is mandatory, reaching this means is OK
                             pass
                         elif self.requires == 'one': # reaching this means is OK
@@ -667,7 +700,9 @@ class JSONDataSerializer:
 
         else:
             if os.path.exists(self.datafile):
-                self.json_import(self.datafile,self.schemafile,self.branch,**kx)
+                if not self.schemafile and self.schema:
+                    kimp['schema'] = self.schema
+                self.json_import(self.branch, None, self.datafile, self.schemafile,**kimp)
 
         # display data to stdout
         if printschema:
@@ -679,144 +714,157 @@ class JSONDataSerializer:
         """Dump data.
         """
 #         io = StringIO()
-#         json.dump(self.data, io)
+#         myjson.dump(self.data, io)
 #         return io.getvalue()
         return repr(self.data)
 
     def __str__(self):
         """Dumps data by pretty print.
         """
-        return json.dumps(self.data, indent=self.indent)
+        return myjson.dumps(self.data, indent=self.indent)
 
-    def branch_add_only(self, targetnode, branch, matchcondition=None):
-        """Adds a branch into a target structure.
-
-        The present previous values are kept untouched, non-existent
-        nodes are added.
-        
-        Args:
-            targetnode: Target tree where the source is to be inserted.
-
-            branch: Source branch to be inserted into target tree.
-
-            matchcondition: Defines the condition for applicability
-                of the branch_add_only method. For the provided values refer to
-                the call 'isApplicable'
-
-        Returns:
-            When successful returns 'True', else returns either 'False', or
-            raises an exception.
-            Success is the complete addition only, thus one failure returns
-            False.
-
-        Raises:
-            JSONDataSerializerError:
-
+    def __getitem__(self,key):
+        """Support of slices, for 'iterator' refer to self.__iter__.
         """
-        ret = True
-        if type(branch) == dict:
+        # self[key]
+        # self[i:j:k]
+        # x in self
+        # for x in self
+        return self.data[key] 
 
-            # branch_add_only does not branch_replace, just adds non-present
-            if not matchcondition:
-                matchcondition = [MATCH_NO,MATCH_KEY]
-            else:
-                matchcondition.append(MATCH_NO)
+    def __iter__(self):
+        """Provides an iterator for data.
+        """
+        return iter(self.data)
 
-            for k,v in branch.items():
-                if self.isApplicable(targetnode, {k:v}, matchcondition):
-                    targetnode[k] = v
-                else:
-                    ret = False
-        elif type(branch) == list:
-            for v in branch:
-                if self.isApplicable(targetnode, [v], matchcondition):
-                    targetnode.append(v)
-                else:
-                    ret = False
-        else:
-            raise JSONDataSerializerError("Type not supported:type="+str(branch))
-        return ret
+    def branch_add(self, targetnode, key, sourcenode):
+        """Add a complete branch into a target structure of type object.
 
-    def branch_add(self, targetnode, branch, matchcondition=None):
-        """Superposes a complete branch into a target structure of type object.
+        Present previous branches are replaced, non-existent branches are 
+        added. The added branch is created by a deep copy, thus is completely 
+        independent from the source. 
 
-        Present previous branches are replaced, non-existent
-        branches are added.
+           Call: *branch_copy* ( **t**, **k**, **s** )
+
+           +---+------------------+---------+----------------+-----------+
+           | i |  target          | source  | add            |           |
+           |   +----------+-------+---------+-------+--------+           |
+           |   |  t       | k     | s       | from  | to     | type      |
+           +===+==========+=======+=========+=======+========+===========+
+           | 0 |  node    | key   | node    | s     | t[k]   | any       |
+           +---+----------+-------+---------+-------+--------+-----------+
+           | 1 |  node    | None  | node    | s     | t[*]   | match     |
+           +---+----------+-------+---------+-------+--------+-----------+
+           | 2 |  node    | key   | pointer | s     | t[k]   | any       |
+           +---+----------+-------+---------+-------+--------+-----------+
 
         Args:
-            target: Target tree the branch is to be inserted.
-
-            branch: Source branch to be inserted into target tree.
-
-            matchcondition: Defines the condition for applicability
-                of the super positioning at the swallow level of
-                immediate child-nodes. For the provided values refer
-                to the call 'isApplicable'
-
-        Returns:
-            When successful returns 'True', else returns either 'False', or
-            raises an exception.
-            Partial superposition is by definition success.
-
-        Raises:
-            JSONDataSerializerError:
-
-        """
-        ret = True
-
-        if type(targetnode) == dict:
-            for k,v in branch.items():
-                # the container hook has to match for insertion
-                if targetnode.get(k) and type(targetnode.get(k)) != type(v):
-                    raise JSONDataSerializerError("Type-Mismatch:target="+str(type(targetnode))+" != branch"+str(type(branch)))
-                if self.isApplicable(targetnode, {k:v}, matchcondition):
-                    targetnode[k] = v
-        elif type(targetnode) == list:
-            for v in branch:
-                if self.isApplicable(targetnode[k], [v], matchcondition):
-                    targetnode.append(v)
-        elif isinstance(targetnode,JSONPointer):
-            x = targetnode.get_node(self.data,True) 
-            ret = self.branch_add(x, branch, matchcondition)
-
-            #= branch
+            targetnode := nodereference
+                Target container node where the branch is to be inserted.
             
+            key := key-value
+                Hook for the insertion within target node.
+            
+            sourcenode := nodereference
+                Source branch to be inserted into the target tree.
+
+        Returns:
+            When successful returns 'True', else returns either 'False', or
+            raises an exception.
+
+        Raises:
+            JSONDataNodeType:
+            JSONDataKeyError:
+
+        """
+        ret = False
+        
+        if type(targetnode) == dict:
+            if key:
+                targetnode[key] = copy.deepcopy(sourcenode)
+            else:
+                if type(sourcenode) != dict:
+                    raise JSONDataNodeType("type","targetnode/sourcenode",type(targetnode)+"/"+type(sourcenode))
+                targetnode.clear()
+                for k,v in sourcenode.items():
+                    targetnode[k]=copy.deepcopy(v)
+            return True
+                    
+        elif type(targetnode) == list:
+            if key == '-':
+                targetnode.append(copy.deepcopy(sourcenode))
+                ret = True
+            elif 0 <= key < len(targetnode):
+                targetnode[key] = copy.deepcopy(sourcenode)
+            elif type(key) is NoneType: # 0 is valid
+                if type(sourcenode) != list:
+                    raise JSONDataNodeType("node/keys != type:does not match:",targetnode, sourcenode)
+                for k in range(0,len(targetnode)):
+                    targetnode.pop()
+                for v in sourcenode:
+                    targetnode.append(copy.deepcopy(v))
+            else:
+                raise JSONDataKeyError("value", 'key', key)
+            return True
+                
         else:
-            raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+            raise JSONDataNodeType("type","targetnode/sourcenode",type(targetnode)+"/"+type(sourcenode))
 
         return ret
 
-    def branch_copy(self,sourcenode,targetnode,force=False,matchcondition=None):
+    def branch_copy(self, targetnode, key, sourcenode, force=True):
         """Copies the source branch to the target node.
 
+        The copy is internally mapped onto the 'branch_add' call, 
+        thus shares basically the same parameters and behaviour.
+        Due to the required modification of the target only, the
+        copy is slightly different from the 'branch_move' call.
+        
+           Call: *branch_copy* ( **t**, **k**, **s** )
+
+           +---+------------------+---------+----------------+-----------+
+           | i |  target          | source  | copy           |           |
+           |   +----------+-------+---------+-------+--------+           |
+           |   |  t       | k     | s       | from  |  to    | type      |
+           +===+==========+=======+=========+=======+========+===========+
+           | 0 |  node    | key   | node    | s     | t[k]   | any       |
+           +---+----------+-------+---------+-------+--------+-----------+
+           | 1 |  node    | None  | node    | s     | t[sk]  | match     |
+           +---+----------+-------+---------+-------+--------+-----------+
+           | 2 |  node    | key   | pointer | s     | t[k]   | any       |
+           +---+----------+-------+---------+-------+--------+-----------+
+
         Args:
-            targetnode: Target tree the branch is to be inserted.
-
-            sourcenode: Source branch to be inserted into target tree.
-
-            force: If true present are replaced, else only non-present are copied.
-
-            matchcondition: Defines the condition for applicability
-                of the super positioning at the swallow level of
-                immediate child-nodes. For the provided values refer
-                to the call 'isApplicable'
+            targetnode := nodereference
+                Target tree the branch is to be inserted.
+            
+            key := key-value
+                Key of insertion point within target node.
+            
+            sourcenode := nodereference
+                Source branch to be inserted into target tree.
+            
+            force: If true present are replaced, else only non-present 
+                are copied.
+                
+                default:=True
 
         Returns:
             When successful returns 'True', else returns either 'False', or
             raises an exception.
-            Partial superposition is by definition success.
 
         Raises:
-            JSONDataSerializerError:
+            JSONData:
         
         """
-        if force:
-            return self.branch_add(targetnode, sourcenode,matchcondition)
-        else:
-            return self.branch_add_only(targetnode, sourcenode,matchcondition)
-        pass
+        if force: # force replace of existing
+            return self.branch_add(targetnode, key, sourcenode)
+        elif self.isApplicable(targetnode, key, sourcenode, [MATCH_NEW]): # only new
+            return self.branch_add(targetnode, key, sourcenode)
+        else: # not applicable
+            return False
 
-    def branch_create(self,targetnode,branch,value=None):
+    def branch_create(self, targetnode, key, branch, value=None):
         """Creates a branch located at targetnode.
 
         The requested branch as created as child value of provided 'targetnode'.
@@ -826,336 +874,396 @@ class JSONDataSerializer:
             content type of the key(str,unicode)/index(int), later 
             versions may use a provided schema.
   
+           Call: *branch_create* ( **t**, **k**, **b**, **v** )
+
+           +---+------------------+---------+-------+
+           | i |  target          | branch  | value |
+           |   +----------+-------+---------+-------+
+           |   |  t       | k     | b       | v     |
+           +===+==========+=======+=========+=======+
+           | 0 |  node    | key   | pointer | [any] |
+           +---+----------+-------+---------+-------+
+           | 1 |  node    | None  | pointer | [any] |
+           +---+----------+-------+---------+-------+
+
+
         Args:
-            targetnode: Base node for the insertion of branch.
-                Supported input types are:
-                An absolute pointer address path within current document.
+            targetnode := nodereference
+                Base node for the insertion of branch.
 
-                    JSONPointer: RFC6901 class representation.
-                    <RFC6901-string>: A string in accordance 
-                        to RFC6901.
-                    <list-of-bath-components>: A list representation 
-                        of a pointer path in accordance to RFC6901.
-                    <node>: A node within a data tree based on the
-                        package 'json'.
+            key := key-value
+                Key of insertion point within target node.
 
-            branch: New branch to be inserted into target tree.
-                A Pointer address path relative to the targetnode. 
-    
-                Supported input types are:
-                    JSONPointer: RFC6901 class representation. 
-                    <RFC6901-string>: A string in accordance 
-                        to RFC6901.
-                    <list-of-bath-components>: A list representation 
-                        of a pointer path in accordance to RFC6901.
-                    <node>: A node within a data tree based on the
-                        package 'json'.
+            branch :=  addressreference-source
+                New branch to be created in the target tree.
+                A Pointer address path relative to the 'targetnode'. 
 
-                **REMARK**: The address has to begin with 
-                    a '/' in accordance to RFC6901.
+            value: Optional value for the leaf. The value itself
+                could be either an atomic type, or a branch itself
+                in accordance to RFC6902. 
 
-            value: Optional value for the leaf.
-            
         Returns:
-            When successful returns the leaf node, else returns either 'False',
-            or raises an exception.
+            When successful returns the leaf node, else returns either 
+            'False', or raises an exception.
 
         Raises:
-            JSONDataSerializerError:
+            JSONData:
 
         """
         ret = targetnode
 
-        def getNewNode(key):
-            if key == '-':
+        def getNewNode(keytype):
+            """Fetch the required new container."""
+            if keytype == '-':
                 return []
-            elif type(key) is int:
+            elif type(keytype) is int:
                 return []
-            elif type(key) in ( str, unicode, ):
+            elif type(keytype) in ( str, unicode, ):
                 return {}
-            elif not key:
+            elif not keytype:
                 return None
             else:
-                raise JSONDataSerializerError("Unknown key/index type:"+str(key))
+                raise JSONDataKeyError("type",'keytype',str(keytype))
             
-        if isinstance(targetnode,JSONPointer):
-            hook = targetnode.get_node(self.data)
-        else:
-            hook = targetnode
         if isinstance(branch,JSONPointer):
             
             #FIXME: iterator
             branch = branch.get_path_list()
 
         if not branch:
-            raise JSONDataSerializerError("missing branch")
-            
-        if hook in ('', u''):
-            hook = self.data
-        
-        if type(hook) == dict:
-            if type(branch[0]) not in (str,unicode,):
-                raise JSONDataSerializerError("branch not compatible with container:"+str(type(hook))+" / "+str(type(branch[0])))
+            raise JSONDataException("value","branch",branch)
 
-#             if len(branch)>1:
-#                 hook[unicode(branch[0])] = getNewNode(branch[1])
-#                 ret = self.branch_create(hook[branch[0]], branch[1:], value)
-#             if not hook.get(branch[0]): # if not present
-#                 hook[unicode(branch[0])] = self.getValueNode(value)
+        if targetnode == '': # RFC6901 - whole document
+            targetnode = self.data
+            
+        if type(targetnode) == dict:
+            if type(branch[0]) not in (str,unicode,):
+                raise JSONDataException("value","container/branch",str(type(targetnode))+"/"+str(type(branch[0])))
 
             if len(branch)>1:
-                if not hook.get(unicode(branch[0]),False):
-                    hook[unicode(branch[0])] = getNewNode(branch[1])
-                ret = self.branch_create(hook[branch[0]], branch[1:], value)
+                if not targetnode.get(unicode(branch[0]),False):
+                    targetnode[unicode(branch[0])] = getNewNode(branch[1])
+                ret = self.branch_create(targetnode[branch[0]], key, branch[1:], value)
             else:
-                hook[unicode(branch[0])] = self.getValueNode(value)
+                targetnode[unicode(branch[0])] = self.getValueNode(value)
                                 
-        elif type(hook) == list:
-            if type(branch[0]) in (int,) and branch[0] < len(hook): # see RFC6902 for '-'/append
+        elif type(targetnode) == list:
+            if type(branch[0]) in (int,) and branch[0] < len(targetnode): # see RFC6902 for '-'/append
                 pass
             elif branch[0] == '-': # see RFC6902 for '-'/append
                 pass
             else:
-                raise JSONDataSerializerError("failed hook in branch:"+str(type(hook))+" / "+str(type(branch[0])))
+                raise JSONDataException("value","targetnode/branch:"+str(type(targetnode))+"/"+str(type(branch[0])))
 
             if len(branch) == 1:            
                 if branch[0] == '-':
-                    branch[0] = len(hook)
-                    hook.append(self.getValueNode(value))
+                    branch[0] = len(targetnode)
+                    targetnode.append(self.getValueNode(value))
                 else:
-                    hook[branch[0]] = self.getValueNode(value)
-                ret = hook
+                    targetnode[branch[0]] = self.getValueNode(value)
+                ret = targetnode
             else:
                 if branch[0] == '-':
-                    branch[0] = len(hook)
-                    hook.append(getNewNode(branch[1]))
-                ret = self.branch_create(hook[branch[0]], branch[1:], value)
+                    branch[0] = len(targetnode)
+                    targetnode.append(getNewNode(branch[1]))
+                ret = self.branch_create(targetnode[branch[0]], key, branch[1:], value)
 
         else:
-            raise JSONDataSerializerError("Type not applicable:"+str(type(hook)))
+            raise JSONDataException("type","targetnode",str(type(targetnode)))
 
         return ret
-    
-    def branch_delete(self, datafile=None, schemafile=None,targetnode=None, **kargs):
-        """ Deletes branches from JSON based data trees with static and dynamic criteria.
 
-        The 'branch_delete' function enables for extended checks of deletion, e.g the
-        detection of modified data, whereas the 'branch_remove' function simply removes
-        by a subset of some static checks with 'isApplicable' validation.
+    def branch_move(self, targetnode, key, sourcenode, skey, force=True, forcext=False):
+        """Moves a source branch to target node.
 
-        Handles several scenarios of plausibility and applicability checks.
+        Moves by default only when target is not yet present. The
+        parameters for 'list', 'force' enabled to overwrite, whereas 
+        the parameter 'forcext' enables to move all entries and 
+        extend the target items.
+        
+        Due to the Python specific passing of flat parameters as
+        a copy of the reference without access to the actual source
+        entry, these are slightly different from the 'branch_copy'
+        and 'branch_add' methods modifying the target only. Therefore 
+        additional source keys 'skey' are required by 'move' in order
+        to enable the modification of the source entry. 
 
-        0. Just do it:
-            branch_delete(None, None,None)
-                Deletes self.data
-            branch_delete(None, None,targetnode)
-                Deletes targetnode
-        1. Check datafile for applicability, no schema validation:
-            branch_delete(datafile, None,None)
-                Deletes self.data
-            branch_delete(datafile, None,targetnode)
-                Deletes targetnode
-        2. Check datafile for applicability, with schemafile validation:
-            branch_delete(datafile, schemafile,None)
-                Deletes self.data
-            branch_delete(datafile, schemafile,targetnode)
-                Deletes targetnode
-        3. Check datafile for applicability, with schema validation:
-            kargs={'schema':"<jsonschema-object>"}
+           Call: *branch_move* ( **t**, **k**, **s**, **sk** )
 
-            branch_delete(datafile, None,None,**kargs)
-                Deletes self.data
-            branch_delete(datafile, None,targetnode,**kargs)
-                Deletes targetnode
+           +---+------------------+-----------------+---------------+-------+
+           | i |  target          | source          | move          |       |
+           |   +----------+-------+---------+-------+-------+-------+       |
+           |   |  t       | k     | s       | sk    | from  |  to   | type  |
+           +===+==========+=======+=========+=======+=======+=======+=======+
+           | 0 |  node    | key   | node    | key   | s[sk] | t[k]  | any   |
+           +---+----------+-------+---------+-------+-------+-------+-------+
+           | 1 |  node    | None  | node    | key   | s[sk] | t[sk] | match |
+           +---+----------+-------+---------+-------+-------+-------+-------+
 
-        REMARK: Due to the huge amount of shared code with 'json_import',
-            this function is internally mapped to 'json_import'.
+           0. Moves any.
+        
+           1. Moves matching key types only: list-to-list, or dict-to-dict.
+        
 
         Args:
-            datafile:
-                JSON data filename containing the subtree for the target branch.
-            schemafile:
-                JSON-Schema filename for validation of the subtree/branch.
-            targetnode:
-                Target container hook for the inclusion of the loaded branch.
-                The branch is treated as a child-branch, hooked into the
-                provided container 'targetnode'. Therefore the parameter
-                kargs['branchoperations'] defines the behaviour for the
-                various scenarios.
-                The default:='None', than 'self.data' is used as the MODE_SCHEMA_DRAFT4
-                container.
-            **kargs:
-                branchoperations: [branch_remove,]
-                    Definition of the handling of redundancies in case of
-                    present previous object.
-                    For additional information refer to the '__init__' method.
-                matchcondition:
-                    Defines the criteria for comparison of present child nodes
-                    in the target container. The value is a list of critarias
-                    combined by logical AND. The criteria may vary due to
-                    the requirement and the type of applied container.
+            targetnode := nodereference
+                Target tree the branch is to be inserted.
+            
+            key := key-value
+                Key of insertion point within target node.
+            
+            sourcenode := nodereference
+                Source branch to be inserted into target tree.
+            
+            skey := key-value
+                Key of the source to be moved to target node.
 
-                    For information on applicable values refer to:
-                        'JSONDataSerializer.isApplicable()'
+            force: If true present are replaced, else only 
+                non-present are moved.
+                
+                default:=True
 
-                validator: [default, draft3, off, ]
-                    Sets schema validator for the data file.
-                    The values are: default=validate, draft3=Draft3Validator,
-                    off=None.
-                    default:= validate
+            forcext: If true target size will be extended when 
+                required. This is applicable on 'list' only, and
+                extends RFC6902. The same effect is given for 
+                a 'list' by one of:
+                 
+                * key:='-' 
+
+                * key:=None and skey:='-'
 
         Returns:
-            When successful returns 'True', else returns either 'False', or
-            raises an exception.
+            When successful returns 'True', else returns either 
+            'False', or raises an exception.
 
         Raises:
-            JSONDataSerializerErrorAttributeValue:
-
-        """
-        if kargs.get('branchoperations',BRANCH_REMOVE) != BRANCH_REMOVE:
-            raise JSONDataSerializerErrorAttributeValue("branchoperations",str(self.branchoperations))
-
-        if __debug__:
-            if self.debug:
-                print "DBG:branch_delete:datafile=  "+str(datafile)
-                print "DBG:branch_delete:schemafile="+str(schemafile)
-        return self.json_import(datafile, schemafile, targetnode, **kargs)
-
-    def branch_diff(self):
-        """Creates a branch_diff branch for export and re-read by JSONPatch.
+            JSONData:
+            JSONDataKey:
+            KeyError:
         
-        #FIXME:
         """
-        pass
+        ret = False
 
-    def branch_move(self,sourcenode,targetnode,force=False,matchcondition=None):
-        """Moves a source branch to target node.
-        """
-        ret = self.branch_copy(sourcenode, targetnode, force, matchcondition)
-        if ret:
-            ret = self.branch_remove(targetnode, sourcenode, force, matchcondition)
+        if type(targetnode) is dict:
+
+            if type(skey) is NoneType: # no source key provided
+                if type(key) is NoneType: # no keys provided at all, use source
+                    raise JSONDataKeyError("missing","key",str(key))
+
+                else: # use target key for both
+                    targetnode[key] = sourcenode[key]
+            
+            else:
+                if type(key) is NoneType:
+                    if targetnode.get(skey):
+                        if not force:
+                            raise JSONDataKeyError("present","skey",str(skey))
+                    targetnode[skey] = sourcenode[skey]
+                else:
+                    if targetnode.get(key):
+                        if not force:
+                            raise JSONDataKeyError("present","key",str(key))
+                    targetnode[key] = sourcenode[skey]
+
+            ret = True
+
+        elif type(targetnode) is list:
+
+            if type(skey) is NoneType: # no source key provided
+                if type(key) is NoneType: # no keys provided at all, use source
+                    raise JSONDataKeyError("missing","key",str(key))
+                
+                elif key == '-': # append all, due to missing 'skey'
+                    if type(sourcenode) is list: # list to list
+                        for v in reversed(sourcenode):
+                            targetnode.append(v)
+                            sourcenode.pop()
+                    else: # is dict, requires 'skey'
+                        raise JSONDataKeyError("type/dict","key",str(key))
+
+                elif key < len(sourcenode): # use target key for both
+                    targetnode[key] = sourcenode[key]
+                    sourcenode.pop(key)
+
+                else:
+                    raise JSONDataKeyError("key",str(key))
+            
+            elif skey == '-':
+                raise JSONDataKeyError("type","skey",str(skey))
+
+            else:
+                if type(key) is NoneType:
+                    if skey < len(targetnode):
+                        if force:
+                            targetnode[skey] = sourcenode[skey]
+                        else:
+                            raise JSONDataKeyError("present","skey",str(skey))
+                    elif forcext:
+                        targetnode.append(sourcenode[skey])
+                    else:
+                        raise JSONDataKeyError("value","skey",str(skey))
+                else:
+                    if type(key) is int and type(skey) is int and skey < len(sourcenode):
+                        if key < len(targetnode):
+                            if force:
+                                targetnode[key] = sourcenode[skey]
+                            else:
+                                raise JSONDataKeyError("present","key",str(key))
+                        elif forcext:
+                            targetnode.append(sourcenode[skey])
+                            
+                    elif key == '-':
+                        targetnode.append(sourcenode[skey])
+                    else: # forcext is not applicable on explicit given keys
+                        raise JSONDataKeyError("value","skey",str(skey))
+                sourcenode.pop(skey)
+
+            ret = True
+
+
+        if not ret:
+            raise JSONDataException("type","targetnode",str(targetnode))
+        
         return ret
-    
-    def branch_remove(self, targetnode, branch=None, matchcondition=None):
-        """Removes a branch from a target structure by basic static criteria.
 
-        The corresponding elements of the 'targetnode' tree are removed from
-        the tree 'targetnode'. The remaining are kept untouched. For tree
-        nodes as leafs the whole corresponding subtree is deleted.
+    def branch_remove(self, targetnode, key):
+        """Removes a branch from a target structure.
+
+        The corresponding elements of the 'targetnode' tree are removed.
+        The remaining are kept untouched. For tree nodes as leafs the whole
+        corresponding subtree is deleted.
 
         REMARK: No reference checks are done, so the user is responsible
             for additional references.
 
+           Call: *branch_remove* ( **t**, **k** )
+
+           +---+------------------+--------+-------+
+           | i |  target          | remove |       |
+           |   +----------+-------+--------+       |
+           |   |  t       | k     | branch | type  |
+           +===+==========+=======+========+=======+
+           | 0 |  node    | key   | t[k]   | any   |
+           +---+----------+-------+--------+-------+
+           | 1 |  node    | None  | t[*]   | any   |
+           +---+----------+-------+--------+-------+
+
+           0. Removes any type of node.
+        
+           1. Removes all contained items of any type.
+        
         Args:
-            targetnode: Targetnode where the branch is to be removed.
-                When 'None' all child nodes are removed.
+            targetnode := nodereference
+                Container of 'targetnode' with items to be removed.
 
-            branch: Branch to be removed from the target tree.
-
-            matchcondition: Defines the condition for applicability
-                of the branch_remove method. For the provided values refer
-                to the call 'isApplicable'
+            key := key-value
+                The item to be removed from the 'targetnode'.
+                When 'None', all contained items are removed.
 
         Returns:
             When successful returns 'True', else returns either 'False', or
             raises an exception.
 
         Raises:
-            JSONDataSerializerError:
+            JSONDataException:
 
         """
-        ret = True
+        ret = False
 
-        if type(branch) == dict:
-            for k,v in branch.items():
-                if matchcondition:
-                    if self.isApplicable(targetnode, {k:v}, matchcondition):
-                        targetnode.pop(k)
-                    else:
-                        ret = False
-                else:
-                    targetnode.pop(k)
-
-        elif type(branch) == list:
-            for v in branch:
-                if matchcondition:
-                    if self.isApplicable(targetnode, [v], BRANCH_REMOVE):
-                        targetnode.branch_remove(v)
-                    else:
-                        ret = False
-                else:
-                    targetnode.branch_remove(v)
-
-        else:
-            raise JSONDataSerializerError("Type not supported:type="+str(branch))
-        return ret
-
-    def branch_replace(self,targetnode,branch,matchcondition=None):
-        """Replaces the target node by the source branch.
-        """
-        ret = self.branch_remove(targetnode, branch, matchcondition)
-        if ret:
-            ret = self.branch_copy(branch, targetnode, matchcondition)
-        return ret
-    
-    def branch_replace_set(self, targetnode, branch, matchcondition=None):
-        """Replaces the complete set of child branches by branch.
-
-        All present previous branches are removed and replaced by
-        provided branch. The replacement level is swallow, thus
-        the scope is all matched immediate children.
-
-        Args:
-            target: Target tree the source is to be inserted.
-
-            branch: Source branch to be inserted into target tree.
-
-            matchcondition: The matchcondition is just present for
-                interface unity with the other tree methods.
-                Actually the value is ignored, the set is replaced
-                in any case completely.
-
-        Returns:
-            When successful returns 'True', else returns either 'False', or
-            raises an exception.
-
-        Raises:
-            JSONDataSerializerError:
-
-        """
-        ret = True
-
-        # want to keep the container node address!!!
         if type(targetnode) == dict:
-            targetnode.clear()
-            targetnode.update(branch)
+            if not key:
+                targetnode.clear()
+            else:
+                targetnode.pop(key)
+            ret = True
 
         elif type(targetnode) == list:
-            for v in targetnode:
-                targetnode.branch_remove(v)
-            targetnode.extend(branch)
+            if type(key) is NoneType:
+                [targetnode.pop() for l in range(0,len(targetnode))]
+            else:
+                targetnode.pop(key)
+            ret = True
 
-        else:
-            raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+        if not ret:
+            raise JSONDataException("type","targetnode",str(targetnode))
+        
         return ret
 
-    def branch_test(self,source,target):
+    def branch_replace(self,targetnode, key, sourcenode):
+        """Replaces the target node by the copy of the source branch.
+
+        Requires in order to RFC6902, all items to be replaced has to be
+        present. Thus fails if at least one is missing. 
+
+        Args:
+            targetnode := nodereference
+                Target tree the branch is to be inserted.
+            
+            key := key-value
+                Key of insertion point within target node.
+                If key==None, the whole set of keys is replaced by
+                the content of the 'sourcenode'.
+            
+            sourcenode := nodereference
+                Source branch to be inserted into target tree.
+            
+            force: If true present are replaced, else only non-present 
+                are copied.
+
+        Returns:
+            When successful returns 'True', else returns either 'False', or
+            raises an exception.
+
+        Raises:
+            JSONData:
+        
+        """
+        if not self.isApplicable(targetnode, key, sourcenode, [MATCH_PRESENT]):
+            return False
+        return self.branch_add(targetnode, key, sourcenode)
+
+    def branch_test(self,targetnode, key, value):
         """Tests match in accordance to RFC6902.
+
+           Call: *branch_test* ( **t**, **k** )
+
+           +---+------------------+--------+
+           | i |  target          | value  |
+           |   +----------+-------+--------+
+           |   |  t       | k     | node   |
+           +===+==========+=======+========+
+           | 0 |  node    | key   | t[k]   |
+           +---+----------+-------+--------+
+           | 1 |  node    | None  | t      |
+           +---+----------+-------+--------+
+
+        Args:
+            targetnode := nodereference
+                Base node for the insertion of branch.
+
+            key := key-value
+                Key of insertion point within target node.
+
+            value: Value to be compared.
+            
+        Returns:
+            When successful returns 'True', else returns 'False'.
+
+        Raises:
+            JSONData:
+
         """
-        pass    
+        self.diff = None
+
+        if not targetnode and not value and not key: # all None is equal, 
+            return True
+        
+        elif type(key) is NoneType: # check nodes
+            return self.getFirstDiff(targetnode, value) # value could be a branch itself
+
+        elif type(targetnode) in (dict,list): # check pointed node for value
+            return self.getFirstDiff(targetnode[key], value) # value could be a branch itself
     
-    def getNodeForPointer(self,pointer):
-        """Returns for a JSONPointer the reference to the according Node. 
-        """
-        #FIXME:
-        pass
-
-    def getPointerForNode(self,node):
-        """Returns a JSONPointer for a provided Node. 
-        """
-        #FIXME:
-        pass
-
     def getValueNode(self,value):
         """
         Args:
@@ -1172,24 +1280,80 @@ class JSONDataSerializer:
             raises an exception.
 
         Raises:
-            JSONDataSerializerError:
+            JSONData:
 
         """
         if type(value) in (int,dict,list): # assumes a 'json' package type node
             return value
         elif type(value) in ( str, unicode, ): # assume a 'JSON' RFC7159 string
             if value[0].replace(" ","") in ('{','[',u'{',u'['):
-                return json.loads(value) # a valid json object or array
+                return myjson.loads(value) # a valid json object or array
             return unicode(value) # a simple value
         elif isinstance(value,JSONPointer): # assume the pointed value
             return value.get_node_or_value(self.data)
         elif not value:
             return None
         else:
-            raise JSONDataSerializerError("Unknown value type:"+str(value))
+            raise JSONDataException("type","value",str(value))
     
-    
-    def isApplicable(self, targetnode, branch, matchcondition=None,**kargs):
+    def getFirstDiff(self, n0, n1, dl=0):
+        """Recursive tree compare for Python trees as used for the package 'json'.
+        
+        Finds diff in native Python trees assembled by the standard package 'json'
+        and compatible, e.g. 'ujson'.
+        """
+        # assure JSON strings
+        if type(n0) is str:
+            n0 = unicode(n0)
+        if type(n1) is str:
+            n1 = unicode(n1)
+        dl +=1
+        if type(n0) != type(n1):
+            if self.verbose:
+                print 'type:'+str(type(n0))+' != '+str(type(n1))
+            self.diff = {'n0':n0,'n1':n1,'dl':dl}
+            return False
+
+        if type(n0) is list:
+            if len(n0) != len(n1):
+                if self.verbose:
+                    print 'len:'+str(len(n0))+' != '+str(len(n1))
+                self.diff = {'n0':n0,'n1':n1,'dl':dl}
+                return False
+            for ni in range(0,len(n0)):
+                if n0[ni] != n1[ni]:
+                    if self.verbose:
+                        print 'item('+str(ni)+'):'+str(len(n0[ni]))+' != '+str(len(n1[ni]))
+                    self.diff = {'n0':n0,'n1':n1,'dl':dl}
+                    return False
+                if type(n0[ni]) in (list,dict):
+                    self.getFirstDiff(n0[ni],n1[ni],dl)
+
+        elif type(n0) is dict:
+            if len(n0.keys()) != len(n1.keys()):
+                if self.verbose:
+                    print 'len:'+str(len(n0.keys()))+' != '+str(len(n1.keys()))
+                self.diff = {'n0':n0,'n1':n1,'dl':dl}
+                return False
+            for ni,v in n0.items():
+                if n1.get(ni) and v != n1[ni]:
+                    if self.verbose:
+                        print 'item('+str(ni)+'):'+str(v)+' != '+str(n1[ni])
+                    self.diff = { 'n0':n0,'n1':n1,'dl':dl}
+                    return False
+                if type(v) in (list,dict):
+                    self.getFirstDiff(v,n1[ni],dl)
+
+        else: # invalid types may have been eliminated already
+            if n0 == n1:
+                return True
+            self.diff = {'n0':n0,'n1':n1,'dl':dl}
+            return False
+        return True
+
+    # fetch node ref
+
+    def isApplicable(self, targetnode, key, branch, matchcondition=None,**kargs):
         """ Checks applicability by validation of provided match criteria.
 
         The contained data in 'datafile' could be either the initial data
@@ -1216,12 +1380,14 @@ class JSONDataSerializer:
                         the insert-[]-operator.
                         This is in particular foreseen for the initial creation
                         of new nodes.
+                    - present: Checks whether all are present.
                     - no: Inverts the match criteria for the whole current set.
                 - dict: The provided criteria are:
                     - key: Both share the same key(s).
                     - child_attr_list: A list of child attributes to be matched.
                         This may assure e.g. compatibility by a user defined ID,
                         and or a UUID.
+                    
                     default:=['key',]
                 - list: The provided criteria are:
                     - index: The positions of source and target have to match.
@@ -1233,10 +1399,12 @@ class JSONDataSerializer:
                     - mem: Checks whether the in-memory element is already present.
                         Even though this is a quite weak criteria, it is probably
                         the only and one common generic criteria for lists.
+                    
                     default:= mem # ATTENTION: almost any call adds a branch!
             **kargs:
                 childattrlist: A list of user defined child attributes which
                     all together(AND) define the match criteria.
+                    
                     default:=None, returns 'True'
         Returns:
             When successful returns 'True', else returns either 'False', or
@@ -1249,15 +1417,17 @@ class JSONDataSerializer:
             Success is: no-defined-condition or no-failing-condition
 
         Raises:
-            JSONDataSerializerError:
+            JSONData:
 
-            JSONDataSerializerErrorAttributeValue:
+            JSONDataValue:
 
         """
 
         #
         #*** Fetch parameters
         #
+        if not matchcondition:
+            return True
         childattrlist = None
         _matchcondition = []
         for v in matchcondition:
@@ -1272,8 +1442,12 @@ class JSONDataSerializer:
                 _matchcondition.append(MATCH_INDEX)
             elif v == 'mem' or v == MATCH_MEM:
                 _matchcondition.append(MATCH_MEM)
+            elif v == 'new' or v == MATCH_NEW:
+                _matchcondition.append(MATCH_NEW)
+            elif v == 'present' or v == MATCH_PRESENT:
+                _matchcondition.append(MATCH_PRESENT)
             else:
-                raise JSONDataSerializerErrorAttributeValue("matchcondition",str(v))
+                raise JSONDataValue("value","matchcondition",str(v))
         for k,v in kargs.items():
             if k == 'childattrlist': # provides a list of child attributes
                 childattrlist = v
@@ -1283,10 +1457,15 @@ class JSONDataSerializer:
 
         retOK = True # return in case of no-defined-condition or no-failing-condition
 
+        if isinstance(targetnode, JSONDataSerializer):
+            targetnode = targetnode.data 
+        if isinstance(branch, JSONDataSerializer):
+            branch = branch.data 
+
         # The first mandatory requirement definition if the type compatibility
         # of the plug and the plugin-element.
-        if type(targetnode) != type(branch):
-            raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+        if type(key) is NoneType and type(targetnode) != type(branch):
+            raise JSONDataException("type","targetnode",str(type(targetnode)))
 
         # set default
         if not _matchcondition:
@@ -1304,16 +1483,16 @@ class JSONDataSerializer:
                 continue
             elif m == MATCH_INSERT:
                 if not type(targetnode) in (dict,list):
-                    raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                    raise JSONDataException("type","targetnode",str(type(targetnode)))
             elif m == MATCH_KEY:
                 if type(targetnode) != dict:
-                    raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                    raise JSONDataException("type","targetnode",str(type(targetnode)))
                 for k in branch.keys():
                     if not targetnode.get(k):
                         return retFailed
             elif m == MATCH_CHLDATTR:
                 if not type(targetnode) in (list,dict):
-                    raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                    raise JSONDataException("type","targetnode",str(type(targetnode)))
                 if childattrlist != None:
                     if type(branch) == dict:
                         for ca in childattrlist:
@@ -1322,23 +1501,65 @@ class JSONDataSerializer:
                     elif type(branch) == list:
                         for l in targetnode:
                             if not type(l) is dict:
-                                raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                                raise JSONDataException("type","targetnode",str(type(targetnode)))
                             for ca in childattrlist:
                                 if not type(ca) is dict:
-                                    raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                                    raise JSONDataException("type","targetnode",str(type(targetnode)))
                                 if not l.get(ca):
                                     return retFailed
                     else:
-                        raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                        raise JSONDataException("type","targetnode",str(type(targetnode)))
             elif m == MATCH_INDEX:
                 if type(targetnode) != list:
-                    raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                    raise JSONDataException("type","targetnode",str(type(targetnode)))
                 if len(targetnode) > len(branch):
                     return retFailed
+            elif m == MATCH_NEW:
+                if type(targetnode) == list:
+                    if key == '-':
+                        pass
+                    elif not type(key) is NoneType:
+                        if 0 <= key < len(targetnode):
+                            if targetnode[key]:
+                                return retFailed
+                        if len(targetnode) > len(branch):
+                            return retFailed
+                    else:
+                        if type(branch) is list:
+                            if targetnode:
+                                return retFailed
+
+                elif type(targetnode) == dict:
+                    if key:
+                        if not targetnode.get(key,None):
+                            return retFailed
+                    else:
+                        if type(branch) is dict:
+                            if targetnode:
+                                return retFailed
+                        
+            elif m == MATCH_PRESENT:
+                if type(targetnode) == list:
+                    if not type(key) is NoneType:
+                        if 0 <= key < len(targetnode):
+                            return retOK
+                        else:
+                            return retFailed
+                    else:
+                        return retFailed
+
+                elif type(targetnode) == dict:
+                    if key:
+                        if not targetnode.get(key,None):
+                            return retFailed
+                        return retOK
+                    else:
+                        return retFailed
+
             elif m == MATCH_MEM:
                 if type(targetnode) == list:
                     if type(targetnode) != type(branch):
-                        raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                        raise JSONDataException("type","targetnode",str(type(targetnode)))
                     for l in branch:
                         try:
                             if not targetnode.index(l):
@@ -1347,59 +1568,48 @@ class JSONDataSerializer:
                             return retFailed
                 elif type(targetnode) == dict:
                     if type(targetnode) == type(branch):
-                        raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                        raise JSONDataException("type","targetnode",str(type(targetnode)))
                     for k,v in branch.items():
                         if id(v) != id(targetnode.get(k)):
                             return retFailed
                 else:
-                    raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                    raise JSONDataException("type","targetnode",str(type(targetnode)))
             elif _matchcondition:
-                raise JSONDataSerializerError("Type not applicable:"+str(type(targetnode)))
+                raise JSONDataException("type","targetnode",str(type(targetnode)))
         return retOK
 
-    def json_export(self, fname, base=None, **kargs):
+    def json_export(self, sourcenode, fname, **kargs):
         """ Exports current data for later import.
 
-        The exported data is a snapshot of current state. This
-        contains all manual set parameters for next start.
+        The exported data is a snapshot of current state.
 
         Args:
             fname: File name for the exported data.
 
-            base: Base of sub-tree for export.
+            sourcenode: Base of sub-tree for export.
+                None for complete JSON document.
 
             **kargs:
-                branchdepth: [all, framework, plugins ]
-                    Defines the scope of the dumped data.
-                        all: The complete tree, including all loaded
-                            additional branches.
-                        framework: The data of the framework only, excluding
-                            additional branches.
-                        plugins: Additional branches only. The parameter
-                            'plugins' or 'branches' defines the scope.
-                plugins:
-                    Lists the names of the additional branches to be contained
-                    in the output.
-                branches:
-                    Lists the in memory reference pointers to the branch base.
+                ffs.
 
         Returns:
             When successful returns 'True', else returns either 'False',
             or raises an exception.
 
         Raises:
-            JSONDataSerializerErrorTargetFileReason:
+            JSONDataTargetFile:
         """
-        if not base:
-            base = self.data
+        if not sourcenode:
+            sourcenode = self.data
         try:
             with open(fname, 'w') as fp:
-                ret = json.dump(base, fp)
+                #ret = 
+                myjson.dump(sourcenode, fp)
         except Exception as e:
-            raise JSONDataSerializerErrorTargetFileReason(str(fname),str(e))
-        return ret
+            raise JSONDataTargetFile("open-"+str(e),"data.dump",str(fname))
+        return True
 
-    def json_import(self, datafile, schemafile=None,targetnode=None, **kargs):
+    def json_import(self, targetnode, key, datafile, schemafile=None, **kargs):
         """ Imports and validates JSON based data.
 
         The contained data in 'datafile' could be either the initial data
@@ -1408,26 +1618,19 @@ class JSONDataSerializer:
         to be hooked-in.
 
         Args:
+            targetnode:
+                Target container for the inclusion of the loaded branch.
+                For the default:='None' the 'self.data' is used.
+            key:
+                The hook within the targetnode,
             datafile:
                 JSON data filename containing the subtree for the target branch.
             schemafile:
                 JSON-Schema filename for validation of the subtree/branch.
-            targetnode:
-                Target container hook for the inclusion of the loaded branch.
-                The branch is treated as a child-branch, hooked into the
-                provided container 'targetnode'. Therefore the parameter
-                kargs['branchoperations'] defines the behaviour for the
-                various scenarios.
-                The default:='None', than 'self.data' is used as the default
-                container.
             **kargs:
-                branchoperations: [branch_add_only, branch_replace-set, branch_add, branch_remove,]
-                    Definition of the handling of redundancies in case of
-                    present previous object.
-                    For additional information refer to the '__init__' method.
                 matchcondition:
                     Defines the criteria for comparison of present child nodes
-                    in the target container. The value is a list of critarias
+                    in the target container. The value is a list of criteria
                     combined by logical AND. The criteria may vary due to
                     the requirement and the type of applied container.
 
@@ -1438,6 +1641,7 @@ class JSONDataSerializer:
                     Sets schema validator for the data file.
                     The values are: default=validate, draft3=Draft3Validator,
                     off=None.
+                    
                     default:= validate
 
         Returns:
@@ -1445,13 +1649,11 @@ class JSONDataSerializer:
             raises an exception.
 
         Raises:
-            JSONDataSerializerError:
+            JSONData:
 
-            JSONDataSerializerErrorAttributeValue:
+            JSONDataValue:
 
-            JSONDataSerializerErrorSourceFile:
-
-            JSONDataSerializerErrorSourceFileReason:
+            JSONDataSourceFile:
 
         """
         if self.verbose:
@@ -1465,23 +1667,9 @@ class JSONDataSerializer:
         #
         #*** Fetch parameters
         #
-        branchoperations = self.branchoperations # use class settings as MODE_SCHEMA_DRAFT4
         validator = self.validator # use class settings as MODE_SCHEMA_DRAFT4
         for k,v in kargs.items():
-            if k == 'branchoperations':
-                if v == 'branch_replace-set' or v == BRANCH_REPLACE_SET:
-                    branchoperations = BRANCH_REPLACE_SET
-                elif v == 'branch_replace' or v == BRANCH_REPLACE:
-                    branchoperations = BRANCH_REPLACE
-                elif v == 'branch_add' or v == BRANCH_SUPERPOSE:
-                    branchoperations = BRANCH_SUPERPOSE
-                elif v == 'branch_add_only' or v == BRANCH_ADD:
-                    branchoperations = BRANCH_ADD
-                elif v == 'branch_remove' or v == BRANCH_REMOVE:
-                    branchoperations = BRANCH_REMOVE
-                else:
-                    raise JSONDataSerializerErrorAttributeValue(k,str(v))
-            elif k == 'matchcondition':
+            if k == 'matchcondition':
                 #For now just passed through to self.isApplicable()
                 if v == 'key' or v == MATCH_KEY:
                     matchcondition.append(MATCH_KEY)
@@ -1494,7 +1682,7 @@ class JSONDataSerializer:
                 elif v == 'mem' or v == MATCH_MEM:
                     matchcondition.append(MATCH_MEM)
                 else:
-                    raise JSONDataSerializerErrorAttributeValue(k,str(v))
+                    raise JSONDataValue(k,str(v))
             elif k == 'validator': # controls validation by JSONschema
                 if v == 'default' or v == MODE_SCHEMA_DRAFT4:
                     validator = MODE_SCHEMA_DRAFT4
@@ -1503,7 +1691,7 @@ class JSONDataSerializer:
                 elif v == 'off' or v == MODE_SCHEMA_OFF:
                     validator = MODE_SCHEMA_OFF
                 else:
-                    raise JSONDataSerializerErrorAttributeValue(k,str(v))
+                    raise JSONDataValue("unknown",k,str(v))
             elif k == 'schema':
                 sval = v
 
@@ -1511,27 +1699,44 @@ class JSONDataSerializer:
         if validator != MODE_SCHEMA_OFF: # validation requested, requires schema
             if not schemafile: # no new import, use present data
                 if not self.schema: # no schema data present
-                    raise JSONDataSerializerError("Missing JSONschema:info")
+                    raise JSONDataException("value","schema",self.schema)
             else:
                 schemafile = os.path.abspath(schemafile)
                 if not os.path.isfile(schemafile):
-                    raise JSONDataSerializerErrorSourceFile("schemafile",str(schemafile))
+                    raise JSONDataSourceFile("open","schemafile",str(schemafile))
                 with open(schemafile) as schema_file:
-                    sval = json.load(schema_file)
+                    sval = myjson.load(schema_file)
                 if not sval:
-                    raise JSONDataSerializerErrorSourceFile("schemafile",str(schemafile))
+                    raise JSONDataSourceFile("read","schemafile",str(schemafile))
 
         # INPUT-BRANCH: data
         datafile = os.path.abspath(datafile)
         if not os.path.isfile(datafile):
-            raise JSONDataSerializerErrorSourceFile("datafile",str(datafile))
+            raise JSONDataSourceFile("open","datafile",str(datafile))
         try:
             with open(datafile) as data_file: # load data
-                jval = json.load(data_file)
+                jval = myjson.load(data_file)
         except Exception as e:
-            raise JSONDataSerializerErrorSourceFileReason("datafile",str(datafile),str(e))
+            raise JSONDataSourceFile("open","datafile",str(datafile),str(e))
         if not jval:
-            raise JSONDataSerializerErrorSourceFile("datafile",str(datafile))
+            raise JSONDataSourceFile("read","datafile",str(datafile))
+
+#         if key == None:
+#             if type(jval) == dict:
+#                 if len(jval.keys()) != 1:
+#                     for k,v in jval.items():
+#                          
+#                     raise JSONDataSourceFile("Missing 'key'")
+#                 else:
+#                     key = jval.keys[0]
+#                     jval = jval[key]
+#             elif type(jval) == list:
+#                 if len(jval) != 1:
+#                     raise JSONDataSourceFile("Missing 'key'")
+#                 key = jval.keys[0]
+#                 jval = jval[key]
+#             else:
+#                 raise JSONDataSourceFile("Missing 'key'")
 
         # INPUT-BRANCH: validate data
         if validator == MODE_SCHEMA_DRAFT4:
@@ -1543,7 +1748,7 @@ class JSONDataSerializer:
                 print "VERB:Validate: draft3"
             jsonschema.Draft3Validator(jval, sval)
         elif validator != MODE_SCHEMA_OFF:
-            raise JSONDataSerializerErrorAttributeValue("validator",str(validator))
+            raise JSONDataValue("unknown","validator",str(validator))
 
         #
         # TARGET-CONTAINER: manage new branch data
@@ -1556,23 +1761,10 @@ class JSONDataSerializer:
         else: # data history present, so decide how to handle
 
             # Checks that the branch fits into the target container
-            if not self.isApplicable(targetnode, jval, matchcondition):
+            if not self.isApplicable(targetnode, key, jval):
                 return False
 
-            # The following branchoperations depend on the container type,
-            # in some cases even are not applicable.
-            if branchoperations == BRANCH_REPLACE_SET:
-                ret = self.branch_replace_set(targetnode,jval,matchcondition)
-            elif branchoperations == BRANCH_REPLACE:
-                ret = self.branch_replace(targetnode,jval,matchcondition)
-            elif branchoperations == BRANCH_SUPERPOSE:
-                ret = self.branch_add(targetnode,jval,matchcondition)
-            elif branchoperations == BRANCH_ADD:
-                ret = self.branch_add_only(targetnode,jval,matchcondition)
-            elif branchoperations == BRANCH_REMOVE:
-                ret = self.branch_remove(targetnode,jval,matchcondition)
-            else:
-                raise JSONDataSerializerErrorAttributeValue("branchoperations",str(self.branchoperations))
+            ret = self.branch_add(targetnode,key,jval)
 
         return ret # jval != None
 
@@ -1583,8 +1775,10 @@ class JSONDataSerializer:
             pretty: Activates pretty printer for treeview, else flat.
 
             sourcefile: Loads data from 'sourcefile' into 'source'.
+                
                 default:=None
             source: Prints data within 'source'.
+                
                 default:=self.data
 
         Returns:
@@ -1592,7 +1786,7 @@ class JSONDataSerializer:
             raises an exception.
 
         Raises:
-            JSONDataSerializerErrorAmbiguity:
+            JSONDataAmbiguity:
 
             forwarded from 'json'
 
@@ -1600,20 +1794,20 @@ class JSONDataSerializer:
         source = kargs.get('source',None)
         sourcefile = kargs.get('sourcefile',None)
         if sourcefile and source:
-            raise JSONDataSerializerErrorAmbiguity('sourcefile/source',
+            raise JSONDataAmbiguity('sourcefile/source',
                 "sourcefile="+str(sourcefile),
                 "source="+str(source)
                 )
         if sourcefile:
             source = open(sourcefile)
-            source = json.load(source)
+            source = myjson.load(source)
         elif not source:
             source = self.data # yes, almost the same...
 
         if pretty:
-            print json.dumps(source,indent=self.indent)
+            print myjson.dumps(source,indent=self.indent)
         else:
-            print json.dumps(source)
+            print myjson.dumps(source)
 
     def printSchema(self, pretty=True, **kargs):
         """Prints structured schema.
@@ -1622,8 +1816,10 @@ class JSONDataSerializer:
             pretty: Activates pretty printer for treeview, else flat.
 
             sourcefile: Loads schema from 'sourcefile' into 'source'.
+                
                 default:=None
             source: Prints schema within 'source'.
+                
                 default:=self.schema
 
         Returns:
@@ -1631,7 +1827,7 @@ class JSONDataSerializer:
             raises an exception.
 
         Raises:
-            JSONDataSerializerErrorAmbiguity:
+            JSONDataAmbiguity:
 
             forwarded from 'json'
 
@@ -1639,23 +1835,23 @@ class JSONDataSerializer:
         source = kargs.get('source',None)
         sourcefile = kargs.get('sourcefile',None)
         if sourcefile and source:
-            raise JSONDataSerializerErrorAmbiguity('sourcefile/source',
+            raise JSONDataAmbiguity('sourcefile/source',
                 "sourcefile="+str(sourcefile),
                 "source="+str(source)
                 )
         if sourcefile:
             source = open(sourcefile)
-            source = json.load(source)
+            source = myjson.load(source)
         elif not source:
             source = self.schema # yes, almost the same...
 
         if pretty:
-            print json.dumps(source,indent=self.indent)
+            print myjson.dumps(source,indent=self.indent)
         else:
-            print json.dumps(source)
+            print myjson.dumps(source)
 
     def set_schema(self,schemafile=None, targetnode=None, **kargs):
-        """Sets schema or inserts a new branch.
+        """Sets schema or inserts a new branch into the current assigned schema.
 
         The main schema(targetnode==None) is the schema related to the current
         instance. Additional branches could be added by importing the specific
@@ -1670,24 +1866,22 @@ class JSONDataSerializer:
             targetnode:
                 Target container hook for the inclusion of the loaded branch.
             **kargs:
-                branchoperations: [append, branch_add_only, prepend, branch_replace-object,
-                    branch_replace-set, branch_add, ]
-                    Definition of the handling of redundancies in case of
-                    present previous object. For additional information refer
-                    to the '__init__' method.
                 schema:
                     In-memory JSON-Schema as an alternative to schemafile.
                     When provided the 'schemafile' is ignored.
+                    
                     default:=None
                 validator: [default, draft3, off, ]
                     Sets schema validator for the data file.
                     The values are: default=validate, draft3=Draft3Validator,
                     off=None.
+                    
                     default:= validate
                 persistent:
                     Stores the 'schema' persistently into 'schemafile' after
                     completion of update including addition of branches.
                     Requires valid 'schemafile'.
+                    
                     default:=False
 
         Returns:
@@ -1696,13 +1890,11 @@ class JSONDataSerializer:
 
         Raises:
 
-            JSONDataSerializerError:
+            JSONData:
 
-            JSONDataSerializerErrorSourceFile:
+            JSONDataSourceFile:
 
-            JSONDataSerializerErrorAttributeValue:
-
-            JSONDataSerializerErrorValue:
+            JSONDataValue:
 
         """
         if __debug__:
@@ -1713,25 +1905,11 @@ class JSONDataSerializer:
         #*** Fetch parameters
         #
         datafile = None
-        branchoperations = self.branchoperations # use class settings as MODE_SCHEMA_DRAFT4
         validator = self.validator # use class settings as MODE_SCHEMA_DRAFT4
         persistent = False
         schema = None
         for k,v in kargs.items():
-            if k == 'branchoperations':
-                if v == 'branch_replace-set' or v == BRANCH_REPLACE_SET:
-                    branchoperations = BRANCH_REPLACE_SET
-                elif v == 'branch_replace' or v == BRANCH_REPLACE:
-                    branchoperations = BRANCH_REPLACE
-                elif v == 'branch_add' or v == BRANCH_SUPERPOSE:
-                    branchoperations = BRANCH_SUPERPOSE
-                elif v == 'branch_add_only' or v == BRANCH_ADD:
-                    branchoperations = BRANCH_ADD
-                elif v == 'branch_remove' or v == BRANCH_REMOVE:
-                    branchoperations = BRANCH_REMOVE
-                else:
-                    raise JSONDataSerializerErrorAttributeValue(k,str(v))
-            elif k == 'validator': # controls validation by JSONschema
+            if k == 'validator': # controls validation by JSONschema
                 if v == 'default' or v == MODE_SCHEMA_DRAFT4:
                     validator = MODE_SCHEMA_DRAFT4
                 elif v == 'draft3' or v == MODE_SCHEMA_DRAFT3:
@@ -1739,7 +1917,7 @@ class JSONDataSerializer:
                 elif v == 'off' or v == MODE_SCHEMA_OFF:
                     validator = MODE_SCHEMA_OFF
                 else:
-                    raise JSONDataSerializerErrorAttributeValue(k,str(v))
+                    raise JSONDataValue("unknown",k,str(v))
             elif k == 'schema':
                 schema = v
             elif k == 'datafile':
@@ -1760,7 +1938,7 @@ class JSONDataSerializer:
 
         if not schemafile:
             if persistent: # persistence requires storage
-                raise JSONDataSerializerErrorValue("JSONSchemaFilename","")
+                raise JSONDataTargetFile("open","JSONSchemaFilename",schemafile)
 
         # schema for validation
         if schema: # use loaded
@@ -1770,14 +1948,14 @@ class JSONDataSerializer:
             schemafile = os.path.abspath(schemafile)
             self.schemafile = schemafile
             if not os.path.isfile(schemafile):
-                raise JSONDataSerializerErrorSourceFile("schemafile",str(schemafile))
+                raise JSONDataSourceFile("open","schemafile",str(schemafile))
             with open(schemafile) as schema_file:
-                schema = json.load(schema_file)
+                schema = myjson.load(schema_file)
             if schema == None:
-                raise JSONDataSerializerErrorSourceFile("schemafile",str(schemafile))
+                raise JSONDataSourceFile("read","schemafile",str(schemafile))
 
         else: # missing at all
-            raise JSONDataSerializerErrorSourceFile("schemafile",str(schemafile))
+            raise JSONDataSourceFile("open","schemafile",str(schemafile))
             pass
 
         #
@@ -1790,32 +1968,11 @@ class JSONDataSerializer:
 
             # the container hook has to match for insertion-
             if type(targetnode) != type(schema):
-                raise JSONDataSerializerError("Type-Mismatch:target="+str(type(targetnode))+" != branch"+str(type(schema)))
+                raise JSONDataException("type","target!=branch",str(type(targetnode))+"!="+str(type(schema)))
+        
+            self.branch_add(targetnode,schema)
 
-            # The following branchoperations depend on the container type,
-            # in some cases even are not applicable.
-
-            if branchoperations == BRANCH_REPLACE_SET:
-                # just accept any by simply removing previous
-                if targetnode == self.schema: # it is a complete branch_replace
-                    self.schema = schema
-                    targetnode = schema
-                else: # it is a partial branch_replace of a subset
-                    targetnode = schema
-            elif branchoperations == BRANCH_REPLACE:
-                #FIXME:
-                # just accept any by simply removing previous
-                if targetnode == self.data: # it is a complete branch_replace
-                    self.schema = schema
-                    targetnode = schema
-                else: # it is a partial branch_replace of a subset
-                    targetnode = schema
-            elif branchoperations == BRANCH_SUPERPOSE:
-                self.branch_add(targetnode,schema)
-            elif branchoperations == BRANCH_ADD:
-                self.branch_add_only(targetnode,schema)
-            elif branchoperations == BRANCH_REMOVE:
-                self.branch_remove(targetnode,schema)
-            else:
-                raise JSONDataSerializerErrorAttributeValue("branchoperations",str(self.branchoperations))
         return schema != None
+
+from jsondata.JSONPointer import JSONPointer 
+# avoid nested recursion problems

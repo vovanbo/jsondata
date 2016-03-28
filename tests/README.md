@@ -4,45 +4,68 @@ PyUnit tests
 These tests could either be called from the command line,
 or within Eclipse by the plugin PyDev / PyUnit.
 
-* CLI: Python setup.py test 
+* CLI: '*python setup.py test*' 
 
 * Eclipse: Install PyDev, open the view PyUnit and proceed.
 
-a_selftest
-----------
-Basic self test of PyUnit.
+Choose a JSON package, current 'json', or 'ujson':
 
-b_system
---------
+* Eclipse: set parameters for PyDev testrunner, 
+  e.g.: '*--verbosity 0 -- --ujson*'
+
+The tests involve standard, sophisticated and exotic
+test cases
+
+The test also include large loads for performance validation.
+The failure of the performance tests may not prohibit the release at
+all, but may question the applicability for high-end environments.
+
+00\_IETF\_RFC\_compliance
+----------------------
+Compliance tests of various IETF standards.
+Examples and reference cases extracted from 
+the standards texts. 
+
+01\_ECMA\_compliance
+------------------
+Compliance tests of various ECMA standards extracted from 
+the standards texts. 
+
+10_selftest
+-----------
+Basic self test of PyUnit by the user tool option
+'*jsondatacheck --selftest*'.
+
+20_system
+---------
 System API calls for libraries and binaries.
 
-c_libs
-------
+30_libs
+-------
 Provided library modules of 'jsondata' for JSON data.
 
-d_utils
--------
+40_utils
+--------
 Utilities for the development of 'jsondata'.
 
 Used for build only.
 
-e_tools
--------
+50_tools
+--------
 Tools of 'jsondata'.
 
 Used for production and development for 'jsondata' itself,
 and by the end user and application developers.
 
-f_bins
-------
+60_bins
+-------
 Official binaries of 'jsondata'.
 
-g_datasets
-----------
-Complex data sets for advanced test cases.
+70_datasets
+-----------
+Complex data sets for advanced functional test cases.
 
-These comprising tests involve sophisticated and exotic
-test cases, and large loads for performance validation.
-The failure of these tests may not permit the release at
-all, but may question the applicability high-end 
-environments.
+80_performance
+--------------
+Complex data sets for advanced performance test cases.
+

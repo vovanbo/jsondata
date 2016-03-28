@@ -23,7 +23,7 @@ and/or error condition an exception is raised.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import os,sys
@@ -334,7 +334,7 @@ def case04(appname):
     configdata = ConfigData(appname,**_kargs)        
 
 
-    jsonptr = JSONPointer('/address/')
+    jsonptr = JSONPointer('/address')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")    
     jsonptrdata = jsonptr.get_node(configdata.data)
@@ -342,19 +342,19 @@ def case04(appname):
     ref = "{u'city': u'New York', u'streetAddress': u'21 2nd Street', u'houseNumber': 12}"
     assert jsx == ref
 
-    jsonptr = JSONPointer('/address/streetAddress/')
+    jsonptr = JSONPointer('/address/streetAddress')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")
     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
     assert jsonptrdata == "21 2nd Street"
 
-    jsonptr = JSONPointer('/address/city/')
+    jsonptr = JSONPointer('/address/city')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")    
     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
     assert jsonptrdata == "New York"
 
-    jsonptr = JSONPointer('/address/houseNumber/')
+    jsonptr = JSONPointer('/address/houseNumber')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")    
     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
@@ -393,7 +393,7 @@ def case05(appname):
     configdata = ConfigData(appname,**_kargs)        
 
 
-    jsonptr = JSONPointer('/address/')
+    jsonptr = JSONPointer('/address')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")    
     jsonptrdata = jsonptr.get_node(configdata.data)
@@ -401,43 +401,43 @@ def case05(appname):
     ref = "{u'city': u'New York', u'streetAddress': u'21 2nd Street', u'houseNumber': 12}"
     assert jsx == ref
 
-    jsonptr = JSONPointer('/phoneNumber/0/type/')
+    jsonptr = JSONPointer('/phoneNumber/0/type')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")
     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
     assert jsonptrdata == "home"
 
-    jsonptr = JSONPointer('/phoneNumber/0/number/')
+    jsonptr = JSONPointer('/phoneNumber/0/number')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")    
     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
     assert jsonptrdata == "212 555-1234"
 
-    jsonptr = JSONPointer('/phoneNumber/0/active/')
+    jsonptr = JSONPointer('/phoneNumber/0/active')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")    
     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
     assert jsonptrdata == True
 
-    jsonptr = JSONPointer('/phoneNumber/0/private/')
+    jsonptr = JSONPointer('/phoneNumber/0/private')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")    
     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
     assert jsonptrdata == False
 
-    jsonptr = JSONPointer('/phoneNumber/0/addons/')
+    jsonptr = JSONPointer('/phoneNumber/0/addons')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")    
     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
     assert jsonptrdata == None
 
-    jsonptr = JSONPointer('/phoneNumber/0/index/')
+    jsonptr = JSONPointer('/phoneNumber/0/index')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")    
     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
     assert jsonptrdata == 0
 
-    jsonptr = JSONPointer('/phoneNumber/0/testnumber/')
+    jsonptr = JSONPointer('/phoneNumber/0/testnumber')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")    
     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
@@ -478,13 +478,13 @@ def case06(appname):
         for n in [0,1,]:
 
             basep = '/customers/'+str(l)+'/'+str(n)
-            jsonptr = JSONPointer(basep+'/name/')
+            jsonptr = JSONPointer(basep+'/name')
             jsonptrdata = jsonptr.get_node_or_value(configdata.data)
             jsx=str(jsonptrdata)
             ref = "customer"+str(n)
             assert jsx == ref
 
-            jsonptr = JSONPointer(basep+'/industries/')
+            jsonptr = JSONPointer(basep+'/industries')
             jsonptrdata = jsonptr.get_node_or_value(configdata.data)
             jsx=str(jsonptrdata)
             ref = "industry"+str(n)
@@ -503,7 +503,7 @@ def case06(appname):
                     attr = k # attribute
                     ref = v # attribute value
                     #
-                    jsonptr = JSONPointer(basep+'/'+attr+'/')
+                    jsonptr = JSONPointer(basep+'/'+attr)
                     jsonptrdata = jsonptr.get_node_or_value(configdata.data)
                     jsx=jsonptrdata
 

@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 """A command line interface for the validation of JSON based data.
 
 The command line interface is implemented as a front-end for the package
@@ -55,6 +55,11 @@ OPTIONS:
      List of colon seperated filenames to be searched for. These 
      could be relative pathnames too.
      default:=[<appname>.json]
+  -j, --json= (json|ujson)
+      Use as scanner and parser one of the verified packages:
+          'json': standard package
+          'ujson': ultra-json for performance, check platform availability,
+              and eventually run unit tests.
   -n, --no-default-path
      Supress load of default path.
      default: False
@@ -111,8 +116,9 @@ PYTHON OPTIONS:
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.0.8'
+__version__ = '0.2.0'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
+
 
 try:
     from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
@@ -140,10 +146,10 @@ try:
         "help","debug","verbose","version","Version",
         "appname=", "configfile=","schemafile=","validator=","no-default-path",
         "no-sub-data","pathlist=","plugins-pathlist=","print-schema","print-data",
-        "interactive", "filelist",
-        "selftest"
+        "interactive", "filelist=",
+        "selftest", "json="
     ]
-    _opts, _args = getopt.getopt(sys.argv[1:], "a:c:f:is:np:P:NDShdvV:", _longopts)
+    _opts, _args = getopt.getopt(sys.argv[1:], "a:c:f:j:is:np:P:NDShdvV:", _longopts)
 except getopt.GetoptError, err:
     print str(err)
     usage()
@@ -165,6 +171,17 @@ for _o,_a in _opts:
         _kargs['printdata'] = True
     elif _o in ("-f","--filelist"):
         _kargs['filelist'] = _a.split(":")
+
+    elif _o in ("-j","--json"):
+        if _a == 'ujson':
+            import ujson as myjson
+            #_myjson = 'ujson'
+        else:
+            import json as myjson
+            #_myjson = 'json'
+        #import importlib
+        #i = importlib.import_module(_myjson)
+
     elif _o in ("-n","--no-default-path"):
         _kargs['nodefaultpath'] = True
     elif _o in ("-N","--no-sub-data"):

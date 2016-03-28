@@ -1,4 +1,4 @@
-"""MODE_SCHEMA_OFFicial binaries of jsondata.
+"""Test binaries.
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
