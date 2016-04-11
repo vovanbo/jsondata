@@ -13,15 +13,17 @@ Choose a JSON package, current 'json', or 'ujson':
 * Eclipse: set parameters for PyDev testrunner, 
   e.g.: '*--verbosity 0 -- --ujson*'
 
-00_IETF_RFC_compliance
-----------------------
+The tests involve standard, sophisticated and exotic
+test cases
 
-01_ECMA_compliance
-------------------
+The test also include large loads for performance validation.
+The failure of the performance tests may not prohibit the release at
+all, but may question the applicability for high-end environments.
 
 10_selftest
 -----------
-Basic self test of PyUnit.
+Basic self test of PyUnit by the user tool option
+'*jsondatacheck --selftest*'.
 
 20_system
 ---------
@@ -50,10 +52,9 @@ Official binaries of 'jsondata'.
 
 70_datasets
 -----------
-Complex data sets for advanced test cases.
+Complex data sets for advanced functional test cases.
 
-These comprising tests involve sophisticated and exotic
-test cases, and large loads for performance validation.
-The failure of these tests may not permit the release at
-all, but may question the applicability high-end 
-environments.
+80_performance
+--------------
+Complex data sets for advanced performance test cases.
+

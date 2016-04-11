@@ -116,7 +116,7 @@ PYTHON OPTIONS:
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 
@@ -161,7 +161,7 @@ _selftest = False
 _verbose = 0
 
 for _o,_a in _opts:
-    if _o in ("--selftest"):
+    if _o == "--selftest":
         _selftest = True
     elif _o in ("-a","--appname"):
         _appname = _a

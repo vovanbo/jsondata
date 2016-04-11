@@ -167,6 +167,80 @@ class JSONPatchItem(object):
         else:
             raise JSONPatchItemException("Unknown operation.")
 
+    def __eq__(self,x):
+        """Compares this pointer with x.
+
+        Args:
+            x: A valid Pointer.
+
+        Returns:
+            True or False
+
+        Raises:
+            JSONPointerException
+        """
+        ret = True
+        
+        if type(x) == dict:
+            ret &= self.target == x['path']
+        else:
+            ret &= self.target == x['target']
+    
+        if self.op == RFC6902_ADD:
+            ret &= x['op'] in ('add',RFC6902_ADD)
+            ret &= self.value == x['value']
+        elif self.op == RFC6902_REMOVE:
+            ret &= x['op'] in ('remove',RFC6902_REMOVE)
+        elif self.op == RFC6902_REPLACE:
+            ret &= x['op'] in ('replace',RFC6902_REPLACE)
+            ret &= self.value == x['value']
+        elif self.op == RFC6902_MOVE:
+            ret &= x['op'] in ('move',RFC6902_MOVE)
+            ret &= self.src == x['from']
+        elif self.op == RFC6902_COPY:
+            ret &= x['op'] in ('copy',RFC6902_COPY)
+            ret &= self.src == x['from']
+        elif self.op == RFC6902_TEST:
+            ret &= x['op'] in ('test',RFC6902_TEST)
+            ret &= self.value == x['value']
+    
+        return ret
+
+    def __getitem__(self,key):
+        """Support of various mappings.
+        
+            # self[key]
+            
+            # self[i:j:k]
+            
+            # x in self
+            
+            # for x in self
+
+        """
+        if key in ('path', 'target',):
+            return self.target
+        elif key in ('op',):
+            return self.op
+        elif key in ('value','param',):
+            return self.value
+        elif key in ('from','src',):
+            return self.src
+
+    def __ne__(self, x):
+        """Compares this pointer with x.
+
+        Args:
+            x: A valid Pointer.
+
+        Returns:
+            True or False
+
+        Raises:
+            JSONPointerException
+        """
+        return not self.__eq__(x)
+
     def __repr__(self):
         """Prints the patch string in accordance to RFC6901.
         """
@@ -221,10 +295,9 @@ class JSONPatchItem(object):
         if self.op is RFC6902_ADD:
             #n,b = self.target.get_node_and_child(jsondata)
 
-            nbranch = jsondata.branch_create(
-                    '', # == '' - requires absolute address of document
-                    None,
+            nbranch = jsondata.branch_add(
                     self.target, # target pointer
+                    None,
                     self.value) # value
             return True
 
@@ -383,13 +456,34 @@ class JSONPatch(object):
         else:
             raise JSONPatchException("Unknown input"+type(x))
 
+    def __eq__(self,x):
+        """Compares this pointer with x.
+
+        Args:
+            x: A valid Pointer.
+
+        Returns:
+            True or False
+
+        Raises:
+            JSONPointerException
+        """
+        ret = True
+        for p in self.patch:
+            for xi in x:
+                ret &= p==xi
+        return ret
+
     def __getitem__(self,key):
         """Support of slices, for 'iterator' refer to self.__iter__.
         
-        # self[key]
-        # self[i:j:k]
-        # x in self
-        # for x in self
+            # self[key]
+            
+            # self[i:j:k]
+            
+            # x in self
+            
+            # for x in self
 
         """
         return self.patch[key] 
@@ -422,6 +516,20 @@ class JSONPatch(object):
         """
         return len(self.patch)
     
+    def __ne__(self, x):
+        """Compares this pointer with x.
+
+        Args:
+            x: A valid Pointer.
+
+        Returns:
+            True or False
+
+        Raises:
+            JSONPointerException
+        """
+        return not self.__eq__(x)
+
     def __repr__(self):
         """Prints the representation format of a JSON patch list.
         """

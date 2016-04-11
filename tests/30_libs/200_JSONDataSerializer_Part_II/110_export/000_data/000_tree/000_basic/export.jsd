@@ -1,0 +1,1 @@
+{"$schema": "http://json-schema.org/draft-03/schema", "phoneNumber": {"items": {"required": false, "type": "object", "properties": {"type": {"required": false, "type": "string"}, "number": {"required": false, "type": "string"}}}, "_comment": "This is a comment(1):array", "required": false, "type": "array"}}

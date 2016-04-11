@@ -78,6 +78,11 @@ class JSONDataNodeType(JSONDataException):
     def __str__(self):
         return "JSONDataNodeType:"+self.s
 
+class JSONDataParameter(JSONDataException):
+    """ Erroneous parameters."""
+    def __str__(self):
+        return "JSONDataParameter:"+self.s
+
 class JSONDataSourceFile(JSONDataException):
     """ Error on read of a source file."""
     def __str__(self):

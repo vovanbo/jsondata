@@ -1,0 +1,81 @@
+{
+    "stock":{
+      "total":36
+    },
+    "locations": [
+		{
+		    "location":{
+		      	"city":"New York",
+		      	"total":22,
+				"products": [
+					{
+				      "name":"prod0",
+				      "color":"red",
+				      "quantity": 5
+				    },
+			    	{
+				      "name":"prod1",
+				      "color":"greed",
+				      "quantity": 2
+				    },
+				    {
+				      "name":"prod2",
+				      "color":"blue",
+				      "quantity": 15
+				    }
+				]
+			}
+	    },
+	    {
+		    "location":{	
+		      	"city":"Los Angeles",
+		      	"total":11,
+				"products": [
+					{
+				      "name":"prod0",
+				      "color":"red",
+				      "quantity": 5
+				    },
+			    	{
+				      "name":"prod1",
+				      "color":"greed",
+				      "quantity": 1
+				    },
+				    {
+				      "name":"prod2",
+				      "color":"blue",
+				      "quantity": 3
+				    },
+				    {
+				      "name":"prod3",
+				      "color":"black",
+				      "quantity": 2
+				    }
+				]
+			}
+	    },
+	    {
+		    "location":{	
+		      	"city":"Purdue",
+		      	"total":3,
+				"products": [
+					{
+				      "name":"prod0",
+				      "color":"red",
+				      "quantity": 1
+				    },
+			    	{
+				      "name":"prod1",
+				      "color":"greed",
+				      "quantity": 1
+				    },
+				    {
+				      "name":"prod3",
+				      "color":"black",
+				      "quantity": 1
+				    }
+				]
+		    }
+		}
+	]
+}

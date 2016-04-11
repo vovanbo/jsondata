@@ -16,11 +16,15 @@ whereas higher level features of additional standards are introduced on top.
 
 The main interface classes are:
 
-* **JSONDataSerializer** - Core for RFC7159 based data structures and persistence. Provides modular data components and serialization.
+* **JSONData** - Core for RFC7159 based data structures. Provides modular data components.
+
+* **JSONDataSerializer** - Core for RFC7159 based data persistence. Provides modular data serialization.
 
 * **JSONPointer** - RFC6901 for addressing by pointer paths. Provides pointer arithmetics.
 
 * **JSONPatch** - RFC6902 for modification by patch lists. Provides the assembly of modular patch entries and the serialization of resulting patch lists.
+
+* **JSONCompute** - Lightweight DSL interpreter and compiler for JSON data and basic syntax components.
 
 The syntax primitives of underlying layers are provided 
 by the imported packages '**json**' or the package ultra-json '**ujson**', and '**jsonschema**' in conformance to related ECMA and RFC 
@@ -33,6 +37,10 @@ The architecture is based on the packages 'json' or 'ujson', and
                    +-------------------------+
     Applications   |    application-layer    |
                    +-------------------------+  
+    .   .  .  .  .  . | .  .  . | .  .  .  | .  .  .  .  .  .  .  .  .
+                   + - - - - - - - - - - - - +
+    Process JSON   |         JSON-DSL        |
+                   + - - - - - - - - - - - - +
     .   .  .  .  .  . | .  .  . | .  .  .  | .  .  .  .  .  .  .  .  .
                       |         V          |     
                       |   +----------+     |         RFC6901
@@ -54,10 +62,8 @@ This serves also as a first introduction to JSON processing with the
 package 'jsondata'.
 For the compliance tests extracted from IETF and ECMA standards refer to the directories:
 
-* tests/00\_IETF\_RFC_compliance
+* UseCases
  
-* tests/01\_ECMA_compliance
-
 **Downloads**:
 
 * Sourceforge.net: https://sourceforge.net/projects/jsondata/files/
@@ -106,9 +112,9 @@ Project Data
 
 * MISSION: Provide and extend JSONPointer and JSONPatch - RFC6901, RFC6902
 
-* VERSION: 00.02.000
+* VERSION: 00.02.003
 
-* RELEASE: 00.02.000
+* RELEASE: 00.02.003
 
 * STATUS: alpha
 
@@ -138,21 +144,32 @@ VERSIONS and RELEASES
 
 * RELEASE: 00.04.00x - Production: First production release. Estimated number of UnitTests := 1000.
 
-**Current Release: 00.02.000 - Alpha:**
+* RELEASE: 00.05.00x - Production: Various performance enhancements.
+
+
+**Current Release: 00.02.003 - Alpha:**
 
 Major Changes:
 
-* Mostly reworked and streamlined the interface by change and reorder.
-  
-* Switched to fully RFC compliant branch operations with in-memory
-  implementation parameters 'targetnode' + 'key' for performance 
-  reasons. This implies a minor change of all branch interfaces 
-  by additional key parameter. 
-
 * General fixes and enhancements .
 
-* Included unit tests for 'selftest'.
+* Split UnitTests
 
-* Included support for multiple verified base packages for JSON: '**json**'(standard), '**ujson**'(ultra-json),
+* Split Use-Cases as UnitTests
 
-* Current UnitTests: >600
+* Added JSONCompute, a first version of a lightweight JSON DSL. This module is pre-alpha.
+
+* Introduced test for Use-Cases of JSON processing with 'jsondata' by 'tests.05_jsondata_use_cases'.
+
+* Added generic class methods for tree diff and tree pointer evaluation. Works on raw data from 'json' and 'ujson'.
+
+* Added some first operators on JSONPatch and JSONPatchItem for RFC6902.
+
+Current test status:
+
+* UnitTests: >553
+
+* Use-Cases as UnitTests: >301
+
+**Total**: >864
+

@@ -7,15 +7,19 @@ structures in particular provide for custom data. The data could either be
 related to a module, and/or to specific classes. The components provides by 
 the package are:
 
-* **JSONDataSerializer**:
-  The main class JSONDataSerializer provides for the core interface of the
+* **JSONData**:
+  The main class JSONData provides for the core interface of the
   integration of JSON based documents and sub-documents including the 
   validation by JSONschema - RFC7159/RFC4629 and DRAFT4schema.
 
-  The data is organized into trees and branches managed by the packages 
-  'json' ad 'jsonschema'. The serialization and integration of documents
-  and sub-documents provides for dynamic incremental construction of data
-  and the persistent storage of the modified tree.
+  This provides for dynamic incremental construction of data and 
+  the persistent storage of the modified tree. The data is organized 
+  into trees and branches managed by the packages 'json' ad 'jsonschema'. 
+
+* **JSONDataSerializer**:
+  The class JSONDataSerializer derived from JSONData provides for 
+  serialization and integration of documents and sub-documents. This 
+  provides for the persistent storage of modified document trees.
 
 * **JSONPointer**:
   The JSONPointer module provides for addressing of components within
@@ -38,6 +42,9 @@ the package are:
   The patch task lists could be assembled by modules, modified as required 
   and stored persistently for reuse. 
 
+* **JSONCompute**:
+  A JSON DSL for production, build, and test automation. 
+
 * **Selftest** / **'jsondatacheck --selftest'**:
   Last but not least, the selftest feature provides for a quick verification
   of the package itself.
@@ -53,9 +60,11 @@ add-ons is close to native Python.
 The integration of 'jsondata' into the JSON processing flow could be extended
 by custom classes as required::
 
-                 +-------------------------+
-                 |    application-layer    |
-                 +-------------------------+
+              +--------------------------------+
+              |       application-layer        |    <= Application layer, e.g including 
+              +-----------------+              |       REST-Middleware
+              | JSONCompute     |              |    <= DSL for JSON
+              +--------------+--+--------------+ 
             .  .  .  |  .  . | .  .  . | .  .  .  . <= combined API  
                      |       V         |
                      | +-----------+   | 
@@ -69,8 +78,12 @@ by custom classes as required::
                        |         |     | 
                        V         V     V
     RFC7159         +---------------------+
-       +            | JSONDataSerializer  |         <= integrate JSON+JSONschema
-    DRAFT4          +---------------------+
+       +            |      JSONData       |         <= integrate JSON+JSONschema
+    DRAFT4          +----------o----------+
+                               |
+                    +---------------------+
+                    | JSONDataSerializer  |         <= provide persistency for
+                    +---------------------+            JSONData
 
                 *         *          *        *
             .  .| .  .  . | .  .  .  | .  .  .| .  .<= common access to JSON data
@@ -79,6 +92,7 @@ by custom classes as required::
     RFC7159  |     json       |   jsonschema    |  <= provide JSON data and JSONschema
        &&    |     ujson      |                 |      
     DRAFT4   +----------------+-----------------+
+
 
 The package 'jsondata' supports the standards RFC6901, RFC6902, and the
 integration of RFC7159 with DRAFT4Schema, while relying for the syntax
@@ -97,12 +111,14 @@ dynamically loaded and released user elements.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 __package__ = 'jsondata'
 __all__=[
-    "jsoondata.JSONDataSerializer.JSONDataSerializer",
+    "JSONCompute",
+    "JSONData",
+    "JSONDataSerializer",
     "JSONDataException",
     "JSONDataKeyError",
     "JSONDataNodeType",
@@ -110,7 +126,8 @@ __all__=[
     "JSONDataTargetFile",
     "JSONDataValue",
     "JSONDataAmbiguity",
-    "JSONPointer","JSONPointerException"
-    "JSONPatch","JSONPatchException"
+    "JSONPointer","JSONPointerException",
+    "JSONPatch","JSONPatchException",
+    "JSONTree"
 ]
 

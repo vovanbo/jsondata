@@ -41,7 +41,7 @@ __author__ = 'Arno-Can Uestuensoez'
 __author_email__ = 'acue_sf2@sourceforge.net'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.0'
+__version__ = '0.2.3'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 
@@ -235,7 +235,9 @@ _classifiers = [
     "Topic :: Utilities",
 ]
 
-_keywords = 'JSON json json-schema jsonschema json-pointer jsonpointer JSONschema JSONPointer JSONPatch RFC7159 RFC4627 RFC6901 RFC6902 ECMA-262 ECMA-404 pointer schema path patch persistence serialization configuration plugins dynamic modules'
+_keywords  = ' JSON json json-schema jsonschema json-pointer jsonpointer JSONschema JSONPointer JSONPatch'
+_keywords += ' RFC7159 RFC4627 RFC6901 RFC6902 ECMA-262 ECMA-404 pointer schema path patch persistence'
+_keywords += ' serialization configuration plugins dynamic modules operations calculations'
 
 _packages = ["jsondata"]
 _scripts = ["bin/jsondatacheck"]
@@ -256,6 +258,7 @@ _url='https://sourceforge.net/projects/jsondata/'
 _install_requires=[
     'json',
     'jsonschema',
+    'termcolor'
 ]
 
 _test_suite="tests.CallCase"

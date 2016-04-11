@@ -1,0 +1,20 @@
+'jsondata.JSONDataExceptions' - Module
+**************************************
+
+This module contains the generic exceptions for the package 'jsondata'.
+
+* `jsondata.JSONDataException [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataException>`_
+
+
+* `jsondata.JSONDataAmbiguity [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataAmbiguity>`_
+
+* `jsondata.JSONDataKeyError [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataKeyError>`_
+
+* `jsondata.JSONDataNodeType [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataNodeType>`_
+
+* `jsondata.JSONDataSourceFile [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataSourceFile>`_
+
+* `jsondata.JSONDataTargetFile [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataTargetFile>`_
+
+* `jsondata.JSONDataValue [source] <_modules/jsondata/JSONDataExceptions.html#JSONDataValue>`_
+

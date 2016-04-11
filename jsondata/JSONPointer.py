@@ -17,10 +17,10 @@ the hook where the value has to be inserted.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.0'
+__version__ = '0.2.2'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
-import sys
+import sys,os
 
 version = '{0}.{1}'.format(*sys.version_info[:2])
 if version < '2.7': # pragma: no cover
@@ -51,6 +51,13 @@ NOTATION_HTTP_FRAGMENT = 1
 
 VALID_NODE_TYPE = (dict, list, str, unicode, int, float, bool, NoneType,)
 """Valid types of in-memory JSON node types."""
+
+
+CHARSET_UTF = 0
+"""Unicode."""
+
+CHARSET_STR = 1
+"""Python string."""
 
 class JSONPointerException(Exception):
     pass
@@ -161,6 +168,8 @@ class JSONPointer(list):
                     'deep' when 'True', else 'swallow' only, which is 
                     just a link to the data structure. Flat data types
                     are copied by value in any case.
+                node: Force to set the pointed node in the internal cache. 
+                debug: Enable debugging.
 
         Returns:
             When successful returns 'True', else returns either 'False', or
@@ -172,7 +181,8 @@ class JSONPointer(list):
             JSONPointerException:
 
         """
-        self.node = None # cache for reuse
+        self.debug = kargs.get('debug',False)
+        self.node = kargs.get('node',None) # cache for reuse
         self.deep = deep = kargs.get('deep',False)
         if ptr and type(ptr) in (str,unicode) and ptr[0] is '#': # pointer are unicode only
             ptr = ptr[1:]
@@ -218,8 +228,10 @@ class JSONPointer(list):
                     return p0
                 elif type(p0) in (str,unicode): 
                     return p0
+                elif type(p0) in (int,float): 
+                    return str(p0)
                 else:
-                    raise JSONPointerException("Invalid nodepart:"+str(self.p0)) 
+                    raise JSONPointerException("Invalid nodepart:"+str(p0)) 
                 return p0
             if deep:    
                 self.extend(map(lambda s:s[:],ptr))
@@ -227,7 +239,10 @@ class JSONPointer(list):
                 self.extend(map(presolv,ptr))
             self.raw = '/'+'/'.join(self)
         else:
-            return None
+            if not ptr:
+                self.raw = None
+                return None
+            raise JSONPointerException("Pointer type not supported:",type(ptr))
 
         if replace:
             x = map(lambda p: type(p) in (str,unicode) and unquote(p).replace('~1', '/').replace('~0', '~') or p,self) # 6901-escaped, generic chars-quote
@@ -306,7 +321,8 @@ class JSONPointer(list):
         if isinstance(x, JSONPointer):
             return s == x.get_pointer()
         elif type(x) == list:
-            return s == unicode("/"+'/'.join(x))
+            #return s == unicode("/"+'/'.join(x))
+            return s == JSONPointer(x).get_pointer()
         elif type(x) in (str,unicode):
             return s == unicode(x)
         elif type(x) in (int):
@@ -388,7 +404,7 @@ class JSONPointer(list):
         else:
             raise JSONPointerException()
 
-        if s >= px: # the shorter is the bigger
+        if s >= px: # the shorter is the bigger, so false in any case
             return False
         if unicode(px).startswith(unicode(s)): # matching part has to be literal
             return True
@@ -412,7 +428,7 @@ class JSONPointer(list):
             if x.raw[0] != u'/':
                 self.raw += u'/'+x.raw
             else:
-                self.raw += x.raw
+                self.raw = x.raw
             self.extend(x)
         elif type(x) is int:
             self.append(unicode(x))
@@ -558,10 +574,7 @@ class JSONPointer(list):
     def __repr__(self):
         """Returns the attribute self.raw, which is the raw input JSONPointer.
         """
-        ret = unicode(self.get_pointer())
-        if ret == '':
-            return "''"
-        return ret
+        return unicode(super(JSONPointer,self).__repr__())
 
     def __str__(self):
         """Returns the string for the processed path.
@@ -570,6 +583,7 @@ class JSONPointer(list):
         if ret == '':
             return "''"
         return ret
+
     #
     # ---
     #
@@ -645,18 +659,28 @@ class JSONPointer(list):
         
         Due to the special case of RFC6902 'append' by the array 
         index '-' in combination of the add rules a special 
-        exceptional treatment is required, for details refer to RFC6902.
+        exception-treatment is required, for details refer to RFC6902.
         
         The 'get_node' method therefore returns only an existing 
-        node of a of valid non-ambiguous path pointer. This excludes
-        pointers containing the symbolic '-' for an array component.
+        node of a of valid non-ambiguous path pointer. This 
+        excludes pointers containing the symbolic index '-' for 
+        an array component.
         
-        For the application of partial valid pointer paths for new branches
-        refer to 'get_node_exist'.
+        See also related methods:
+        
+            get_node_and_child: For Python access to a child node 
+                within a container by the container itself, and the
+                item key.
+            get_node_exist: For the application of partial valid 
+                pointer paths of new branches.
+            get_node_or_value: For any type of pointed item, either 
+                a node, or a value. 
         
         Args:
             jsondata: A valid JSON data node.
             parent: Return the parent node of the pointed value.
+                When parent is selected, the type of the pointed child
+                node is not verified. 
 
         Returns:
             The node reference.
@@ -667,8 +691,8 @@ class JSONPointer(list):
         """
         if self == []: # special RFC6901, whole document
             return jsondata
-        if self == ['']: # special RFC6901, '/' empty top-tag
-            return jsondata['']
+        if len(self) == 1 and self[0] == '': # special RFC6901, '/' empty top-tag
+            return jsondata[0]
         
         if type(jsondata) not in (dict, list):
             # concrete info for debugging for type mismatch
@@ -946,7 +970,10 @@ class JSONPointer(list):
         Raises:
             none
         """
-        return self
+        if __debug__:
+            if self.debug:
+                print repr(self)
+        return list(self)
 
     def get_path_list_and_key(self):
         """Gets for the corresponding path list of the object pointer for in-memory access on the data of the 'json' package.
@@ -961,7 +988,7 @@ class JSONPointer(list):
             none
         """
         if len(self)>2:
-            return self[:-2],self[-1]
+            return self[:-1],self[-1]
         elif len(self)==1:
             return [],self[-1]
         elif len(self)==0:

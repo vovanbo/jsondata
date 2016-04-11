@@ -1,6 +1,6 @@
 PROJECT='jsondata'
-VERSION="0.2.0"
-RELEASE="0.2.0"
+VERSION="0.2.2"
+RELEASE="0.2.2"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
 LICENSE='Artistic-License-2.0 + Forced-Fairplay-Constraints'

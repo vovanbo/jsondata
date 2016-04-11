@@ -1,0 +1,41 @@
+'jsondata.Selftest' - Module
+****************************
+
+.. automodule:: jsondata.Selftest
+
+Functions:
+^^^^^^^^^^
+
+runselftest
+"""""""""""
+	.. autofunction:: runselftest
+
+case00
+""""""
+	.. autofunction:: case00
+
+case01
+""""""
+	.. autofunction:: case01
+
+case02
+""""""
+	.. autofunction:: case02
+
+case03
+""""""
+	.. autofunction:: case03
+
+case04
+""""""
+	.. autofunction:: case04
+
+case05
+""""""
+	.. autofunction:: case05
+
+case06
+""""""
+	.. autofunction:: case06
+
+ 

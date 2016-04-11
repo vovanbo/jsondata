@@ -20,17 +20,6 @@ The test also include large loads for performance validation.
 The failure of the performance tests may not prohibit the release at
 all, but may question the applicability for high-end environments.
 
-00\_IETF\_RFC\_compliance
-----------------------
-Compliance tests of various IETF standards.
-Examples and reference cases extracted from 
-the standards texts. 
-
-01\_ECMA\_compliance
-------------------
-Compliance tests of various ECMA standards extracted from 
-the standards texts. 
-
 10_selftest
 -----------
 Basic self test of PyUnit by the user tool option
