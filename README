@@ -147,7 +147,7 @@ VERSIONS and RELEASES
 * RELEASE: 00.05.00x - Production: Various performance enhancements.
 
 
-**Current Release: 00.02.003 - Alpha:**
+**Current Release: 00.02.004 - Alpha:**
 
 Major Changes:
 
@@ -173,3 +173,11 @@ Current test status:
 
 **Total**: >864
 
+
+**REMARK**: Due to a bug within the PyPi-Hosting software the daily0 counter is broken, just ignore it. For further information refer to::
+
+* [pypi:support-requests] #615 Doenload counter partially broken since about 7days  (including additional comments)
+
+       https://sourceforge.net/p/pypi/support-requests/615/
+
+Before about the 1.4.2016 it was between about 100/day sustained up to 800/day after updates. Thus the counters do not reflect the actual amount of distribution until the fix of the bug.
