@@ -42,8 +42,6 @@ class CallUnits(unittest.TestCase):
         kargs['validator'] = MODE_SCHEMA_OFF
         configdata = ConfigData(appname,**kargs)
 
-        #nref = repr(configdata)
-        #print nref
         ref = """{u'phoneNumber': [{u'type': u'home', u'number': u'212 555-1234'}, {u'type': u'office', u'number': u'313 444-555'}, {u'type': u'mobile', u'number': u'777 666-555'}], u'address': {u'city': u'New York', u'streetAddress': u'21 2nd Street', u'houseNumber': 12}}"""
         
         assert ref == repr(configdata)
@@ -59,25 +57,28 @@ class CallUnits(unittest.TestCase):
         # create
         nbranch = configdata.branch_create(
                     JSONPointer("/phoneNumber").get_node(configdata.data),
-                    JSONPointer("/-/skype/de"),
-                    '{"home": "000-111-222"}') 
+                    JSONPointer("/-/skype/de/home"),
+                    u"000-111-222")
         
-        #n = repr(nbranch)
-        #print n
-        nrepr = """{u'home': u'000-111-222'}"""
+        # fetch pathlist 
+        pbranch = ConfigData.getPointerPath(nbranch,configdata.data)[0][:-1]
         
-        #c = repr(configdata)
-        #print c
+        # get value of pointed node by pathlist
+        pdata = JSONPointer(pbranch).get_node_or_value(configdata.data)
+
+        # value
+        nrepr = """u'000-111-222'"""
+
+        # target
+        prepr = """{u'home': u'000-111-222'}"""
+        
+        # repr for config data
         crepr="""{u'phoneNumber': [{u'type': u'home', u'number': u'212 555-1234'}, {u'type': u'office', u'number': u'313 444-555'}, {u'type': u'mobile', u'number': u'777 666-555'}, {u'skype': {u'de': {u'home': u'000-111-222'}}}], u'address': {u'city': u'New York', u'streetAddress': u'21 2nd Street', u'houseNumber': 12}}"""
         
-        #d = repr(configdata.data)
-        #print d        
-        drepr="""{u'phoneNumber': [{u'type': u'home', u'number': u'212 555-1234'}, {u'type': u'office', u'number': u'313 444-555'}, {u'type': u'mobile', u'number': u'777 666-555'}, {u'skype': {u'de': {u'home': u'000-111-222'}}}], u'address': {u'city': u'New York', u'streetAddress': u'21 2nd Street', u'houseNumber': 12}}"""
-        
         assert nrepr == repr(nbranch)
+        assert prepr == repr(pdata)
         assert crepr == repr(configdata) 
-        assert drepr == repr(configdata.data) 
-        assert crepr == drepr 
+        assert crepr == repr(configdata.data) 
 
 if __name__ == '__main__':
     unittest.main()

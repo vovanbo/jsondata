@@ -138,7 +138,7 @@ few differences if at all.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.1'
+__version__ = '0.2.8'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import os,sys
@@ -488,7 +488,9 @@ class JSONDataSerializer(JSONData):
                 self.pathlist.extend(
                     [os.path.dirname(afile)+os.sep+'etc'+os.sep+appname+os.sep,
                     os.pathsep+os.sep+'etc'+os.sep,
-                    os.pathsep+"$HOME"+os.sep+'etc'+os.sep])
+                    os.pathsep+"$HOME"+os.sep+'etc'+os.sep,
+                    os.pathsep+os.path.dirname(__file__)+os.sep,
+                    ])
 
             # expand all
             self.pathlist = [os.path.expandvars(os.path.expanduser(p)) for p in self.pathlist]
@@ -497,7 +499,7 @@ class JSONDataSerializer(JSONData):
         else: # a PATH like variable, so do it at once
             if not self.nodefaultpath:
                 # Fixed set of data files as the final default.
-                self.pathlist += os.path.dirname(afile)+os.sep+'etc'+os.sep+appname+os.sep+os.pathsep+os.sep+'etc'+os.sep+os.pathsep+"$HOME"+os.sep+'etc'+os.sep
+                self.pathlist += os.path.dirname(afile)+os.sep+'etc'+os.sep+appname+os.sep+os.pathsep+os.sep+'etc'+os.sep+os.pathsep+"$HOME"+os.sep+'etc'+os.sep+os.pathsep+os.path.dirname(__file__)+os.sep
             self.pathlist  = os.path.expandvars(os.path.expanduser(self.pathlist)).split(os.pathsep)
         
         # canonical
@@ -592,7 +594,6 @@ class JSONDataSerializer(JSONData):
                 if not self.schemafile and self.schema:
                     kimp['schema'] = self.schema
                 self.json_import(self.branch, None, self.datafile, self.schemafile,**kimp)
-
 
     def json_export(self, sourcenode, fname, **kargs):
         """ Exports current data for later import.

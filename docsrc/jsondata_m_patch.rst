@@ -11,8 +11,10 @@ getOp
 
 	.. autofunction:: getOp
 
+
 Class: JSONPatch
 ----------------
+
 .. autoclass:: JSONPatch
 
 Attributes
@@ -60,6 +62,10 @@ patch_import
 
 Operators:
 ^^^^^^^^^^
+
+'()'
+""""
+	.. automethod:: JSONPatch.__call__
 
 '[]'
 """"
@@ -123,6 +129,10 @@ apply
 
 Operators:
 ^^^^^^^^^^
+
+'()'
+""""
+	.. automethod:: JSONPatchItem.__call__
 
 '[]'
 """"""

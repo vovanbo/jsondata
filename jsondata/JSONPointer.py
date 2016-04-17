@@ -17,7 +17,7 @@ the hook where the value has to be inserted.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.2'
+__version__ = '0.2.8'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import sys,os
@@ -295,7 +295,7 @@ class JSONPointer(list):
                 ret.extend(x.split('/'))
                 ret.raw += u'/'+x
         elif type(x) is int:
-            ret.append(unicode(x))
+            ret.append(x)
             ret.raw += u'/'+unicode(x)
         elif type(x) is NoneType:
             return ret
@@ -303,6 +303,20 @@ class JSONPointer(list):
         else:
             raise JSONPointerException()
         return ret
+
+    def __call__(self, x):
+        """Evaluates the pointed value from the document.
+
+        Args:
+            x: A valid JSON document.
+
+        Returns:
+            The pointed value, or None.
+
+        Raises:
+            JSONPointerException
+        """
+        return self.get_node_or_value(x)
 
     def __eq__(self, x):
         """Compares this pointer with x.
@@ -373,6 +387,8 @@ class JSONPointer(list):
             return False
         if unicode(px).startswith(unicode(s)): # matching part has to be literal
             return True
+        else:
+            return False
 
     def __gt__(self, x):
         """Checks containment(>) of another pointer or object within this.
@@ -408,6 +424,8 @@ class JSONPointer(list):
             return False
         if unicode(px).startswith(unicode(s)): # matching part has to be literal
             return True
+        else:
+            return False
 
     def __iadd__(self, x):
         """Add in place x to self, appends a path.
@@ -679,8 +697,8 @@ class JSONPointer(list):
         Args:
             jsondata: A valid JSON data node.
             parent: Return the parent node of the pointed value.
-                When parent is selected, the type of the pointed child
-                node is not verified. 
+                When parent is selected, the pointed child node
+                is not verified. 
 
         Returns:
             The node reference.

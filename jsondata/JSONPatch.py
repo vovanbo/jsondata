@@ -36,7 +36,7 @@ by the class JSONPointer in accordance to RFC6901.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.0'
+__version__ = '0.2.8'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import sys
@@ -57,10 +57,11 @@ else:
 
 # for now the only one supported
 #import jsonschema
+from types import StringTypes,NoneType
+#from StringIO import StringIO
 
-from StringIO import StringIO
 from jsondata.JSONPointer import JSONPointer
-from jsondata.JSONDataSerializer import JSONDataSerializer,MODE_SCHEMA_OFF,MODE_SCHEMA_ON
+from jsondata.JSONDataSerializer import JSONDataSerializer,MODE_SCHEMA_OFF
 
 # default
 _appname = "jsonpatch"
@@ -166,6 +167,24 @@ class JSONPatchItem(object):
 
         else:
             raise JSONPatchItemException("Unknown operation.")
+
+    def __call__(self, j):
+        """Evaluates the related task for the provided data.
+
+        Args:
+            j: JSON data the task has to be 
+                applied on.
+
+        Returns:
+            Returns a tuple of:
+                0: len of the job list
+                1: list of the execution status for 
+                    the tasks
+
+        Raises:
+            JSONPatchException:
+        """
+        return self.apply(j)
 
     def __eq__(self,x):
         """Compares this pointer with x.
@@ -339,6 +358,26 @@ class JSONPatchItem(object):
         
         return True
 
+    def repr_export(self):
+        """Prints the patch string for export in accordance to RFC6901.
+        """
+        ret = '{"op": "'+str(op2str[self.op])+'", "path": "'+str(self.target)+'"'
+        if self.op in (RFC6902_ADD,RFC6902_REPLACE,RFC6902_TEST):
+            if type(self.value) in (int,float):
+                ret += ', "value": '+str(self.value)
+            elif type(self.value) in (dict,list):
+                ret += ', "value": '+str(self.value)
+            else:
+                ret += ', "value": "'+str(self.value)+'"'
+                
+        elif self.op is RFC6902_REMOVE:
+            pass
+
+        elif self.op in (RFC6902_COPY,RFC6902_MOVE):
+            ret += ', "from": "'+str(self.src)+'"'
+        ret += '}'
+        return ret
+
 class JSONPatchItemRaw(JSONPatchItem):
     """Adds native patch strings or an unsorted dict for RFC6902.
     """
@@ -438,8 +477,6 @@ class JSONPatch(object):
         self.deep = False
         """Defines copy operations, True:=deep, False:=swallow"""
 
-        
-
     #
     #--- RFC6902 JSON patch files
     #
@@ -456,6 +493,30 @@ class JSONPatch(object):
         else:
             raise JSONPatchException("Unknown input"+type(x))
 
+    def __call__(self, j, x=None):
+        """Evaluates the related task for the provided index.
+
+        Args:
+            x: Task index.
+
+            j: JSON data the task has to be 
+                applied on.
+
+        Returns:
+            Returns a tuple of:
+                0: len of the job list
+                1: list of the execution status for 
+                    the tasks
+
+        Raises:
+            JSONPatchException:
+        """
+        if type(x) is NoneType:
+            return self.apply(j)
+        if self.patch[x](j):
+            return 1,[]
+        return 1,[0]
+
     def __eq__(self,x):
         """Compares this pointer with x.
 
@@ -468,11 +529,16 @@ class JSONPatch(object):
         Raises:
             JSONPointerException
         """
-        ret = True
-        for p in self.patch:
-            for xi in x:
-                ret &= p==xi
-        return ret
+        match = len(self.patch)
+        if match != len(x):
+            return False
+
+        for p in sorted(self.patch):
+            for xi in sorted(x):
+                if p==xi:
+                    match -= 1
+                    continue
+        return match == 0
 
     def __getitem__(self,key):
         """Support of slices, for 'iterator' refer to self.__iter__.
@@ -502,9 +568,29 @@ class JSONPatch(object):
         return self
 
     def __isub__(self,x):
-        """Removes the first matching patch job from the task queue in place. 
+        """Removes the patch job from the task queue in place. 
+        
+        Removes one of the following type(x) variants:
+        
+            int: The patch job with given index.
+             
+            JSONPatchItem: The first matching entry from 
+                the task queue. 
+
+        Args:
+            x: Item to be removed.
+
+        Returns:
+            Returns resulting list without x.
+
+        Raises:
+            JSONPatchException:
         """
-        self.patch.remove(x)
+        if type(x) is int:
+            self.patch.pop(x)
+        else:
+            self.patch.remove(x)
+        return self
 
     def __iter__(self):
         """Provides an iterator foreseen for large amounts of in-memory patches.
@@ -548,25 +634,55 @@ class JSONPatch(object):
         ret = "[\n"
         if self.patch:
             if len(self.patch)>1:
-                for p in self.patch[:-2]:
+                for p in self.patch[:-1]:
                     ret += "  "+repr(p)+",\n"
             ret += "  "+repr(self.patch[-1])+"\n"
         ret += "]"
         return str(ret)
 
     def __sub__(self,x):
-        """Removes the first matching patch job from the task queue of resulting object. 
+        """Removes the patch job from the task queue. 
+        
+        Removes one of the following type(x) variants:
+        
+            int: The patch job with given index.
+             
+            JSONPatchItem: The first matching entry from 
+                the task queue. 
+
+        Args:
+            x: Item to be removed.
+
+        Returns:
+            Returns resulting list without x.
+
+        Raises:
+            JSONPatchException:
         """
         ret = JSONPatch()
         if self.deep:
             ret.patch = self.patch[:]
         else:
             ret.patch = self.patch
-        ret.patch.remove(x)
+        if type(x) is int:
+            ret.patch.pop(x)
+        else:
+            ret.patch.remove(x)
         return ret
 
     def apply(self,jsondata):
         """Applies the JSONPatch task.
+
+        Args:
+            jsondata: JSON data the joblist has to be applied on.
+
+        Returns:
+            Returns a tuple of:
+                0: len of the job list
+                1: list of the execution status for the tasks
+
+        Raises:
+            JSONPatchException:
         """
         status = []
         for p in self.patch:
@@ -582,13 +698,40 @@ class JSONPatch(object):
         #FIXME:
         return ret
 
-    def patch_export(self):
+    def patch_export(self, patchfile, schema=None, **kargs):
         """Exports the current task list.
         
         Provided formats are:
             RFC6902
+
+        Supports the formats:
+            RFC6902
+
+        Args:
+            patchfile:
+                JSON patch for export.
+            schema:
+                JSON-Schema for validation of the patch list.
+            **kargs:
+                validator: [default, draft3, off, ]
+                    Sets schema validator for the data file.
+                    The values are: default=validate, draft3=Draft3Validator,
+                    off=None.
+                    default:= validate
+
+        Returns:
+            When successful returns 'True', else raises an exception.
+
+        Raises:
+            JSONPatchException:
+
         """
-        pass
+        try:
+            with open(patchfile, 'w') as fp:
+                fp.writelines(self.repr_export())
+        except Exception as e:
+            raise JSONPatchException("open-"+str(e),"data.dump",str(patchfile))
+        return True
 
     def patch_import(self, patchfile, schemafile=None, **kargs):
         """Imports a task list.
@@ -635,4 +778,15 @@ class JSONPatch(object):
             self += JSONPatchItemRaw(pi)
         return True
 
+    def repr_export(self):
+        """Prints the export representation format of a JSON patch list.
+        """
+        ret = "["
+        if self.patch:
+            if len(self.patch)>1:
+                for p in self.patch[:-1]:
+                    ret += p.repr_export()+", "
+            ret += self.patch[-1].repr_export()
+        ret += "]"
+        return ret
 

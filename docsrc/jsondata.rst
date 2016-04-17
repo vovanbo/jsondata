@@ -9,8 +9,6 @@
 
 **Sources**
 
-* `jsondata.JSONCompute [source] <_modules/jsondata/JSONCompute.html#JSONComputePointer>`_
-	
 * `jsondata.JSONData [source] <_modules/jsondata/JSONData.html#JSONData>`_
 
 * `jsondata.JSONDataExceptions [source] <_modules/jsondata/JSONDataExceptions.html#>`_
@@ -28,7 +26,6 @@
 .. include:: jsondata_m_serializer.rst
 .. include:: jsondata_m_pointer.rst
 .. include:: jsondata_m_patch.rst
-.. include:: jsondata_m_compute.rst
 .. include:: jsondata_m_exceptions.rst
 .. include:: jsondata_m_selftest.rst
 

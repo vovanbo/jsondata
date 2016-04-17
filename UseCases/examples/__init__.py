@@ -1,0 +1,2 @@
+"""Examples for 'jsondata' documents.
+"""

@@ -112,9 +112,9 @@ Project Data
 
 * MISSION: Provide and extend JSONPointer and JSONPatch - RFC6901, RFC6902
 
-* VERSION: 00.02.003
+* VERSION: 00.02
 
-* RELEASE: 00.02.003
+* RELEASE: 00.02
 
 * STATUS: alpha
 
@@ -147,37 +147,22 @@ VERSIONS and RELEASES
 * RELEASE: 00.05.00x - Production: Various performance enhancements.
 
 
-**Current Release: 00.02.004 - Alpha:**
+**Current Release: 00.02.008 - Alpha:**
+
+**Last Alpha release**,following is planned as Beta.
 
 Major Changes:
 
 * General fixes and enhancements .
 
-* Split UnitTests
+* Extracted JSONCompute into a seperate package 'jsoncompute'.
 
-* Split Use-Cases as UnitTests
-
-* Added JSONCompute, a first version of a lightweight JSON DSL. This module is pre-alpha.
-
-* Introduced test for Use-Cases of JSON processing with 'jsondata' by 'tests.05_jsondata_use_cases'.
-
-* Added generic class methods for tree diff and tree pointer evaluation. Works on raw data from 'json' and 'ujson'.
-
-* Added some first operators on JSONPatch and JSONPatchItem for RFC6902.
 
 Current test status:
 
-* UnitTests: >553
+* UnitTests: >510
 
-* Use-Cases as UnitTests: >301
+* Use-Cases as UnitTests: >378
 
-**Total**: >864
+**Total**: >888
 
-
-**REMARK**: Due to a bug within the PyPi-Hosting software the daily0 counter is broken, just ignore it. For further information refer to::
-
-* [pypi:support-requests] #615 Doenload counter partially broken since about 7days  (including additional comments)
-
-       https://sourceforge.net/p/pypi/support-requests/615/
-
-Before about the 1.4.2016 it was between about 100/day sustained up to 800/day after updates. Thus the counters do not reflect the actual amount of distribution until the fix of the bug.

@@ -1,6 +1,6 @@
 PROJECT='jsondata'
-VERSION="0.2.4"
-RELEASE="0.2.4"
+VERSION="0.2.8"
+RELEASE="0.2.8"
 NICKNAME="Mafumo"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2010,2011,2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
@@ -101,27 +101,25 @@ Project data summary:
 
 * NICKNAME=${NICKNAME}
 
-  |kevinr|  \`Save the Lions <https://www.youtube.com/watch?v=0XZQYC1lHr4>\`_  
+  ${NICKNAME} the lion see |kevinr|  \`Save the Lions <https://www.youtube.com/watch?v=0XZQYC1lHr4>\`_  
 
 .. |kevinr| image:: _static/lionwhisperer.png 
     :target: https://www.youtube.com/watch?v=0XZQYC1lHr4
     :width: 32
     :height: 32
 
-
-*REMARK*: The master format of current documentation is PyDoc, thus the HTML formatting
-is supported with a few inline macros only.
-
-
 EOF
 } >> ${OUTDIR}/apidoc/sphinx/index.rst 
 
 #
-cat docsrc/jsondata_compute_syntax.rst   > ${OUTDIR}/apidoc/sphinx/jsondata_compute_syntax.rst
-cat docsrc/jsondata_compute_syntax_examples.rst  > ${OUTDIR}/apidoc/sphinx/jsondata_compute_syntax_examples.rst
+cat docsrc/jsondata_pointer_operations.rst > ${OUTDIR}/apidoc/sphinx/jsondata_pointer_operations.rst
+cat docsrc/jsondata_patch_operations.rst > ${OUTDIR}/apidoc/sphinx/jsondata_patch_operations.rst
+cat docsrc/jsondata_branch_operations.rst > ${OUTDIR}/apidoc/sphinx/jsondata_branch_operations.rst
+cat docsrc/jsondata_branch_serializer.rst > ${OUTDIR}/apidoc/sphinx/jsondata_branch_serializer.rst
 #
+cat docsrc/commandline_tools.rst         > ${OUTDIR}/apidoc/sphinx/commandline_tools.rst
 cat docsrc/jsondatacheck.rst             > ${OUTDIR}/apidoc/sphinx/jsondatacheck.rst
-cat docsrc/jsonproc.rst                  > ${OUTDIR}/apidoc/sphinx/jsonproc.rst
+#cat docsrc/jsonproc.rst                  > ${OUTDIR}/apidoc/sphinx/jsonproc.rst
 #
 cat docsrc/jsondata.rst                  > ${OUTDIR}/apidoc/sphinx/jsondata.rst
 #
@@ -129,7 +127,6 @@ cat docsrc/jsondata_m_data.rst           > ${OUTDIR}/apidoc/sphinx/jsondata_m_da
 cat docsrc/jsondata_m_serializer.rst     > ${OUTDIR}/apidoc/sphinx/jsondata_m_serializer.rst
 cat docsrc/jsondata_m_pointer.rst        > ${OUTDIR}/apidoc/sphinx/jsondata_m_pointer.rst
 cat docsrc/jsondata_m_patch.rst          > ${OUTDIR}/apidoc/sphinx/jsondata_m_patch.rst
-cat docsrc/jsondata_m_compute.rst        > ${OUTDIR}/apidoc/sphinx/jsondata_m_compute.rst
 cat docsrc/jsondata_m_exceptions.rst     > ${OUTDIR}/apidoc/sphinx/jsondata_m_exceptions.rts
 #
 cat docsrc/jsondata_m_selftest.rst       > ${OUTDIR}/apidoc/sphinx/jsondata_m_selftest.rst

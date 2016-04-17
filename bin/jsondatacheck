@@ -124,6 +124,8 @@ try:
     from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
 except Exception as e:
     print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    import sys
+    sys.exit(1)
 # name of application, used for several filenames as default
 _APPNAME = "jsondatacheck"
 

@@ -138,7 +138,7 @@ few differences if at all.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.1'
+__version__ = '0.2.8'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import os,sys
@@ -525,6 +525,38 @@ class JSONData:
                 print "DBG:self.schemafile=  "+str(self.schemafile)
                 print "DBG:self.schema=       #["+str(self.schema)+"]#"
 
+    def __call__(self, x):
+        """Evaluates the pointed value from the document.
+
+        Args:
+            x: A valid JSONPointer.
+
+        Returns:
+            The pointed value, or None.
+
+        Raises:
+            JSONPointerException
+        """
+        if isinstance(x,JSONPointer):
+            return x.get_node_or_value(self.data)
+        return JSONPointer(x).get_node_or_value(self.data)
+
+    def __eq__(self, x):
+        """Compares this JSONData.data with x.
+
+        Args:
+            x: A valid JSONData.
+
+        Returns:
+            True or False
+
+        Raises:
+            JSONDataException
+        """
+        if not self.data and not x : # all None is equal, 
+            return True
+        return JSONData.getTreeDiff(self.data, x)
+
     def __repr__(self):
         """Dump data.
         """
@@ -553,6 +585,20 @@ class JSONData:
         """Provides an iterator for data.
         """
         return iter(self.data)
+
+    def __ne__(self, x):
+        """Compares this JSONData with x.
+
+        Args:
+            x: A valid JSONData.
+
+        Returns:
+            True or False
+
+        Raises:
+            JSONDataException
+        """
+        return not self.__eq__(x)
 
     def branch_add(self, targetnode, key, sourcenode):
         """Add a complete branch into a target structure of type object.
@@ -607,7 +653,7 @@ class JSONData:
                 if not key:
                     targetnode,key  = targetnode.get_node_and_child(self.data)
                 else:
-                    targetnode  = targetnode.get_node(self.data,True)
+                    targetnode  = targetnode.get_node(self.data,False)
             except:
                 # requires some more of a new path than for the node-only
                 self.branch_create('',targetnode)
@@ -736,7 +782,7 @@ class JSONData:
                 New branch to be created in the target tree.
                 A Pointer address path relative to the 'targetnode'. 
 
-            value: Optional value for the leaf. The value itself
+            value: Optional value for the leaf. The value itselfn
                 could be either an atomic type, or a branch itself
                 in accordance to RFC6902. 
 
@@ -786,7 +832,7 @@ class JSONData:
             else:
                 if targetnode.get(branch[0],False):
                     raise JSONDataException("exists","branch",str(branch[0]))
-                ret = targetnode[unicode(branch[0])] = self.getValueNode(value)
+                ret = targetnode[unicode(branch[0])] = self.getCanonical(value)
                 
         elif type(targetnode) == list:
             if type(branch[0]) in (int,) and branch[0] < len(targetnode): # see RFC6902 for '-'/append
@@ -799,9 +845,9 @@ class JSONData:
             if len(branch) == 1:            
                 if branch[0] == '-':
                     branch[0] = len(targetnode)
-                    targetnode.append(self.getValueNode(value))
+                    targetnode.append(self.getCanonical(value))
                 else:
-                    targetnode[branch[0]] = self.getValueNode(value)
+                    targetnode[branch[0]] = self.getCanonical(value)
                 ret = targetnode
             else:
                 if branch[0] == '-':
@@ -905,7 +951,8 @@ class JSONData:
                         if not force:
                             raise JSONDataKeyError("present","key",str(key))
                     targetnode[key] = sourcenode[skey]
-
+            
+            sourcenode.pop(skey)
             ret = True
 
         elif type(targetnode) is list:
@@ -1031,10 +1078,13 @@ class JSONData:
         return ret
 
     def branch_replace(self,targetnode, key, sourcenode):
-        """Replaces the target node by the copy of the source branch.
+        """Replaces the value of the target node by the copy of the source branch.
 
         Requires in order to RFC6902, all items to be replaced has to be
-        present. Thus fails if at least one is missing. 
+        present. Thus fails if at least one is missing.
+        
+        Internally the 'branch_add()' call is used with a deep copy.
+        When a swallow copy is required the 'branch_move()' has to be used. 
 
         Args:
             targetnode := nodereference
@@ -1063,39 +1113,35 @@ class JSONData:
             return False
         return self.branch_add(targetnode, key, sourcenode)
 
-    def branch_test(self,targetnode, value):
+    @classmethod
+    def branch_test(cls,targetnode, value):
         """Tests match in accordance to RFC6902.
 
         Args:
-            targetnode := nodereference
-                Base node for the insertion of branch.
+            targetnode := a valid node
+                Node to be compared with the value. Due to
+                ambiguity the automated conversion is not 
+                reliable, thus it has to be valid. 
 
-            value: Value to be compared.
+            value: Expected value for the given node.
             
         Returns:
             When successful returns 'True', else returns 'False'.
 
         Raises:
             JSONData:
-
         """
-        self.diff = None
-
         if not targetnode and not value : # all None is equal, 
             return True
-        
-        return self.getTreeDiff(targetnode, value) # value could be a branch itself
+        return cls.getTreeDiff(targetnode, value) # value could be a branch itself
 
     @classmethod
-    def getTreeDiff(self, n0, n1, difflst=None, alldifs=False, dl=0, path=''):
+    def getTreeDiff(cls, n0, n1, difflst=None, alldifs=False, dl=0, path=''):
         """Recursive tree compare for Python trees as used for the package 'json'.
         
         Finds diff in native Python trees assembled by the standard package 'json'
         and compatible, e.g. 'ujson'.
-        
-        
         """
-        
         # assure JSON strings
         if type(n0) is str:
             n0 = unicode(n0)
@@ -1114,7 +1160,7 @@ class JSONData:
 
             for ni in range(0,len(n0)):
                 if type(n0[ni]) in (list,dict):
-                    if not self.getTreeDiff(n0[ni],n1[ni],difflst,alldifs,dl+1,path+'['+str(ni)+']'):
+                    if not cls.getTreeDiff(n0[ni],n1[ni],difflst,alldifs,dl+1,path+'['+str(ni)+']'):
                         if not alldifs:
                             return False
                 elif n0[ni] != n1[ni]:
@@ -1133,7 +1179,7 @@ class JSONData:
             for ni,v in n0.items():
                 if n1.get(ni):
                     if type(v) in (list,dict):
-                        if not self.getTreeDiff(v,n1[ni],difflst,alldifs,dl+1,path+'['+str(ni)+']'):
+                        if not cls.getTreeDiff(v,n1[ni],difflst,alldifs,dl+1,path+'['+str(ni)+']'):
                             if not alldifs:
                                 return False
                     else:
@@ -1167,7 +1213,7 @@ class JSONData:
     """All matches."""
 
     @classmethod
-    def getPointerPath(self,node,base,restype=FIRST):
+    def getPointerPath(cls,node,base,restype=FIRST):
         """Converts a node address into the corresponding pointer path.
         
         The current implementation is search based, thus may have 
@@ -1217,7 +1263,7 @@ class JSONData:
                         res.append(s)
                         
                     elif type(sx) in (dict,list):
-                        sublst = self.getPointerPath(node,sx,restype)
+                        sublst = cls.getPointerPath(node,sx,restype)
                         if sublst:
                             for slx in sublst:
                                 s = spath[:]
@@ -1236,7 +1282,7 @@ class JSONData:
                         res.append(spath)
                         continue
                     elif type(v) in (list,dict):
-                        sublst = self.getPointerPath(node,v,restype)
+                        sublst = cls.getPointerPath(node,v,restype)
                         if sublst:
                             for slx in sublst:
                                 if slx:
@@ -1250,16 +1296,22 @@ class JSONData:
             return [res[0]]
         return res
 
-    def getValueNode(self,value):
-        """
+    def getCanonical(self,value):
+        """Fetches the canonical value.
+        
+        The actual value could be either an atomic value, a node 
+        representing a branch, or a reference to an atomic value.
+         
         Args:
             value: Value pointer to be evaluated to the actual value.
                 Valid input types are:
-                    int: Integer, kept as integer. 
-                    dict,list: Assumed to be a valid node for 'json' package.
-                    str,unicode: Assumed to be a string representation of a
-                        JSON type path or value.
-                    JSONPointer: A JSON pointer compatible to RFC6901.
+                    int,str,unicode: Integer, kept as an atomic integer 
+                        value.
+                    dict,list: Assumed to be a valid node for 'json' 
+                        package, used by reference.
+
+                    JSONPointer: A JSON pointer in accordance to 
+                        RFC6901.
 
         Returns:
             When successful returns the value, else returns either 'False', or
@@ -1269,12 +1321,12 @@ class JSONData:
             JSONData:
 
         """
-        if type(value) in (int,dict,list): # assumes a 'json' package type node
+        if type(value) in (dict,list): # assumes a 'json' package type node
+            return value
+        elif type(value) in ( int, float, ): # assume a 'JSON' RFC7159 int, float
             return value
         elif type(value) in ( str, unicode, ): # assume a 'JSON' RFC7159 string
-            if value[0].replace(" ","") in ('{','[',u'{',u'['):
-                return myjson.loads(value) # a valid json object or array
-            return unicode(value) # a simple value
+            return unicode(value)
         elif isinstance(value,JSONPointer): # assume the pointed value
             return value.get_node_or_value(self.data)
         elif not value:
@@ -1507,6 +1559,10 @@ class JSONData:
                 raise JSONDataException("type","targetnode",str(type(targetnode)))
         return retOK
 
+    def pop(self,key):
+        """Transparently passes the 'pop()' call to 'self.data'."""
+        return self.data.pop(key)
+    
     def printData(self, pretty=True, **kargs):
         """Prints structured data.
 
@@ -1798,6 +1854,7 @@ class JSONData:
             raise JSONDataValue("unknown","validator",str(validator))
         
         pass
-      
+
+   
 from jsondata.JSONPointer import JSONPointer 
 # avoid nested recursion problems

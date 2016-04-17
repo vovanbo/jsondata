@@ -43,7 +43,7 @@ the package are:
   and stored persistently for reuse. 
 
 * **JSONCompute**:
-  A JSON DSL for production, build, and test automation. 
+  Moved to a seperate package 'jsoncompute'. 
 
 * **Selftest** / **'jsondatacheck --selftest'**:
   Last but not least, the selftest feature provides for a quick verification
@@ -63,7 +63,7 @@ by custom classes as required::
               +--------------------------------+
               |       application-layer        |    <= Application layer, e.g including 
               +-----------------+              |       REST-Middleware
-              | JSONCompute     |              |    <= DSL for JSON
+              | JSONCompute     |              |    <= DSL for JSON see package 'jsoncompute'
               +--------------+--+--------------+ 
             .  .  .  |  .  . | .  .  . | .  .  .  . <= combined API  
                      |       V         |
@@ -116,7 +116,6 @@ __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 __package__ = 'jsondata'
 __all__=[
-    "JSONCompute",
     "JSONData",
     "JSONDataSerializer",
     "JSONDataException",
@@ -126,8 +125,10 @@ __all__=[
     "JSONDataTargetFile",
     "JSONDataValue",
     "JSONDataAmbiguity",
-    "JSONPointer","JSONPointerException",
-    "JSONPatch","JSONPatchException",
+    "JSONPointer",
+    "JSONPointerException",
+    "JSONPatch",
+    "JSONPatchException",
     "JSONTree"
 ]
 

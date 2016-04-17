@@ -76,6 +76,10 @@ Operators:
 """""
 	.. automethod:: JSONPointer.__add__
 
+'S(x)'
+""""""
+	.. automethod:: JSONPointer.__call__
+
 'S==x'
 """"""
 	.. automethod:: JSONPointer.__eq__

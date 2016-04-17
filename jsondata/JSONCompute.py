@@ -291,9 +291,11 @@ class JSONCompute(list):
     # methods
     #
     def resolveSyn(self,instack,outstack,*args):
-        """Syntax resolver for parsed tokens.
+        """Syntax resolver for parsed tokens in an array.
         
-        Expects a list of tokens appropriate for the requested stage:
+        Expects a list of tokens contained in an array. The tokens
+        could be processed in multiple stages appropriate for the 
+        requested stage:
             0: Tokens to be canonized.
             1: Canonized tokens to be calculated.
             2: Calculated tokens and logic operations
@@ -301,6 +303,7 @@ class JSONCompute(list):
         Args:
             instack: A list with extended JSON tokens to 
                 be processed.
+        
             outstack: A list with processed JSON tokens.
                 
             *args:
@@ -438,7 +441,8 @@ class JSONCompute(list):
 #                     if grp:
 #                         ops = grp+syn # combine group and keyword
                     ingroup = True
-
+                    cnt[0] += 1
+                
                 continue
 
             elif syn is _GROUPEND: # ')' - current level group finished 

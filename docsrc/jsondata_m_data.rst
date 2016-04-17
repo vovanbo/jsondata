@@ -141,9 +141,21 @@ set_schema
 Operators:
 ^^^^^^^^^^
 
+'()'
+""""
+	.. automethod:: JSONData.__call__
+
+'S==x'
+""""""
+	.. automethod:: JSONData.__eq__
+
 '[]'
 """"
 	.. automethod:: JSONData.__getitem__
+
+'S!=x'
+""""""
+	.. automethod:: JSONData.__ne__
 
 Iterators:
 ^^^^^^^^^^
