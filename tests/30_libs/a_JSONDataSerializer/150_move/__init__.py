@@ -1,3 +1,0 @@
-"""Move branches and nodes.
-"""
-

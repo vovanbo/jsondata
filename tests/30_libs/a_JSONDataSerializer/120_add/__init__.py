@@ -1,3 +1,0 @@
-"""Add data and schema.
-"""
-
