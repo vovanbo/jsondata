@@ -17,10 +17,10 @@ the hook where the value has to be inserted.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.8'
+__version__ = '0.2.10'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
-import sys,os
+import sys
 
 version = '{0}.{1}'.format(*sys.version_info[:2])
 if version < '2.7': # pragma: no cover
@@ -31,7 +31,6 @@ import re
 try:
     from urllib import unquote
     from itertools import izip
-    # str = unicode
 except ImportError: # Python 3
     from urllib.parse import unquote
     izip = zip
@@ -1052,7 +1051,6 @@ class JSONPointer(list):
             none
         """
         return self.raw
-
 
     def iter_path(self,jsondata=None,parent=False,rev=False):
         """Iterator for the elements of the path pointer itself.

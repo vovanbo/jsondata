@@ -4,6 +4,7 @@ jsondata
 This package is aimed for the management of modular data structures based on JSON.
 Therefore it is based on and supports JSON patch and JSON pointer standards, in 
 addition extended features are provided.
+
 The data is represented by an in-memory main data tree with
 dynamically added and/or removed branches and values. The logical branches of data 
 structures in particular provide for the ease of custom data sets.
@@ -24,8 +25,6 @@ The main interface classes are:
 
 * **JSONPatch** - RFC6902 for modification by patch lists. Provides the assembly of modular patch entries and the serialization of resulting patch lists.
 
-* **JSONCompute** - Lightweight DSL interpreter and compiler for JSON data and basic syntax components.
-
 The syntax primitives of underlying layers are provided 
 by the imported packages '**json**' or the package ultra-json '**ujson**', and '**jsonschema**' in conformance to related ECMA and RFC 
 standards and proposals. Here ECMA-262, ECMA-404, RFC7159/RFC4627, 
@@ -39,21 +38,21 @@ The architecture is based on the packages 'json' or 'ujson', and
                    +-------------------------+  
     .   .  .  .  .  . | .  .  . | .  .  .  | .  .  .  .  .  .  .  .  .
                    + - - - - - - - - - - - - +
-    Process JSON   |         JSON-DSL        |
-                   + - - - - - - - - - - - - +
+    Process JSON   |         JSON-DSL        |    see package 'jsoncompute'
+                   + - - - - - - - - - - - - +    https://pypi.python.org/pypi/jsoncompute
     .   .  .  .  .  . | .  .  . | .  .  .  | .  .  .  .  .  .  .  .  .
                       |         V          |     
-                      |   +----------+     |         RFC6901
-    Data              |   | jsondata |     |         RFC6902
-    Structures        |   +----------+     |         +others +extensions
+                      |   +----------+     |      RFC6901
+    Data              |   | jsondata |     |      RFC6902
+    Structures        |   +----------+     |      +others +extensions
                       |      |    |        |
     .  .  .  .  .  .  | .  . | .  | .  .  .| .  .  .  .  .  .  .  .  .
                       +---+--+    +---+----+           
                           |           |                           
                           V           V                            
-                   +------------+------------+       RFC7159/RFC4267
-    JSON           |    json,   | jsonschema |       ECMA-262/ECMA-404    
-    Syntax         |    ujson   |            |       draft-zyp-json-schema-04   
+                   +------------+------------+    RFC7159/RFC4267
+    JSON           |    json,   | jsonschema |    ECMA-262/ECMA-404    
+    Syntax         |    ujson   |            |    draft-zyp-json-schema-04   
                    +------------+------------+
 
 The examples from the standards with some extensions, are included in order to 
@@ -116,6 +115,8 @@ Project Data
 
 * RELEASE: 00.02
 
+* NICKNAME: 'Mafumo'
+
 * STATUS: alpha
 
 * AUTHOR: Arno-Can Uestuensoez
@@ -147,7 +148,7 @@ VERSIONS and RELEASES
 * RELEASE: 00.05.00x - Production: Various performance enhancements.
 
 
-**Current Release: 00.02.008 - Alpha:**
+**Current Release: 00.02.010 - Alpha:**
 
 **Last Alpha release**,following is planned as Beta.
 
@@ -155,8 +156,9 @@ Major Changes:
 
 * General fixes and enhancements .
 
-* Extracted JSONCompute into a seperate package 'jsoncompute'.
+* Enhancement of documents by included javadoc like API documentation with Epydoc.
 
+* Platforms: Currently tested on Fedora-Linux only, remaining are going to follow soon.
 
 Current test status:
 

@@ -9,8 +9,8 @@ TITLE: Forced-Fairplay-Constraints
 SUBTITLE: Enforcement of Fairplay for Opensource Licenses - Con-Trolls
 AUTHOR: Arno-Can Uestuensoez - @Ingenieurbuero Arno-Can Uestuensoez
 COPYRIGHT: [2007,2008,2010,2013,2014,2015, 2016] Arno-Can Uestuensoez
-VERSION: 00.00.0.8
-RELEASE: 00.00.0.8
+VERSION: 00.00.009
+RELEASE: 00.00.009
 DATE: 2016-03-04
 UUID: 6fb5eecc-310c-4147-98e4-7a41698113f4
 SCOPE: This release replaces and obsoletes any previous version.
@@ -35,8 +35,7 @@ THIS-DOCUMENT:
 **OpenSource with enforcement of peer-to-peer fairness**
 ========================================================
 
-Still OpenSource, but not for Trolls - just applying on them
-their own rules, but full-scale.
+Still in general fully compliant OpenSource, but not for Trolls.
 
 The following restrictions are added to the assigned base-licenses
 as constraints under the following listed conditions by the original
@@ -51,16 +50,22 @@ considered as the public release.
 
 You are free to provide the parts of your own contribution by any
 license, as long as the original base remains in literal compliance
-to the linked base license(s). The mandatory literal compliance of 
-this license add-on in advance of the original author must be
-inherited to any derived work for conceptual and implementation
-parts. 
+to the linked base license(s) including this ammendment. The mandatory
+literal compliance of this license add-on in advance of the original 
+author must be inherited on the derived conceptual and implementation 
+parts into any derived work. 
 
-This is due to the vast experiences of the original author in
-conjunction with the CloudManagement System 'UnifiedSessionsManager'
-(C)2008-2016 @Ingenieurbuero Arno-Can Uestuensoez, originally 
-published under GPL-3/2008. Thus the constraints on double-minded 
-smarties is sadly to say inevitable.
+This is due to the racking financial experience of the original 
+author caused by the vast fraud and cheeting after the introduction
+of the Multi-Vendor CloudManagement System 'UnifiedSessionsManager'
+(C)2008-2016 @Ingenieurbuero Arno-Can Uestuensoez, 
+https://sourceforge.net/projects/ctys/
+originally published under GPL-3/2008. 
+
+So the license is and remains in case of fairplay open source, else 
+is completely withdrawn for all the persons being part and/or related
+to the issue. Thus the OpenSource is still the right place to live
+for it.
 
    For recommendations on the commom fraud in conjunction with the
    misuse of skills profiles feel free to refer to: 
@@ -107,8 +112,6 @@ due to intellectual property, or any other, either direct, or indirect,
 any permitted license - to this parties, their subcontractors nested 
 to the complete level, and any involved person - is rejected back to
 the beginning for concepts and code including derived works.
-This is the legal act of the natural right to efficiently defend 
-against any kind of challanges. 
 
 Invariant Sections
 ==================

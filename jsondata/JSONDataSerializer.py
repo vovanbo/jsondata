@@ -138,7 +138,7 @@ few differences if at all.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.8'
+__version__ = '0.2.10'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import os,sys
@@ -146,47 +146,23 @@ version = '{0}.{1}'.format(*sys.version_info[:2])
 if version < '2.7': # pragma: no cover
     raise Exception("Requires Python-2.7.* or higher")
 
-import termcolor
-import copy
-
-#
-# ffs.: reminder
-#
-# try:
-#     #from urllib import unquote
-#     from itertools import izip
-#     #str = unicode
-# except ImportError: # Python 3
-#     #from urllib.parse import unquote
-#     izip = zip
-#
-#import re
-#from StringIO import StringIO
-
-from types import NoneType
-
 #
 # Check whether the application has selected a verified JSON package
 if sys.modules.get('json'):
-    import json as myjson
+    import json as myjson #@UnusedImport
 elif sys.modules.get('ujson'):
     import ujson as myjson
 else:
     import json as myjson
 
-# for now the only one supported
-import jsonschema
-from jsonschema import ValidationError,SchemaError
-
-from jsondata.JSONData import MODE_JSON_RFC4927,MODE_JSON_RF7951,MODE_JSON_ECMA264,MODE_POINTER_RFC6901,MODE_PATCH_RFC6902,MODE_SCHEMA_OFF,MODE_SCHEMA_DRAFT3,MODE_SCHEMA_DRAFT4,MODE_SCHEMA_ON
-from jsondata.JSONData import MATCH_INSERT,MATCH_NO,MATCH_KEY,MATCH_CHLDATTR,MATCH_INDEX,MATCH_MEM,MATCH_NEW,MATCH_PRESENT
+from jsondata.JSONData import MODE_SCHEMA_OFF,MODE_SCHEMA_DRAFT3,MODE_SCHEMA_DRAFT4
+from jsondata.JSONData import MATCH_NO,MATCH_KEY,MATCH_CHLDATTR,MATCH_INDEX,MATCH_MEM
 
 # Sets display for inetractive JSON/JSONschema design.
 _interactive = False
 
 # generic exceptions for 'jsondata'
-from jsondata.JSONDataExceptions import JSONDataException,JSONDataValue,JSONDataKeyError,JSONDataSourceFile,JSONDataTargetFile,JSONDataNodeType
-
+from jsondata.JSONDataExceptions import JSONDataException,JSONDataValue,JSONDataSourceFile,JSONDataTargetFile
 from jsondata.JSONData import JSONData,JSONDataAmbiguity
 
 class JSONDataSerializer(JSONData):
@@ -738,26 +714,8 @@ class JSONDataSerializer(JSONData):
         if not jval:
             raise JSONDataSourceFile("read","datafile",str(datafile))
 
-#         if key == None:
-#             if type(jval) == dict:
-#                 if len(jval.keys()) != 1:
-#                     for k,v in jval.items():
-#                          
-#                     raise JSONDataSourceFile("Missing 'key'")
-#                 else:
-#                     key = jval.keys[0]
-#                     jval = jval[key]
-#             elif type(jval) == list:
-#                 if len(jval) != 1:
-#                     raise JSONDataSourceFile("Missing 'key'")
-#                 key = jval.keys[0]
-#                 jval = jval[key]
-#             else:
-#                 raise JSONDataSourceFile("Missing 'key'")
-
         # INPUT-BRANCH: validate data
         self.validate(jval,sval,validator)
-        
 
         #
         # TARGET-CONTAINER: manage new branch data

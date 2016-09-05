@@ -17,7 +17,8 @@ import jsonschema
 
 # import 'jsondata'
 from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4,JSONDataKeyError,JSONDataNodeType
+from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4
+from jsondata.JSONDataExceptions import JSONDataKeyError,JSONDataNodeType
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondatacheck"

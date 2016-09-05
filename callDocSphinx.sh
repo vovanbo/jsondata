@@ -1,6 +1,6 @@
 PROJECT='jsondata'
-VERSION="0.2.8"
-RELEASE="0.2.8"
+VERSION="0.2.10"
+RELEASE="0.2.10"
 NICKNAME="Mafumo"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2010,2011,2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
@@ -37,8 +37,11 @@ STATIC="${OUTDIR}/apidoc/sphinx/_static"
 FILEDIRS=""
 FILEDIRS="${INDIR}jsondata"
 FILEDIRS="$FILEDIRS ${INDIR}bin"
+
 FILEDIRS="$FILEDIRS ${INDIR}UseCases"
+
 FILEDIRS="$FILEDIRS ${INDIR}tests"
+FILEDIRS="$FILEDIRS ${INDIR}testdata"
 
 CALL=""
 CALL="$CALL export PYTHONPATH=$PWD:$MYPATH:$PYTHONPATH;"
@@ -58,7 +61,8 @@ cp $bin_jsondatacheck  ${bin_jsondatacheck}.py
 bin_jsonproc=bin/jsonproc
 cp $bin_jsonproc  ${bin_jsonproc}.py
 
-DOCHTML=${OUTDIR}apidoc/sphinx/_build/html/index.html
+DOCHTMLDIR=${OUTDIR}apidoc/sphinx/_build/
+DOCHTML=${DOCHTMLDIR}html/index.html
 cat <<EOF
 #
 # Create apidoc builder...
@@ -73,8 +77,81 @@ for fx in ${FX[@]};do
 	eval $CALL "$fx"
 done
 
-echo "extensions.append('sphinx.ext.intersphinx.')" >> ${OUTDIR}/apidoc/sphinx/conf.py
-echo "sys.path.insert(0, os.path.abspath('$PWD/..'))" >> ${OUTDIR}/apidoc/sphinx/conf.py
+# rst files
+for d in docsrc/*.rst;do cat $d > ${OUTDIR}/apidoc/sphinx/${d##*/}; done
+
+#
+# static - literal data
+#
+# images
+for d in docsrc/*.{png,jpg};do cp $d "${STATIC}"; done
+
+# html
+for d in docsrc/*.html;do cp $d "${STATIC}"; done
+
+# txt
+for d in docsrc/*.txt;do cp $d "${STATIC}"; done
+
+# css
+for d in docsrc/*.css;do cp $d "${STATIC}"; done
+
+cp ArtisticLicense20.html "${STATIC}"
+cp licenses-amendments.txt "${STATIC}"
+
+{
+cat <<EOF
+
+import sys,os
+extensions.append('sphinx.ext.intersphinx.')
+sys.path.insert(0, os.path.abspath('$PWD/..'))
+sys.path.insert(0, os.path.abspath('$PWD'))
+
+html_logo = "_static/jsondata-64x64.png"
+#html_favicon = None
+
+html_theme = "default"
+#html_theme = "classic"
+#html_theme = "pyramid"
+#html_theme = "agogo"
+#html_theme = "bizstyle"
+html_theme_options = {
+#    "rightsidebar": "true",
+#    "relbarbgcolor": "black",
+
+    "externalrefs": "true",
+    "sidebarwidth": "290",
+    "stickysidebar": "true",
+
+#    "collapsiblesidebar": "true",
+
+#    "footerbgcolor": "",
+#    "footertextcolor": "",
+#    "sidebarbgcolor": "",
+#    "sidebarbtncolor": "",
+#    "sidebartextcolor": "",
+#    "sidebarlinkcolor": "",
+#    "relbarbgcolor": "",
+#    "relbartextcolor": "",
+#    "relbarlinkcolor": "",
+#    "bgcolor": "",
+#    "textcolor": "",
+#    "linkcolor": "",
+#    "visitedlinkcolor": "",
+#    "headbgcolor": "",
+#    "headtextcolor": "",
+#    "headlinkcolor": "",
+#    "codebgcolor": "",
+#    "codetextcolor": "",
+#    "bodyfont": "",
+#    "headfont": "",
+}
+
+# def setup(app):
+#     app.add_stylesheet('custom.css')
+
+
+EOF
+} >> ${OUTDIR}/apidoc/sphinx/conf.py
 
 # put the docs together
 #
@@ -101,7 +178,7 @@ Project data summary:
 
 * NICKNAME=${NICKNAME}
 
-  ${NICKNAME} the lion see |kevinr|  \`Save the Lions <https://www.youtube.com/watch?v=0XZQYC1lHr4>\`_  
+  ${NICKNAME} the lion - see |kevinr|  \`Save the Lions <https://www.youtube.com/watch?v=0XZQYC1lHr4>\`_  
 
 .. |kevinr| image:: _static/lionwhisperer.png 
     :target: https://www.youtube.com/watch?v=0XZQYC1lHr4
@@ -110,33 +187,6 @@ Project data summary:
 
 EOF
 } >> ${OUTDIR}/apidoc/sphinx/index.rst 
-
-#
-cat docsrc/jsondata_pointer_operations.rst > ${OUTDIR}/apidoc/sphinx/jsondata_pointer_operations.rst
-cat docsrc/jsondata_patch_operations.rst > ${OUTDIR}/apidoc/sphinx/jsondata_patch_operations.rst
-cat docsrc/jsondata_branch_operations.rst > ${OUTDIR}/apidoc/sphinx/jsondata_branch_operations.rst
-cat docsrc/jsondata_branch_serializer.rst > ${OUTDIR}/apidoc/sphinx/jsondata_branch_serializer.rst
-#
-cat docsrc/commandline_tools.rst         > ${OUTDIR}/apidoc/sphinx/commandline_tools.rst
-cat docsrc/jsondatacheck.rst             > ${OUTDIR}/apidoc/sphinx/jsondatacheck.rst
-#cat docsrc/jsonproc.rst                  > ${OUTDIR}/apidoc/sphinx/jsonproc.rst
-#
-cat docsrc/jsondata.rst                  > ${OUTDIR}/apidoc/sphinx/jsondata.rst
-#
-cat docsrc/jsondata_m_data.rst           > ${OUTDIR}/apidoc/sphinx/jsondata_m_data.rst
-cat docsrc/jsondata_m_serializer.rst     > ${OUTDIR}/apidoc/sphinx/jsondata_m_serializer.rst
-cat docsrc/jsondata_m_pointer.rst        > ${OUTDIR}/apidoc/sphinx/jsondata_m_pointer.rst
-cat docsrc/jsondata_m_patch.rst          > ${OUTDIR}/apidoc/sphinx/jsondata_m_patch.rst
-cat docsrc/jsondata_m_exceptions.rst     > ${OUTDIR}/apidoc/sphinx/jsondata_m_exceptions.rts
-#
-cat docsrc/jsondata_m_selftest.rst       > ${OUTDIR}/apidoc/sphinx/jsondata_m_selftest.rst
-
-#
-# static - literal data
-cat ArtisticLicense20.html > "${STATIC}/ArtisticLicense20.html"
-cat licenses-amendments.txt > "${STATIC}/licenses-amendments.txt"
-#
-cp docsrc/lionwhisperer.png "${STATIC}"
 
 #CALL="SPHINXOPTS= "
 CALL=" "
@@ -156,9 +206,13 @@ EOF
 echo "CALL=<$CALL>"
 eval $CALL
 
+DOCDIR="${DOCDIR:-doc/en/html/man3/$PROJECT}"
+if [ ! -e "${DOCDIR}" ];then
+	mkdir -p "${DOCDIR}"
+fi
 echo
-echo "display with: firefox -P preview.simple ${DOCHTML}"
-echo
+# echo "display with: firefox -P preview.simple ${DOCHTML}"
+# echo
 
 #build=patches
 rm ${bin_jsondatacheck}.py

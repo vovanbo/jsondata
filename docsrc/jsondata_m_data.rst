@@ -134,9 +134,17 @@ printSchema
 """""""""""
 	.. automethod:: JSONData.printSchema
 
+pop
+"""
+	.. automethod:: JSONData.pop
+
 set_schema
 """"""""""
 	.. automethod:: JSONData.set_schema
+
+validate
+""""""""
+	.. automethod:: JSONData.validate
 
 Operators:
 ^^^^^^^^^^

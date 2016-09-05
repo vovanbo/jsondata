@@ -47,6 +47,10 @@ printSchema
 """""""""""
 	.. automethod:: JSONDataSerializer.printSchema
 
+set_schema
+""""""""""
+	.. automethod:: JSONDataSerializer.set_schema
+
 Exceptions
 ----------
 

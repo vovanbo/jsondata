@@ -64,7 +64,8 @@ by custom classes as required::
               |       application-layer        |    <= Application layer, e.g including 
               +-----------------+              |       REST-Middleware
               | JSONCompute     |              |    <= DSL for JSON see package 'jsoncompute'
-              +--------------+--+--------------+ 
+              +--------------+--+--------------+       https://pypi.python.org/pypi/jsoncompute
+                     |       |         |
             .  .  .  |  .  . | .  .  . | .  .  .  . <= combined API  
                      |       V         |
                      | +-----------+   | 

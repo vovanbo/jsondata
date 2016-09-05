@@ -18,7 +18,8 @@ import jsonschema
 jval = None
 
 from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4,JSONDataKeyError
+from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4
+from jsondata.JSONDataExceptions import JSONDataKeyError
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondatacheck"

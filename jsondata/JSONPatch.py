@@ -36,7 +36,7 @@ by the class JSONPointer in accordance to RFC6901.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.8'
+__version__ = '0.2.10'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import sys
@@ -44,9 +44,6 @@ import sys
 version = '{0}.{1}'.format(*sys.version_info[:2])
 if version < '2.7': # pragma: no cover
     raise Exception("Requires Python-2.7.* or higher")
-
-#import re
-#import json, jsonschema
 
 if sys.modules.get('json'):
     import json as myjson
@@ -56,10 +53,7 @@ else:
     import json as myjson
 
 # for now the only one supported
-#import jsonschema
-from types import StringTypes,NoneType
-#from StringIO import StringIO
-
+from types import NoneType
 from jsondata.JSONPointer import JSONPointer
 from jsondata.JSONDataSerializer import JSONDataSerializer,MODE_SCHEMA_OFF
 
@@ -139,6 +133,7 @@ class JSONPatchItem(object):
                 value: add,replace, test
                 src: copy, move
                 param:=None for 'remove'
+
         Returns:
             When successful returns 'True', else returns either 'False', or
             raises an exception.

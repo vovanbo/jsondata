@@ -60,6 +60,10 @@ patch_import
 """"""""""""
 	.. automethod:: JSONPatch.patch_import
 
+repr_export
+"""""""""""
+	.. automethod:: JSONPatch.repr_export
+
 Operators:
 ^^^^^^^^^^
 
@@ -126,6 +130,9 @@ apply
 """""
 	.. automethod:: JSONPatchItem.apply
 
+repr_export
+"""""""""""
+	.. automethod:: JSONPatchItem.repr_export
 
 Operators:
 ^^^^^^^^^^
@@ -169,6 +176,10 @@ Methods:
 __init__
 """"""""
 	.. automethod:: JSONPatchFilter.__init__
+
+__eq__
+""""""
+	.. automethod:: JSONPatchFilter.__eq__
 
 Exceptions
 ----------

@@ -7,4 +7,4 @@ __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Ar
 __version__ = '0.1.0'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
-__package__ = 'jsondata_pyunit'
+__package__ = 'jsondata_usecases'

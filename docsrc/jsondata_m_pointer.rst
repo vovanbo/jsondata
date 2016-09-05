@@ -31,6 +31,10 @@ __str__
 """""""
 	.. automethod:: JSONPointer.__str__
 
+check_node_or_value
+"""""""""""""""""""
+	.. automethod:: JSONPointer.check_node_or_value
+
 copy_path_list
 """"""""""""""
 	.. automethod:: JSONPointer.copy_path_list
@@ -39,9 +43,28 @@ get_node
 """"""""
 	.. automethod:: JSONPointer.get_node
 
+get_node_and_child
+""""""""""""""""""
+
+	.. automethod:: JSONPointer.get_node_and_child
+
+get_node_exist
+""""""""""""""
+
+	.. automethod:: JSONPointer.get_node_exist
+
+get_node_or_value
+"""""""""""""""""
+	.. automethod:: JSONPointer.get_node_or_value
+
 get_path_list
 """""""""""""
 	.. automethod:: JSONPointer.get_path_list
+
+get_path_list_and_key
+"""""""""""""""""""""
+
+	.. automethod:: JSONPointer.get_path_list_and_key
 
 get_pointer
 """""""""""
@@ -50,10 +73,6 @@ get_pointer
 get_raw
 """""""
 	.. automethod:: JSONPointer.get_raw
-
-get_node_or_value
-"""""""""""""""""
-	.. automethod:: JSONPointer.get_node_or_value
 
 Operators:
 ^^^^^^^^^^
