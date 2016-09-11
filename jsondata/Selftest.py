@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test of basic features for the user by '--selftest'.
 
-This module is used by 'jsondatacheck' when the option 
-'--selftest' is applied. It performs a series of hardoced 
+This module is used by 'jsondatacheck' when the opverify_data_schemaardoced 
 basic functional checks by calling 'runselftest'.
 
 The display of actions and results could be activated and 
@@ -10,7 +9,7 @@ raised by multiple repetition of the '-v' option.
 
 The following data and schema are applied:
     0. jsondata/data.json + jsondata/schema.jsd
-    1. jsondata/jsondatacheck.json + jsondata/jsondatacheck.jsd
+    1. jsondata/datacheck.json + jsondata/datacheck.jsd
 
 The performed process flow is:
     0. load
@@ -23,7 +22,7 @@ and/or error condition an exception is raised.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.10'
+__version__ = '0.2.12'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import os,sys
@@ -89,19 +88,19 @@ def runselftest(appname="selftest",**kargs):
 
     #
     # load tests
-    case00(appname)
-    case01(appname)
+    load_data(appname)
+    load_appname(appname)
     
     #
     # validation tests
-    case02(appname)
-    case03(appname)
+    verify_data_schema(appname)
+    verify_appname_schema(appname)
 
     #
     # JSONPointer tests
-    case04(appname)
-    case05(appname)
-    case06(appname)
+    jsonpointer_data_schema(appname)
+    jsonpointer_selftest_data(appname)
+    jsonpointer_selftest_data_schema(appname)
     
     return True
         
@@ -109,7 +108,7 @@ def printverbose(lvl,args):
     if lvl<=_verbose or debug:
         print args
     
-def case00(appname):
+def load_data(appname):
     """Loads and verifies the self test 'data.json'.
 
     Therefore the result of the creation of JSONDataSerializer 
@@ -122,7 +121,7 @@ def case00(appname):
     schemafile = position+"schema.jsd"        
     
     printverbose(2,"#------------------------------------------")   
-    printverbose(1,"case00: load "+str(datafile))   
+    printverbose(1,"load_data: load "+str(datafile))   
     printverbose(2,"#------------------------------------------")   
 
     if debug:
@@ -168,7 +167,7 @@ def case00(appname):
                 printverbose(2,"check data["+l+"]["+str(n)+"]["+str(p)+"]...OK")   
     printverbose(2,"")   
 
-def case01(appname):
+def load_appname(appname):
     """Loads and verifies the self test 'selftest.json'.
 
     Therefore the result of the creation of JSONDataSerializer
@@ -181,7 +180,7 @@ def case01(appname):
     schemafile = position+appname+".jsd"        
     
     printverbose(2,"#------------------------------------------")   
-    printverbose(1,"case01: load "+str(datafile))   
+    printverbose(1,"load_appname: load "+str(datafile))   
     printverbose(2,"#------------------------------------------")   
 
     if debug:
@@ -241,7 +240,7 @@ def case01(appname):
 
     printverbose(2,"")   
 
-def case02(appname):
+def verify_data_schema(appname):
     """Loads and validates the self test 'data.json' and 'schema.jsd'.
 
     Therefore the result of the creation of JSONDataSerializer is performed
@@ -254,8 +253,8 @@ def case02(appname):
     schemafile = position+"schema.jsd"        
     
     printverbose(2,"#------------------------------------------")   
-    printverbose(1,"case02: load and validate "+str(datafile))   
-    printverbose(1,"case02: load and validate "+str(schemafile))   
+    printverbose(1,"verify_data_schema: load and validate "+str(datafile))   
+    printverbose(1,"verify_data_schema: load and validate "+str(schemafile))   
     printverbose(2,"#------------------------------------------")   
 
     if debug:
@@ -273,7 +272,7 @@ def case02(appname):
     configdata = ConfigData(appname,**_kargs)        
     printverbose(2,"")   
 
-def case03(appname):
+def verify_appname_schema(appname):
     """Loads and validates the self test 'selftest.json' and 'selftest.jsd'.
 
     Therefore the result of the creation of JSONDataSerializer is performed
@@ -286,8 +285,8 @@ def case03(appname):
     schemafile = position+appname+".jsd"        
     
     printverbose(2,"#------------------------------------------")   
-    printverbose(1,"case03: load and validate "+str(datafile))   
-    printverbose(1,"case03: load and validate "+str(schemafile))   
+    printverbose(1,"verify_appname_schema: load and validate "+str(datafile))   
+    printverbose(1,"verify_appname_schema: load and validate "+str(schemafile))   
     printverbose(2,"#------------------------------------------")   
 
     if debug:
@@ -305,7 +304,7 @@ def case03(appname):
     configdata = ConfigData(appname,**_kargs)        
     printverbose(2,"")   
 
-def case04(appname):
+def jsonpointer_data_schema(appname):
     """Loads and verifies by using JSONPointer access 'data.json'.
     """
     position = os.path.abspath(os.path.dirname(__file__))+os.sep
@@ -315,8 +314,8 @@ def case04(appname):
     schemafile = position+"schema.jsd"        
     
     printverbose(2,"#------------------------------------------")   
-    printverbose(1,"case04: load "+str(datafile))   
-    printverbose(1,"case04: load "+str(schemafile))   
+    printverbose(1,"jsonpointer_data_schema: load "+str(datafile))   
+    printverbose(1,"jsonpointer_data_schema: load "+str(schemafile))   
     printverbose(2,"#------------------------------------------")   
 
     if debug:
@@ -362,7 +361,7 @@ def case04(appname):
 
     printverbose(2,"")   
 
-def case05(appname):
+def jsonpointer_selftest_data(appname):
     """Loads and verifies by using JSONPointer access 'selftest.json'.
     """
     position = os.path.abspath(os.path.dirname(__file__))+os.sep
@@ -374,8 +373,8 @@ def case05(appname):
 #     schemafile = position+appname+".jsd"        
     
     printverbose(2,"#------------------------------------------")   
-    printverbose(1,"case05: load "+str(datafile))   
-    printverbose(1,"case05: load "+str(schemafile))   
+    printverbose(1,"jsonpointer_selftest_data: load "+str(datafile))   
+    printverbose(1,"jsonpointer_selftest_data: load "+str(schemafile))   
     printverbose(2,"#------------------------------------------")   
 
     if debug:
@@ -445,7 +444,7 @@ def case05(appname):
 
     printverbose(2,"")   
 
-def case06(appname):
+def jsonpointer_selftest_data_schema(appname):
     """Loads and verifies by using JSONPointer access 'selftest.json'.
     """
     position = os.path.abspath(os.path.dirname(__file__))+os.sep
@@ -455,8 +454,8 @@ def case06(appname):
     schemafile = position+appname+".jsd"        
     
     printverbose(2,"#------------------------------------------")   
-    printverbose(1,"case06: load "+str(datafile))   
-    printverbose(1,"case06: load "+str(schemafile))   
+    printverbose(1,"jsonpointer_selftest_data_schema: load "+str(datafile))   
+    printverbose(1,"jsonpointer_selftest_data_schema: load "+str(schemafile))   
     printverbose(2,"#------------------------------------------")   
 
     if debug:

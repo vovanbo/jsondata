@@ -14,32 +14,47 @@ printverbose
 """"""""""""
 	.. autofunction:: printverbose
 
-case00
-""""""
-	.. autofunction:: case00
+load tests
+"""""""""
 
-case01
-""""""
-	.. autofunction:: case01
+load_data
+'''''''''
 
-case02
-""""""
-	.. autofunction:: case02
+	.. autofunction:: load_data
 
-case03
-""""""
-	.. autofunction:: case03
+load_appname
+''''''''''''
 
-case04
-""""""
-	.. autofunction:: case04
+	.. autofunction:: load_appname
 
-case05
-""""""
-	.. autofunction:: case05
+validation tests
+""""""""""""""""
 
-case06
-""""""
-	.. autofunction:: case06
+verify_data_schema
+''''''''''''''''''
+	.. autofunction:: verify_data_schema
+
+verify_appname_schema
+'''''''''''''''''''''
+
+	.. autofunction:: verify_appname_schema
+
+JSONPointer tests
+"""""""""""""""""
+
+jsonpointer_data_schema
+'''''''''''''''''''''''
+
+	.. autofunction:: jsonpointer_data_schema
+
+jsonpointer_selftest_data
+'''''''''''''''''''''''''
+
+	.. autofunction:: jsonpointer_selftest_data
+
+jsonpointer_selftest_data_schema
+''''''''''''''''''''''''''''''''
+
+	.. autofunction:: jsonpointer_selftest_data_schema
 
  

@@ -1,5 +1,5 @@
-Operations by 'jsondata.JSONData' 
-*********************************
+Process branch data by 'jsondata.JSONData' 
+******************************************
 
 The module jsondata.JSONData provides for the operations on data structures,
 whereas it relies for the syntax operations on 'json' and compatible compatible

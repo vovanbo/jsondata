@@ -45,6 +45,8 @@
 /config.h
 /configure
 
+*.zip
+
 #
 # common suffixes
 .build

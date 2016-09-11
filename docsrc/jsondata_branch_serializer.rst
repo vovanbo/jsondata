@@ -1,5 +1,5 @@
-Operations by 'jsondata.JSONDataSerializer' 
-*******************************************
+Serialize branch data by 'jsondata.JSONDataSerializer' 
+******************************************************
 
 The module jsondata.JSONDataSerializer extends the JSONData class 
 with serialization for JSON documents and substructures.

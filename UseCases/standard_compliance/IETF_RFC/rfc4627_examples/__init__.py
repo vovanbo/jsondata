@@ -1,4 +1,9 @@
-"""Literal examples from underlying JSON IETF standard - see RFC7159.
+"""Obsoleted by RFC7159, literal examples from underlying JSON IETF standard - see RFC7159.
+
+See: https://www.ietf.org/rfc/rfc4627.txt
+
+UseCases: `<UseCases.standard_compliance.IETF_RFC.rfc7159_examples.html>`_
+
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"

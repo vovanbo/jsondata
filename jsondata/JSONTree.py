@@ -1,11 +1,18 @@
 # -*- coding:utf-8   -*-
-"""The JSONTree module provides a features for in-memory generic and JSON tree structures.
+"""The JSONTree module provides features for in-memory JSON structures.
+
+The provided features comprise:
+
+* The construction and printout of tree formatted 
+  structures for screen analysis.
+* Comparison of JSON strings as tree structures.
+
 
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.10'
+__version__ = '0.2.12'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import sys
@@ -26,36 +33,93 @@ else:
 
 # default
 _appname = "jsonpatch"
-# Sets display for inetractive JSON/JSONschema design.
+"""Sets display for inetractive JSON/JSONschema design."""
+
 _interactive = False
+"""Activates interactive mode."""
 
-#
-# display of diff
-DIFF_FIRST = 0 # break after first
-DIFF_ALL = 1 # list all
+DIFF_FIRST = 0
+"""break display of diff after first"""
 
-#
-# display character set
+DIFF_ALL = 1
+"""list all diffs"""
+
 CHARS_RAW = 0
-CHARS_STR = 1
-CHARS_UTF = 2
+"""display character set as raw"""
 
-#
-# force line fit
+CHARS_STR = 1
+"""display character set as str"""
+
+CHARS_UTF = 2
+"""display character set as utf"""
+
 LINE_CUT = 0
+"""force line fit"""
+
 LINE_WRAP = 1
+"""wrap line in order to fit to length"""
 
 
 class JSONTreeException(Exception):
+    """Error in JSONTree."""
     pass
 
 
 class JSONTree(object):
 
     def __init__(self,**kargs):
-        """
+        """Create an object for the tree representation.
+
+        Args:
+            **kargs: Parameter specific for the operation,
+
+                scope:
+                
+                    * all: Display all diffs.
+                    * first: Display first diff only.
+                    
+                    default:=first
+            
+                charset:
+                
+                    * raw: Use 'raw'.
+                    * str: Use 'str'.
+                    * utf: Use 'utf'.
+                    
+                    default:=raw
+    
+                debug:
+
+                    Add developer information.
+
+                linefit:
+                    
+                    * cut: Cut lines to length.
+                    * wrap: Split lines to length.
+    
+                    default:=wrap
+    
+                indent=#numchars:
+
+                    Number of characters for indentation.
+    
+                linewidth=#numchars:
+
+                    Length of lines.
+
+                verbose:
+
+                    Add progress and status dialogue output.
+
+        Returns:
+            When successful returns 'True', else raises an exception.
+
+        Raises:
+            passed through exceptions:
+            
         """
         self.verbose = False
+        self.debug = False
         self.difflist = []
         
         self.scope = DIFF_ALL
@@ -63,7 +127,6 @@ class JSONTree(object):
         self.linewidth = 60
         self.charset = CHARS_RAW
         self.indent = 4
-        self.quiet = False
         
         for k,v in kargs.items():
             if k in ("scope"):
@@ -100,12 +163,24 @@ class JSONTree(object):
                 if type(v) is int:
                     self.linewidth = v
 
-            elif k in ("quiet"):
-                self.quiet = True
+            elif k in ("verbose"):
+                self.verbose = True
             
+            elif k in ("debug"):
+                self.debug = True
     
     def printDiff(self):
-        """Prints out the resulting diff list.
+        """Prints out the resulting list of differences.
+
+        Args:
+             ffs.
+
+        Returns:
+            When successful returns tree represantation.
+
+        Raises:
+            passed through exceptions:
+
         """
         ret=""
         _i=" "*self.indent
@@ -154,6 +229,50 @@ class JSONTree(object):
         * displaycharset (str,utf)
         * pathonly
         
+        Args:
+
+            n0:
+
+                JSON string of type 'str', or 'unicode'
+
+            n1:
+
+                JSON string of type 'str', or 'unicode'
+
+            p=[]:
+
+
+                Result entries for each difference:
+                    ::
+
+                        {'n0':n0,'n1':n1,'dl':dl,'p':p[:]}
+
+                    #. first JSON data
+                    #. second JSON data
+                    #. diff count increment value
+                    #. current diff including path
+
+                List of differences as of:
+                
+                #. non equal types are different: type(n0) != type(n1)
+                #. equal types, both list: type(n0) is list
+
+                    #. length is different: len(n0.keys()) != len(n1.keys())
+                    #. at leats one item is different: n1.get(ni) and v != n1[ni]
+
+                #. equal types, both dict: type(n0) is dict and type(n1) is dict 
+
+                    #. length is different: len(n0.keys()) != len(n1.keys())
+                    #. at leats one item is different: n1.get(ni) and v != n1[ni]
+
+                default:=0
+
+        Returns:
+            When no diffs returns True, else False or raises an exception.
+
+        Raises:
+            passed through exceptions:
+            
         """
         ret = True
 

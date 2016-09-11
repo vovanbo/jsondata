@@ -36,7 +36,7 @@ by the class JSONPointer in accordance to RFC6901.
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.10'
+__version__ = '0.2.12'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import sys

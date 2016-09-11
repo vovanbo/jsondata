@@ -1,5 +1,5 @@
-Operations by 'jsondata.JSONPatch' 
-**********************************
+Process data by 'jsondata.JSONPatch' 
+************************************
 
 The module jsondata.JSONPatch provides patch operations in 
 accordance to RFC6901.

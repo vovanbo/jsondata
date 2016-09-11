@@ -1,4 +1,6 @@
-"""ffs.
+"""Current in tests subdirectory, UseCase extracts going to be available a.s.a.p.
+
+See: https://tools.ietf.org/html/draft-luff-json-hyper-schema-00
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"

@@ -40,7 +40,10 @@ class CallUnits(unittest.TestCase):
         p = os.path.dirname(p)
         p = os.path.dirname(p)
         p = os.path.dirname(p)
-        call = 'export PYTHONPATH=$PYTHONPATH:'+str(p)+';python '+str(p)+os.sep+'bin'+os.sep+'jsondatacheck --selftest'
+        if sys.platform == 'win32':
+            call = 'set PYTHONPATH=%PYTHONPATH%;'+str(p)+';python '+str(p)+os.sep+'bin'+os.sep+'jsondatacheck --selftest'
+        else:
+            call = 'export PYTHONPATH=$PYTHONPATH:'+str(p)+';python '+str(p)+os.sep+'bin'+os.sep+'jsondatacheck --selftest'
         #print call
         exit_code = os.system(call)
         assert exit_code == 0

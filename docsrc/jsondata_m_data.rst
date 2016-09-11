@@ -1,12 +1,6 @@
 'jsondata.JSONData' - Module
 ****************************
 
-.. automodule:: jsondata.JSONData
-
-Constants:
-----------
-
-  **Compliance modes**:
 
     * MODE_JSON_RFC4927 = 0: Compliant to IETF RFC4927.
 
@@ -55,7 +49,7 @@ Constants:
    * ALL: All matches.
 
 Class: JSONData
--------------------------
+---------------
 		
 .. autoclass:: JSONData
 
@@ -175,6 +169,6 @@ __iter__
 Exceptions
 ----------
 
-* `jsondata.JSONDataAmbiguity [source] <_modules/jsondata/JSONData.html#JSONDataAmbiguity>`_
+.. autoclass:: JSONDataAmbiguity
 
 

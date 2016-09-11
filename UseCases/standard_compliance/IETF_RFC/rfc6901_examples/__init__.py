@@ -1,6 +1,6 @@
 """Literal and extended examples from underlying JSONPointer IETF standard.
 
-These tests display the blueprint of the required syntax. 
+See: https://www.ietf.org/rfc/rfc6901.txt
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"

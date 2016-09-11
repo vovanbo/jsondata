@@ -1,6 +1,6 @@
 """Literal and extended examples from underlying JSONPatch IETF standard RFC6902.
 
-These tests display the blueprint of the required syntax. 
+See: https://www.ietf.org/rfc/rfc6902.txt
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"

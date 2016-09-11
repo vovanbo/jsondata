@@ -53,7 +53,7 @@ __author__ = 'Arno-Can Uestuensoez'
 __author_email__ = 'acue_sf2@sourceforge.net'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.10'
+__version__ = '0.2.12'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 _NAME = 'jsondata'
@@ -217,12 +217,17 @@ if 'build_doc' in sys.argv:
     patchlist = [
         'shortcuts.html',
         'usecases.html',
-#         'rules_logic.html',
-#         'rules_shortcuts.html',
-#         'subprocessunit.html',
-#         'epyunit.html',
-#         'systemcalls.html',
-#         'software_design.html',
+        'jsondata.html',
+        'jsondata_pointer_operations.html',
+        'jsondata_patch_operations.html',
+        'jsondata_branch_operations.html',
+        'jsondata_branch_serializer.html',
+        'jsondata_m_tree.html',
+        'jsondata_m_serializer.html',
+        'jsondata_m_patch.html',
+        'jsondata_m_pointer.html',
+        'jsondata_m_selftest.html',
+        'software_design.html',
     ]
     for px in patchlist:
         fn = dst0+os.sep+px
@@ -456,7 +461,7 @@ _scripts = ["bin/jsondatacheck","bin/jsondatacheck.py",]
 
 _package_data = {
     'jsondata': ['README','ArtisticLicense20.html', 'licenses-amendments.txt',
-                 'data.json','schema.jsd','jsondatacheck.json', 'jsondatacheck.jsd',
+                 'data.json','schema.jsd','datacheck.json', 'datacheck.jsd',
                  'selftest.json','selftest.jsd',
                  'rfc6902.jsonp',
                  ],

@@ -1,14 +1,14 @@
 API Shortcuts - jsondata
-=======================
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 jsondata - epydoc
-^^^^^^^^^^^^^^^^^
+"""""""""""""""""
 Javadoc style API documentation for Python.
 
 * `API by Epydoc <epydoc/index.html>`_
 
 jsondata - CLI
-^^^^^^^^^^^^^^
+""""""""""""""
 CLI Wrapper for filtered subprocess calls and streaming of results
 `[details] <commandline_tools.html>`_ 
  
@@ -16,7 +16,7 @@ CLI Wrapper for filtered subprocess calls and streaming of results
 
 
 jsondata.JSONData
-^^^^^^^^^^^^^^^^^
+"""""""""""""""""
 
 * JSONData
 
@@ -72,34 +72,34 @@ jsondata.JSONData
   | `validate`_                     | `JSONData.validate`_                               |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
 
-.. _JSONData: jsondata.html#init
+.. _JSONData: jsondata_m_data.html#jsondata.JSONData.JSONData.__init__
 .. _JSONData.__init__: _modules/jsondata/JSONData.html#JSONData.__init__
 
-.. _\__call__: jsondata.html#jsondata.JSONData.JSONData.__call__
+.. _\__call__: jsondata_m_data.html#jsondata.JSONData.JSONData.__call__
 .. _JSONData.__call__: _modules/jsondata/JSONData.html#JSONData.__call__
 
-.. _\__eq__: jsondata.html#jsondata.JSONData.JSONData.__eq__
+.. _\__eq__: jsondata_m_data.html#jsondata.JSONData.JSONData.__eq__
 .. _JSONData.__eq__: _modules/jsondata/JSONData.html#JSONData.__eq__
 
-.. _\__repr__: jsondata.html#jsondata.JSONData.JSONData.__repr__
+.. _\__repr__: jsondata_m_data.html#jsondata.JSONData.JSONData.__repr__
 .. _JSONData.__repr__: _modules/jsondata/JSONData.html#JSONData.__repr__
 
-.. _\__str__: jsondata.html#jsondata.JSONData.JSONData.__str__
+.. _\__str__: jsondata_m_data.html#jsondata.JSONData.JSONData.__str__
 .. _JSONData.__str__: _modules/jsondata/JSONData.html#JSONData.__str__
 
-.. _\__getitem__: jsondata.html#jsondata.JSONData.JSONData.__getitem__
+.. _\__getitem__: jsondata_m_data.html#jsondata.JSONData.JSONData.__getitem__
 .. _JSONData.__getitem__: _modules/jsondata/JSONData.html#JSONData.__getitem__
 
-.. _\__iter__: jsondata.html#jsondata.JSONData.JSONData.__iter__
+.. _\__iter__: jsondata_m_data.html#jsondata.JSONData.JSONData.__iter__
 .. _JSONData.__iter__: _modules/jsondata/JSONData.html#JSONData.__iter__
 
-.. _\__ne__: jsondata.html#jsondata.JSONData.JSONData.__ne__
+.. _\__ne__: jsondata_m_data.html#jsondata.JSONData.JSONData.__ne__
 .. _JSONData.__ne__: _modules/jsondata/JSONData.html#JSONData.__ne__
 
-.. _branch_add: jsondata.html#branch-add
+.. _branch_add: jsondata_m_data.html#jsondata.JSONData.JSONData.branch_add
 .. _JSONData.branch_add: _modules/jsondata/JSONData.branch_add
 
-.. _branch_copy: jsondata.html#branch-copy
+.. _branch_copy: jsondata_m_data.html#jsondata.JSONData.JSONData.branch_copy
 .. _JSONData.branch_copy: _modules/jsondata/JSONData.html#JSONData.branch_copy
 
 .. _branch_create: jsondata.html#branch-create
@@ -146,7 +146,7 @@ jsondata.JSONData
 
 
 jsondata.JSONDataSerializer
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""""
 
 * JSONDataSerializer
 
@@ -186,7 +186,7 @@ jsondata.JSONDataSerializer
 
 
 jsondata.JSONPatch
-^^^^^^^^^^^^^^^^^^
+""""""""""""""""""
 
 * JSONPatchItem
 
@@ -366,7 +366,7 @@ jsondata.JSONPatch
 
 
 jsondata.JSONPointer
-^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""
 
 * JSONPointer
 
@@ -500,7 +500,7 @@ jsondata.JSONPointer
 .. _iter_path_nodes: jsondata_m_pointer.html#jsondata.JSONPointer.JSONPointer.iter_path_nodes
 
 jsondata.JSONTree
-^^^^^^^^^^^^^^^^^
+"""""""""""""""""
 
 * JSONTree
 
@@ -525,43 +525,43 @@ jsondata.JSONTree
 
 
 Test data
-^^^^^^^^^
+"""""""""
 
-* data.json
-* jsondatacheck.jsd
-* jsondatacheck.json
-* rfc6902.jsonp
-* schema.jsd
-* selftest.jsd
-* selftest.json
-* selftest.jsonp
+* data.json `[json] <_static/data.json>`_
+* datacheck.json `[json] <_static/datacheck.json>`_
+* datacheck.jsd `[schema] <_static/datacheck.jsd>`_
+* rfc6902.jsonp `[source] <_static/rfc6902.jsonp>`_
+* schema.jsd `[source] <_static/schema.jsd>`_
+* selftest.jsd `[source] <_static/selftest.jsd>`_
+* selftest.json `[source] <_static/selftest.json>`_
+* selftest.jsonp `[source] <_static/selftest.jsonp>`_
 
 jsondata.Selftest
-^^^^^^^^^^^^^^^^^
+"""""""""""""""""
 
 * Functions
 
-  +---------------------------------+----------------------------------------------------+
-  | [docs]                          | [source]                                           | 
-  +=================================+====================================================+
-  | `runselftest`_                  | `Selftest.runselftest`_                            |
-  +---------------------------------+----------------------------------------------------+
-  | `printverbose`_                 | `Selftest.printverbose`_                           |
-  +---------------------------------+----------------------------------------------------+
-  | `case00`_                       | `Selftest.case00`_                                 |
-  +---------------------------------+----------------------------------------------------+
-  | `case01`_                       | `Selftest.case01`_                                 |
-  +---------------------------------+----------------------------------------------------+
-  | `case02`_                       | `Selftest.case02`_                                 |
-  +---------------------------------+----------------------------------------------------+
-  | `case03`_                       | `Selftest.case03`_                                 |
-  +---------------------------------+----------------------------------------------------+
-  | `case04`_                       | `Selftest.case04`_                                 |
-  +---------------------------------+----------------------------------------------------+
-  | `case05`_                       | `Selftest.case05`_                                 |
-  +---------------------------------+----------------------------------------------------+
-  | `case06`_                       | `Selftest.case06`_                                 |
-  +---------------------------------+----------------------------------------------------+
+  +--------------------------------------+----------------------------------------------------+
+  | [docs]                               | [source]                                           | 
+  +======================================+====================================================+
+  | `runselftest`_                       | `Selftest.runselftest`_                            |
+  +--------------------------------------+----------------------------------------------------+
+  | `printverbose`_                      | `Selftest.printverbose`_                           |
+  +--------------------------------------+----------------------------------------------------+
+  | `load_data`_                         | `Selftest.load_data`_                              |
+  +--------------------------------------+----------------------------------------------------+
+  | `load_appname`_                      | `Selftest.load_appname`_                           |
+  +--------------------------------------+----------------------------------------------------+
+  | `verify_data_schema`_                | `Selftest.verify_data_schema`_                     |
+  +--------------------------------------+----------------------------------------------------+
+  | `verify_appname_schema`_             | `Selftest.verify_appname_schema`_                  |
+  +--------------------------------------+----------------------------------------------------+
+  | `jsonpointer_data_schema`_           | `Selftest.jsonpointer_data_schema`_                |
+  +--------------------------------------+----------------------------------------------------+
+  | `jsonpointer_selftest_data`_         | `Selftest.jsonpointer_selftest_data`_              |
+  +--------------------------------------+----------------------------------------------------+
+  | `jsonpointer_selftest_data_schema`_  | `Selftest.jsonpointer_selftest_data_schema`_       |
+  +--------------------------------------+----------------------------------------------------+
 
 .. _Selftest.runselftest: _modules/jsondata/Selftest.html#runselftest
 .. _runselftest: jsondata_m_selftest.html#jsondata.Selftest.runselftest
@@ -569,24 +569,24 @@ jsondata.Selftest
 .. _Selftest.printverbose: _modules/jsondata/Selftest.html#printverbose
 .. _printverbose: jsondata_m_selftest.html#jsondata.Selftest.printverbose
 
-.. _Selftest.case00: _modules/jsondata/Selftest.html#case00
-.. _case00: jsondata_m_selftest.html#jsondata.Selftest.case00
+.. _Selftest.load_data: _modules/jsondata/Selftest.html#load_data
+.. _load_data: jsondata_m_selftest.html#jsondata.Selftest.load_data
 
-.. _Selftest.case01: _modules/jsondata/Selftest.html#case01
-.. _case01: jsondata_m_selftest.html#jsondata.Selftest.case01
+.. _Selftest.load_appname: _modules/jsondata/Selftest.html#load_appname
+.. _load_appname: jsondata_m_selftest.html#jsondata.Selftest.load_appname
 
-.. _Selftest.case02: _modules/jsondata/Selftest.html#case02
-.. _case02: jsondata_m_selftest.html#jsondata.Selftest.case02
+.. _Selftest.verify_data_schema: _modules/jsondata/Selftest.html#verify_data_schema
+.. _verify_data_schema: jsondata_m_selftest.html#jsondata.Selftest.verify_data_schema
 
-.. _Selftest.case03: _modules/jsondata/Selftest.html#case03
-.. _case03: jsondata_m_selftest.html#jsondata.Selftest.case03
+.. _Selftest.verify_appname_schema: _modules/jsondata/Selftest.html#verify_appname_schema
+.. _verify_appname_schema: jsondata_m_selftest.html#jsondata.Selftest.verify_appname_schema
 
-.. _Selftest.case04: _modules/jsondata/Selftest.html#case04
-.. _case04: jsondata_m_selftest.html#jsondata.Selftest.case04
+.. _Selftest.jsonpointer_data_schema: _modules/jsondata/Selftest.html#jsonpointer_data_schema
+.. _jsonpointer_data_schema: jsondata_m_selftest.html#jsondata.Selftest.jsonpointer_data_schema
 
-.. _Selftest.case05: _modules/jsondata/Selftest.html#case05
-.. _case05: jsondata_m_selftest.html#jsondata.Selftest.case05
+.. _Selftest.jsonpointer_selftest_data: _modules/jsondata/Selftest.html#jsonpointer_selftest_data
+.. _jsonpointer_selftest_data: jsondata_m_selftest.html#jsondata.Selftest.jsonpointer_selftest_data
 
-.. _Selftest.case06: _modules/jsondata/Selftest.html#case06
-.. _case06: jsondata_m_selftest.html#jsondata.Selftest.case06
+.. _Selftest.jsonpointer_selftest_data_schema: _modules/jsondata/Selftest.html#jsonpointer_selftest_data_schema
+.. _jsonpointer_selftest_data_schema: jsondata_m_selftest.html#jsondata.Selftest.jsonpointer_selftest_data_schema
 

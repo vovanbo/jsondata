@@ -1,6 +1,6 @@
 PROJECT='jsondata'
-VERSION="0.2.10"
-RELEASE="0.2.10"
+VERSION="0.2.12"
+RELEASE="0.2.12"
 NICKNAME="Mafumo"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2010,2011,2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
@@ -54,13 +54,6 @@ CALL="$CALL -o ${OUTDIR}/apidoc/sphinx"
 CALL="$CALL -f -F "
 CALL="$CALL $@"
 
-#
-#build=patches
-bin_jsondatacheck=bin/jsondatacheck
-cp $bin_jsondatacheck  ${bin_jsondatacheck}.py
-bin_jsonproc=bin/jsonproc
-cp $bin_jsonproc  ${bin_jsonproc}.py
-
 DOCHTMLDIR=${OUTDIR}apidoc/sphinx/_build/
 DOCHTML=${DOCHTMLDIR}html/index.html
 cat <<EOF
@@ -97,6 +90,15 @@ for d in docsrc/*.css;do cp $d "${STATIC}"; done
 
 cp ArtisticLicense20.html "${STATIC}"
 cp licenses-amendments.txt "${STATIC}"
+
+cp jsondata/data.json "${STATIC}"
+cp jsondata/schema.jsd "${STATIC}"
+cp jsondata/datacheck.json "${STATIC}"
+cp jsondata/datacheck.jsd "${STATIC}"
+cp jsondata/rfc6902.jsonp "${STATIC}"
+cp jsondata/selftest.json "${STATIC}"
+cp jsondata/selftest.jsd "${STATIC}"
+cp jsondata/selftest.jsonp "${STATIC}"
 
 {
 cat <<EOF
@@ -178,7 +180,10 @@ Project data summary:
 
 * NICKNAME=${NICKNAME}
 
-  ${NICKNAME} the lion - see |kevinr|  \`Save the Lions <https://www.youtube.com/watch?v=0XZQYC1lHr4>\`_  
+  ${NICKNAME} the lion - see |kevinr|  \`Save the Lions\`_ - \`Mafumo and Vayetsi\`_ 
+
+.. _Save the Lions: https://www.youtube.com/watch?v=0XZQYC1lHr4
+.. _Mafumo and Vayetsi: https://www.youtube.com/watch?v=r0RCYUa3Kbg
 
 .. |kevinr| image:: _static/lionwhisperer.png 
     :target: https://www.youtube.com/watch?v=0XZQYC1lHr4
@@ -213,7 +218,3 @@ fi
 echo
 # echo "display with: firefox -P preview.simple ${DOCHTML}"
 # echo
-
-#build=patches
-rm ${bin_jsondatacheck}.py
-rm ${bin_jsonproc}.py

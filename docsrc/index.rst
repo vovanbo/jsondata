@@ -15,22 +15,23 @@ on top.
 REMARK - Platforms
 ==================
 
-This version supports Linux only - The update for Windows and MacOS is going to follow soon.
+This version supports Linux and Windows7 - The update for MacOS, BSD, and Solaris is going to follow soon.
 
 Blueprint
 =========
 
 The architecture is based on the interfaces of the packages 'json' and
-'jsonschema', and compatible packages such as 'ujson'::
+'jsonschema', and compatible packages such as `'ujson' [online] <https://pypi.python.org/pypi/ujson>`_
+::
 
 
                    +-------------------------+
     Applications   |    application-layer    |
                    +-------------------------+  
     .   .  .  .  .  . | .  .  . | .  .  .  | .  .  .  .  .  .  .  .  .
-                   + - - - - - - - - - - - - +
-    Process JSON   |         JSON/DSL        |    https://pypi.python.org/pypi/jsoncompute
-                   + - - - - - - - - - - - - +
+                   + - - - - - - - - - - - - +    see e.g. jsoncompute, 
+    Process JSON   |    processing tools     |    jsoncliopts,  
+                   + - - - - - - - - - - - - +    jsondataunit
     .   .  .  .  .  . | .  .  . | .  .  .  | .  .  .  .  .  .  .  .  .
                       |         V          |     
     Data              |   +----------+     |      RFC6901
@@ -50,36 +51,38 @@ The architecture is based on the interfaces of the packages 'json' and
                                                   before 'jsondata'
 
 
-The provided features for the automation of 
-JSON based operations and calculations comprise the following list, 
-for code examples refer to 'jsondata.UseCases.examples'.
+The provided features comprise:
 
-* `JSON Pointer <jsondata_pointer_operations.html>`_ : Access pointer paths and values - *jsondata.JSONPointer*.
+* `JSON Data <jsondata_branch_operations.html>`_ : Manage branches of substructures - `jsondata.JSONData <jsondata_m_data.html#>`_.
 
-* `JSON Patch <jsondata_patch_operations.html>`_ : Modify data structures and values - *jsondata.JSONPatch*.
+* `JSON Serializer <jsondata_branch_serializer.html>`_ : Serialize JSON documents - `jsondata.JSONDataSerializer <jsondata_m_serializer.html#>`_.
 
-* `JSON Data <jsondata_branch_operations.html>`_ : Manage branches of substructures - *jsondata.JSONData*.
+* `JSON Pointer <jsondata_pointer_operations.html>`_ : Access pointer paths and values - `jsondata.JSONPointer <jsondata_m_pointer.html#>`_.
 
-* `JSON Serializer <jsondata_branch_serializer.html>`_ : Serialize JSON documents - *jsondata.JSONDataSerializer*.
+* `JSON Patch <jsondata_patch_operations.html>`_ : Modify data structures and values - `jsondata.JSONPatch <jsondata_m_patch.html#>`_.
 
-* JSON DSL: The JSON-DSL is moved into the package 'jsoncompute'.
+* JSON DSL: The JSON-DSL is moved into the package `'jsoncompute [pypi]' <https://pypi.python.org/pypi/jsoncompute/>`_
 
-
-In addition the following main utilities are provided:
+Including the utilities:
  
 * `JSON Tree <jsondata_m_tree.html>`_ : Utilities for structure analysis and operations on JSON data structures, e.g. diff.
 
 The syntax primitives of underlying layers are processed by the imported standard packages 'json' and 'jsonschema' 
 in conformance to related standards.
-Current supported compatible packages include: 'ujson'.
+Current supported compatible packages include:  `'ujson' [online] <https://pypi.python.org/pypi/ujson>`_.
 
-The examples from the standards with some extensions are included as Use-Cases in order to 
-verify implementation details for the recommendations.
+The examples from the standards with some extensions are included as 
+`Use-Cases <usecases.html#>`_ 
+in order to 
+verify implementation details for the recommendations
+`[see] <usecases.html#>`_ 
+.
 This serves also as a first introduction to JSON processing with the
 package 'jsondata'.
 
-This document provides the developer information for the API, Use-Cases, and the 
-documentation of the PyUnit tests as examples and application patterns.
+For the implementation and architecture refer to
+
+* `Software design <software_design.html>`_ 
 
 Install - HowTo - FAQ - Help
 ============================
@@ -117,6 +120,8 @@ Common Interfaces:
 
 * Programming Interface `[API-Selection] <shortcuts.html#>`_
 
+* Test data `[testdata] <shortcuts.html#test-data>`_
+
 Complete technical API:
 
 * Interface in javadoc-style `[API] <epydoc/index.html>`_
@@ -128,13 +133,12 @@ Table of Contents
 .. toctree::
    :maxdepth: 3
 
-   shortcuts
-   usecases
+   index_shortcuts
+   index_jsondata
+   index_testdata
 
-   jsondata
    UseCases
    tests
-   testdata
 
 * setup.py
 
@@ -162,6 +166,19 @@ For available downloads refer to:
 * Sourceforge.net: https://sourceforge.net/projects/jsondata/
 
 * github.com: https://github.com/ArnoCan/jsondata/
+
+For JSON processing references:
+
+* JSONDataUnit: https://pypi.python.org/pypi/jsondataunit
+
+* JSONCompute: https://pypi.python.org/pypi/jsoncompute
+
+* JSONCLIOpts: https://pypi.python.org/pypi/jsoncliopts
+
+* ujson: https://pypi.python.org/pypi/ujson
+
+* json: https://docs.python.org/2/library/json.html
+
 
 For Licenses refer to enclosed documents:
 

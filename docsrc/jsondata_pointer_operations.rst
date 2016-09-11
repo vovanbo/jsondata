@@ -1,5 +1,5 @@
-Operations by 'jsondata.JSONPointer' 
-************************************
+Process data by 'jsondata.JSONPointer' 
+**************************************
 
 The module jsondata.JSONPointer provides for the most important operators for
 the assembly and evaluation of JSON pointers in accordance to RFC6901.

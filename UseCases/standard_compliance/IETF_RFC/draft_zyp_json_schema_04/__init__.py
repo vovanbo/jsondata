@@ -1,4 +1,6 @@
-"""ffs.
+"""Current in tests subdirectory, UseCase extracts going to be available a.s.a.p.
+
+See: https://tools.ietf.org/html/draft-zyp-json-schema-04
 """
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
