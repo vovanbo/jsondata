@@ -1,6 +1,14 @@
 'jsondata.JSONData' - Module
 ****************************
 
+.. automodule:: jsondata.JSONData
+
+Constants:
+----------
+
+  **Compliance modes**:
+
+
 
     * MODE_JSON_RFC4927 = 0: Compliant to IETF RFC4927.
 

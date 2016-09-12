@@ -148,11 +148,11 @@ VERSIONS and RELEASES
 * RELEASE: 00.05.00x - Production: Various performance enhancements.
 
 
-**Current Release: 00.02.012 - Alpha:**
+**Current Release: 00.02.013 - Alpha:**
 
 Major Changes:
 
-* General fixes and enhancements .
+* Fix of documentation.
 
 * Platforms: Currently tested on Fedora-Linux and Windows7, remaining are going to follow soon.
 

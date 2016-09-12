@@ -102,8 +102,8 @@ Du to it's base class the class 'JSONDataUnit' provides the full scope of:
 * Serialization and persistency for regression
 * Logic and arithmetic operators for advanced tests
 
-Commadline processing
-=====================
+Commandline processing
+======================
 
 The component 'jsoncliopts' extends 'jsondata' for advanced commandline processing.
 This enables for:
