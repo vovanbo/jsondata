@@ -1,6 +1,6 @@
 PROJECT='jsondata'
-VERSION="0.2.14"
-RELEASE="0.2.14"
+VERSION="0.2.17"
+RELEASE="0.2.17"
 NICKNAME="Mafumo"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2010,2011,2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'

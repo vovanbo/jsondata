@@ -148,7 +148,8 @@ VERSIONS and RELEASES
 
 **Planned Releases:**
 
-* RELEASE: 00.00.00x - Pre-Alpha: Extraction of the features from hard-coded application into a reusable package.
+* RELEASE: 00.00.00x - Pre-Alpha: Extraction of the features from hard-coded
+  application into a reusable package.
 
 * RELEASE: 00.01.00x - Alpha: Completion of basic features.
 
@@ -161,7 +162,7 @@ VERSIONS and RELEASES
 * RELEASE: 00.05.00x - Production: Various performance enhancements.
 
 
-**Current Release: 00.02.014 - Alpha:**
+**Current Release: 00.02.017 - Alpha:**
 
 Major Changes:
 
@@ -173,7 +174,8 @@ Major Changes:
 
 * Removed 'callJSONDataCheck.sh'.
 
-* Platforms: Currently tested on Fedora-Linux and Windows7, remaining are going to follow soon.
+* Platforms: Currently tested on Fedora-Linux and Windows7, remaining are 
+  going to follow soon.
 
 Current test status:
 
