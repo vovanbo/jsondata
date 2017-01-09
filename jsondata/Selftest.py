@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test of basic features for the user by '--selftest'.
 
-This module is used by 'jsondatacheck' when the opverify_data_schemaardoced 
+This module is used by 'jsondc' when the opverify_data_schemaardoced 
 basic functional checks by calling 'runselftest'.
 
 The display of actions and results could be activated and 

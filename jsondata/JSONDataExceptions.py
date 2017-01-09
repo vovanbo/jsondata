@@ -2,15 +2,18 @@
 """Common exceptions for the package 'jsondata'.
 """
 __author__ = 'Arno-Can Uestuensoez'
+__maintainer__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.12'
+__version__ = '0.2.14'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import sys
 version = '{0}.{1}'.format(*sys.version_info[:2])
-if version < '2.7': # pragma: no cover
-    raise Exception("Requires Python-2.7.* or higher")
+if not version in ('2.6','2.7',): # pragma: no cover
+    raise Exception("Requires Python-2.6.* or higher")
+# if version < '2.7': # pragma: no cover
+#     raise Exception("Requires Python-2.7.* or higher")
 
 # Sets display for inetractive JSON/JSONschema design.
 _interactive = False

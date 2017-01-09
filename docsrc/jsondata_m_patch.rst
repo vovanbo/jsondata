@@ -3,186 +3,224 @@
 
 .. automodule:: jsondata.JSONPatch
 
-Functions:
-----------
+Functions
+=========
 
 getOp
-^^^^^
+-----
 
-	.. autofunction:: getOp
+.. autofunction:: getOp
 
 
-Class: JSONPatch
-----------------
+JSONPatch
+=========
 
 .. autoclass:: JSONPatch
 
 Attributes
-^^^^^^^^^^
-
-**JSONPatch**:
+----------
 
 * JSONPatch.data: JSONPatch object data tree.
 
-Methods:
-^^^^^^^^
+Methods
+-------
 
 __init__
-""""""""
-	.. automethod:: JSONPatch.__init__
+^^^^^^^^
+
+.. automethod:: JSONPatch.__init__
 
 __str__
-"""""""
-	.. automethod:: JSONPatch.__str__
+^^^^^^^
+
+.. automethod:: JSONPatch.__str__
 
                                 
 __repr__
-""""""""
-	.. automethod:: JSONPatch.__repr__
+^^^^^^^^
 
-__len__
-"""""""
-	.. automethod:: JSONPatch.__len__
+.. automethod:: JSONPatch.__repr__
 
 apply
-"""""
-	.. automethod:: JSONPatch.apply
+^^^^^
+
+.. automethod:: JSONPatch.apply
 
 get
-"""
-	.. automethod:: JSONPatch.get
+^^^
+.. automethod:: JSONPatch.get
 
 patch_export
-""""""""""""
-	.. automethod:: JSONPatch.patch_export
+^^^^^^^^^^^^
+
+.. automethod:: JSONPatch.patch_export
 
 patch_import
-""""""""""""
-	.. automethod:: JSONPatch.patch_import
+^^^^^^^^^^^^
+
+.. automethod:: JSONPatch.patch_import
 
 repr_export
-"""""""""""
-	.. automethod:: JSONPatch.repr_export
+^^^^^^^^^^^
 
-Operators:
-^^^^^^^^^^
+.. automethod:: JSONPatch.repr_export
+
+Operators
+---------
 
 '()'
-""""
-	.. automethod:: JSONPatch.__call__
+^^^^
+
+.. automethod:: JSONPatch.__call__
 
 '[]'
-""""
-	.. automethod:: JSONPatch.__getitem__
+^^^^
+
+.. automethod:: JSONPatch.__getitem__
 
 'S+x'
-"""""
-	.. automethod:: JSONPatch.__add__
+^^^^^
+
+.. automethod:: JSONPatch.__add__
 
 'S==x'
-""""""
-	.. automethod:: JSONPatch.__eq__
+^^^^^^
+
+.. automethod:: JSONPatch.__eq__
 
 'S+=x'
-""""""
-	.. automethod:: JSONPatch.__iadd__
+^^^^^^
+
+.. automethod:: JSONPatch.__iadd__
 
 'S-=x'
-""""""
-	.. automethod:: JSONPatch.__isub__
+^^^^^^
+
+.. automethod:: JSONPatch.__isub__
 
 'S!=x'
-""""""
-	.. automethod:: JSONPatch.__ne__
+^^^^^^
+
+.. automethod:: JSONPatch.__ne__
 
 'S-x'
-"""""""
-	.. automethod:: JSONPatch.__sub__
+^^^^^
 
-Iterators:
-^^^^^^^^^^
+.. automethod:: JSONPatch.__sub__
+
+len
+^^^
+
+.. automethod:: JSONPatch.__len__
+
+Iterators
+---------
 
 __iter__
-""""""""
-	.. automethod:: JSONPatch.__iter__
+^^^^^^^^
+
+.. automethod:: JSONPatch.__iter__
 
 
-Class: JSONPatchItem
---------------------
+JSONPatchItem
+=============
 .. autoclass:: JSONPatchItem
 
-Methods:
-^^^^^^^^
+Methods
+-------
 
 __init__
-""""""""
-	.. automethod:: JSONPatchItem.__init__
+^^^^^^^^
+
+.. automethod:: JSONPatchItem.__init__
 
 __repr__
-""""""""
-	.. automethod:: JSONPatchItem.__repr__
-
-__str__
-"""""""
-	.. automethod:: JSONPatchItem.__str__
-
-apply
-"""""
-	.. automethod:: JSONPatchItem.apply
-
-repr_export
-"""""""""""
-	.. automethod:: JSONPatchItem.repr_export
-
-Operators:
-^^^^^^^^^^
-
-'()'
-""""
-	.. automethod:: JSONPatchItem.__call__
-
-'[]'
-""""""
-	.. automethod:: JSONPatchItem.__getitem__
-
-'S==x'
-""""""
-	.. automethod:: JSONPatchItem.__eq__
-
-'S!=x'
-""""""
-	.. automethod:: JSONPatchItem.__ne__
-
-
-Class: JSONPatchItemRaw
------------------------
-.. autoclass:: JSONPatchItemRaw
-
-Methods:
 ^^^^^^^^
 
+.. automethod:: JSONPatchItem.__repr__
+
+__str__
+^^^^^^^
+
+.. automethod:: JSONPatchItem.__str__
+
+apply
+^^^^^
+
+.. automethod:: JSONPatchItem.apply
+
+repr_export
+^^^^^^^^^^^
+
+.. automethod:: JSONPatchItem.repr_export
+
+Operators
+---------
+
+'()'
+^^^^
+
+.. automethod:: JSONPatchItem.__call__
+
+'[]'
+^^^^
+
+.. automethod:: JSONPatchItem.__getitem__
+
+'S==x'
+^^^^^^
+
+.. automethod:: JSONPatchItem.__eq__
+
+'S!=x'
+^^^^^^
+
+.. automethod:: JSONPatchItem.__ne__
+
+
+JSONPatchItemRaw
+================
+
+.. autoclass:: JSONPatchItemRaw
+
+Methods
+-------
+
 __init__
-""""""""
-	.. automethod:: JSONPatchItemRaw.__init__
+^^^^^^^^^
+
+.. automethod:: JSONPatchItemRaw.__init__
 
 
 Class: JSONPatchFilter
-----------------------
+======================
+
 .. autoclass:: JSONPatchFilter
 
-Methods:
-^^^^^^^^
+Methods
+-------
 
 __init__
-""""""""
-	.. automethod:: JSONPatchFilter.__init__
+^^^^^^^^
 
-__eq__
-""""""
-	.. automethod:: JSONPatchFilter.__eq__
+.. automethod:: JSONPatchFilter.__init__
+
+Operators
+---------
+
+'=='
+^^^^
+
+
+.. automethod:: JSONPatchFilter.__eq__
+
+'!='
+^^^^
+
+.. automethod:: JSONPatchFilter.__ne__
 
 Exceptions
-----------
+==========
 
 * `jsondata.JSONPatchException [source] <_modules/jsondata/JSONPatch.html#JSONPatchException>`_
 

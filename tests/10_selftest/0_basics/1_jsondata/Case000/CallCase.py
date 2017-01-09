@@ -18,10 +18,7 @@ else:
 #######################
 #
 class CallUnits(unittest.TestCase):
-    name=os.path.curdir+__file__
 
-    output=True
-    output=False
 
     def testCase000(self):
         """Read a data file.

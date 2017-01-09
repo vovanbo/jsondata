@@ -19,7 +19,7 @@ from jsondata.JSONData import JSONData
 from jsondata.JSONPointer import JSONPointer
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
-_APPNAME = "jsondatacheck"
+_APPNAME = "jsondc"
 appname = _APPNAME
 
 #
@@ -28,10 +28,7 @@ appname = _APPNAME
 class CallUnits(unittest.TestCase):
     """Base branch_add.
     """
-    name=os.path.curdir+__file__
 
-    output=True
-    output=False
 
     def testCase010(self):
         c0 = [ 4 ]

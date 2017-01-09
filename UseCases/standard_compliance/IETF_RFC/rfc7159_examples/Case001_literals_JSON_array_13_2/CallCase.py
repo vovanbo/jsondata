@@ -32,7 +32,7 @@ except Exception as e:
     print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
-_APPNAME = "jsondatacheck"
+_APPNAME = "jsondc"
 appname = _APPNAME
 #
 #######################
@@ -42,8 +42,7 @@ class CallUnits(unittest.TestCase):
     def __init__(self,*args,**kargs):
         super(CallUnits,self).__init__(*args,**kargs)
         
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         global configdata
         global appname
 
@@ -55,22 +54,23 @@ class CallUnits(unittest.TestCase):
         kargs['validator'] = MODE_SCHEMA_OFF
         configdata = ConfigData(appname,**kargs)
 
-    def setUp(self):
-        syskargs = {}
-
 
     def testCase900(self):
         """Verify: rfc7159: Chapter 13, Example 2
         """
-        jdoc = """[{u'City': u'SAN FRANCISCO', u'Zip': u'94107', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.3959, u'State': u'CA', u'Address': u'', u'Latitude': 37.7668}, {u'City': u'SUNNYVALE', u'Zip': u'94085', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.02602, u'State': u'CA', u'Address': u'', u'Latitude': 37.371991}]"""
-        #print "<"+repr(configdata.data)+">"
-        #print "<"+jdoc+">"
-        assert  repr(configdata.data) == jdoc
+        version = '{0}.{1}'.format(*sys.version_info[:2])
+        if version >= '2.7': # pragma: no cover
+            #due to a bug in python2.6.x
+            jdoc = """[{u'City': u'SAN FRANCISCO', u'Zip': u'94107', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.3959, u'State': u'CA', u'Address': u'', u'Latitude': 37.7668}, {u'City': u'SUNNYVALE', u'Zip': u'94085', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.02602, u'State': u'CA', u'Address': u'', u'Latitude': 37.371991}]"""
+            assert  repr(configdata.data) == jdoc
 
     def testCase902(self):
         """Access: rfc7159: Chapter 13, Example 2""
         """
-        assert repr(configdata.data[0]) == """{u'City': u'SAN FRANCISCO', u'Zip': u'94107', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.3959, u'State': u'CA', u'Address': u'', u'Latitude': 37.7668}"""
+        version = '{0}.{1}'.format(*sys.version_info[:2])
+        if version >= '2.7': # pragma: no cover
+            #due to a bug in python2.6.x
+            assert repr(configdata.data[0]) == """{u'City': u'SAN FRANCISCO', u'Zip': u'94107', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.3959, u'State': u'CA', u'Address': u'', u'Latitude': 37.7668}"""
         assert configdata.data[0] == {u'City': u'SAN FRANCISCO', u'Zip': u'94107', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.3959, u'State': u'CA', u'Address': u'', u'Latitude': 37.7668}
 
     def testCase903(self):
@@ -104,13 +104,17 @@ class CallUnits(unittest.TestCase):
     def testCase908(self):
         """Access: rfc7159: Chapter 13, Example 2
         """
-        assert repr(configdata.data[1]) == """{u'City': u'SUNNYVALE', u'Zip': u'94085', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.02602, u'State': u'CA', u'Address': u'', u'Latitude': 37.371991}"""
-        assert configdata.data[1] == {u'City': u'SUNNYVALE', u'Zip': u'94085', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.02602, u'State': u'CA', u'Address': u'', u'Latitude': 37.371991}
+
+        version = '{0}.{1}'.format(*sys.version_info[:2])
+        if version >= '2.7': # pragma: no cover
+            #due to a bug in python2.6.x
+            assert repr(configdata.data[1]) == """{u'City': u'SUNNYVALE', u'Zip': u'94085', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.02602, u'State': u'CA', u'Address': u'', u'Latitude': 37.371991}"""
+        assert configdata.data[1]       ==    {u'City': u'SUNNYVALE', u'Zip': u'94085', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.02602, u'State': u'CA', u'Address': u'', u'Latitude': 37.371991}
 
     def testCase909(self):
         """Access: rfc7159: Chapter 13, Example 2
         """
-        assert configdata.data[1]['precision'] == "zip"
+        assert configdata.data[1][u'precision'] == u"zip"
         assert configdata.data[1]['City'] == "SUNNYVALE"
         assert configdata.data[1]['State'] == "CA"
         assert configdata.data[1]['Zip'] == "94085"

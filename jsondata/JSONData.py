@@ -1,152 +1,40 @@
 # -*- coding:utf-8   -*-
-""" Basic features for the persistence of JSON based in-memory data.
-
-The management of modular applications based on plugins frequently requires the
-incremental extension of data models. Therefore this package provides the load
-of a master model from a JSON file, and the incremental addition and removal of
-branches to the model by loading additional JSON modules into the master model.
-
-The schemas for the main application data and the import API are provided by
-the framework, whereas the plugins may provide their own means of validation
-within the local namespace, and/or scope.
-
+"""Core features for the processing of structured JSON based in-memory data.
+This comprises the load of a master model from a JSON file, and the 
+incremental addition and removal of branches by loading additional
+JSON modules into the master model.
+The resulting data could be saved for later reuse, where complex configuration
+is varied by user interaction.
 The implementation is based on the standard packages 'json' and 'jsonschema'.
 
-The workflow provided by this package is:
-
-  0. Create the initial in-memory data model by loading the master JSON data.
-     Decide here to use validation or not.
-
-     Even though the validation itself could be shifted to a later state,
-     once the data is loaded it may alter the state of the application
-     irreversible.
-
-  1. Add/insert an arbitrary number of branches provided e.g. by plugins
-     into an arbitrary position of the data model.
-
-     Now for the branch decide whether to validate or not.
-
-The data could be validated by provided JSONschema files. The interface
-supports for various types of branch insertion and deletion.
-
-The supported data resulting into a tree-structure could be depicted as::
-
-    root-node
-        |
-    APP-schema
-        +- <= import/export A-branches <-> API-schema + A-schema
-        |
-        +- <= import/export B-branches <-> API-schema + B-schema
-        |
-        `- <= import/export C-branches <-> API-schema + C-schema
-
-
-In case of requested validation various schema files are required.
-The main schema for the application 'APP-schema' has to be provided
-for the core application.
-
-The APP-schema provides in case of persistent configuration data the
-structural model for the statically related data of the application
-code. E.g. in case of the setup for the configuration of an implemented
-view model, the APP-schema may contain the implemented data structure
-of the application. The 'datafile' with values, e.g. altered by user
-interaction, could be varied and superposed as required, as long
-as the structure is valid.
-
-The import interface represented in 'API-schema' is for the case of
-validation mandatory too. This ensures valid interface data only is
-imported into the application. Whereas the specific schema
-files(A,B,C-schema) depend on the actual implementation and
-requirements of the imported modules.
-
-The resulting data could be saved for later reuse, what e.g. is
-applicable for GUI front-ends, where complex configuration is
-varied by user interaction.
-
-The specific request for the development of this package originally
-arose from the requirement of providing an customizable Data-Model
-including a View-Model for a modular data browser GUI. For the
-pattern refer to the project 'data-objects'.
-
-Constants:
-    Compliance modes:
-        MODE_JSON_RFC4927(0): Compliant to IETF RFC4927.
-                        
-        MODE_JSON_RF7951(2): Compliant to IETF RF7951.
-                        
-        MODE_JSON_ECMA264(10): Compliant to ECMA-264, 
-            refer to 5th.ed./Chapter 15.12 The JSON Object.
-            
-        MODE_POINTER_RFC6901(20): Compliant to IETF RFC6901.            
-            
-        MODE_PATCH_RFC6902(30): Compliant to IETF RFC6902.            
-            
-        MODE_SCHEMA_DRAFT3(43): Compliant to IETF MODE_SCHEMA_DRAFT3.            
-            
-        MODE_SCHEMA_DRAFT4(44): Compliant to IETF DRAFT4.            
-
-    types of validator:
-        MODE_SCHEMA_OFF(0): Validation disabled.
-
-        MODE_SCHEMA_DRAFT4(1): Default validator, jsonchema.validator().
-
-        MODE_SCHEMA_DRAFT3(2): Default validator, jsonchema.MODE_SCHEMA_DRAFT3validator().
-
-    Match criteria for node comparison:
-        MATCH_INSERT(0): Common, insertion is applicable.
-
-        MATCH_NO(1): Negates all criteria. E.g. the condition
-            [MATCH_NO, MATCH_KEY] matches when the keys are
-            absent.
-
-        MATCH_KEY(2): For dicts.
-
-        MATCH_CHLDATTR(3): For dicts and lists.
-
-        MATCH_INDEX(4): For lists.
-
-        MATCH_MEM(5): For dicts(value) and lists.
-        
-        MATCH_NEW(6): If not present create a new only, else ignore and 
-            keep present untouched.
-
-        MATCH_PRESENT(7): Check all are present, else fails.
-
-
-Setting of utilized **JSON** package:
-    This module uses for the syntax of JSON data either a preloaded
-    module, or loads the standard module by default. Current supported
-    packages are:
+This module uses for the syntax of JSON data either a preloaded
+module, or loads the standard module by default. Current supported
+packages are:
     
-    - **json**: The standard json package of the Python distribution.
-    
-    - **ujson**: 'Ultra-JSON', a wrapped C implementation with 
-        high-performance conversion. 
-    
-    The current default module is 'json'.
+- **json**: The standard json package of the Python distribution.
 
-Setting of utilized **JSONschema** package:
-    This module uses for the optional validation of the JSON data 
-    the standard package 'jsonschema' only.
-    
-    
-**REMARK**: The API design is intentionally close to the related standards,
-thus some method are quite close in their functionality with resulting
-few differences if at all.
+- **ujson**: 'Ultra-JSON', a wrapped C implementation with 
+    high-performance conversion. 
 
+The current default module is 'json' for syntax processing, 
+the standard package 'jsonschema' for the optional validation.
+    
 """
 __author__ = 'Arno-Can Uestuensoez'
+__maintainer__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.12'
+__version__ = '0.2.14'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import os,sys
 version = '{0}.{1}'.format(*sys.version_info[:2])
-if version < '2.7': # pragma: no cover
-    raise Exception("Requires Python-2.7.* or higher")
+if not version in ('2.6','2.7',): # pragma: no cover
+    raise Exception("Requires Python-2.6.* or higher")
+# if version < '2.7': # pragma: no cover
+#     raise Exception("Requires Python-2.7.* or higher")
 
-import termcolor
+#import termcolor
 import copy
 from types import NoneType
 
@@ -510,6 +398,16 @@ class JSONData:
                 print "DBG:self.schemafile=  "+str(self.schemafile)
                 print "DBG:self.schema=       #["+str(self.schema)+"]#"
 
+    def __add__(self,x):
+        """Adds the structure 'x' to 'self', performs deep-operation.
+        """
+        return self
+
+    def __and__(self):
+        """Gets the intersection of 'x' and 'self', performs deep-operation.
+        """
+        return self
+
     def __call__(self, x):
         """Evaluates the pointed value from the document.
 
@@ -542,6 +440,140 @@ class JSONData:
             return True
         return JSONData.getTreeDiff(self.data, x)
 
+    def __iadd__(self,x):
+        """Adds the structure 'x' to 'self', performs deep-operation.
+        """
+        return self
+
+    def __iand__(self):
+        """Gets the intersection of 'x' and 'self', performs deep-operation.
+        """
+        return self
+
+    def __imod__(self,x):
+        """Returns the difference-modulo-set.
+        """
+        return self
+
+    def __imul__(self,x):
+        """Duplicates the elements of 'self' 'x' times.
+        """
+        return self
+
+    def __mul__(self,x):
+        """Duplicates the elements of 'self' 'x' times.
+        
+        The operations::
+
+           z = S * x
+
+        Returns the remaining subset of: 
+
+           z = S - 1 * x
+
+        where '1*x' is for each present element of 'x'. When multiple exist
+        'n-1' remain.
+
+        """
+
+        return self
+
+    def __ior__(self,x):
+        """Returns the superset of branches and attributes.
+        """
+        return self
+
+    def __isub__(self,x):
+        """Returns the residue of X after each present element of 'x' is removed.
+        """
+        return self
+
+    def __ixor__(self,x):
+        """Returns the elements present in one only.
+        """
+        return self
+
+    def __mod__(self,x):
+        """Returns the difference-modulo-set.
+        
+        The operations::
+
+           z = S % x
+
+        Returns the remaining subset of: 
+
+           z = S - n * x
+
+        where 'n*x' is the maximum number of present branches 'x'. When
+        multiple exist, all matching are removed.
+
+        """
+        return self
+
+    def __radd__(self,x):
+        """Adds the structure 'x' to 'self', performs deep-operation.
+        """
+        return self
+
+    def __rand__(self):
+        """Gets the intersection of 'x' and 'self', performs deep-operation.
+        """
+        return self
+
+    def __rmod__(self,x):
+        """Returns the difference-modulo-set.
+        """
+        return self
+
+    def __rmul__(self,x):
+        """Duplicates the elements of 'self' 'x' times.
+        """
+        return self
+
+    def __or__(self,x):
+        """Returns the superset of branches and attributes.
+        """
+        return self
+
+    def __ror__(self,x):
+        """Returns the superset of branches and attributes.
+        """
+        return self
+
+    def __rsub__(self,x):
+        """Returns the residue of X after each present element of 'x' is removed.
+        """
+        return self
+
+    def __rxor__(self,x):
+        """Returns the elements present in one only.
+        """
+        return self
+
+    def __sub__(self,x):
+        """Returns the residue of X after each present element of 'x' is removed.
+        
+        The operations::
+
+           z = S - x
+
+        Returns the remaining subset of: 
+
+           z = S - 1 * x
+
+        where '1*x' is for each present element of 'x'. When multiple exist
+        'n-1' remain.
+
+        """
+
+        return self
+
+    def __xor__(self):
+        """Returns the structure elements present in in one only.
+        """
+        
+        return self
+
     def __repr__(self):
         """Dump data.
         """
@@ -549,6 +581,7 @@ class JSONData:
 #         myjson.dump(self.data, io)
 #         return io.getvalue()
         return repr(self.data)
+
 
     def __str__(self):
         """Dumps data by pretty print.
@@ -1120,6 +1153,14 @@ class JSONData:
             return True
         return cls.getTreeDiff(targetnode, value) # value could be a branch itself
 
+    def getData(self):
+        """Returns the reference to data."""
+        return self.data
+
+    def getSchema(self):
+        """Returns the reference to schema."""
+        return self.schema
+
     @classmethod
     def getTreeDiff(cls, n0, n1, difflst=None, alldifs=False, dl=0, path=''):
         """Recursive tree compare for Python trees as used for the package 'json'.
@@ -1630,7 +1671,7 @@ class JSONData:
         else:
             print myjson.dumps(source)
 
-    def set_schema(self,schemafile=None, targetnode=None, **kargs):
+    def setSchema(self,schemafile=None, targetnode=None, **kargs):
         """Sets schema or inserts a new branch into the current assigned schema.
 
         The main schema(targetnode==None) is the schema related to the current
@@ -1679,7 +1720,7 @@ class JSONData:
         """
         if __debug__:
             if self.debug:
-                print "DBG:set_schema:schemafile="+str(schemafile)
+                print "DBG:setSchema:schemafile="+str(schemafile)
 
         #
         #*** Fetch parameters

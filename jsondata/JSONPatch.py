@@ -34,16 +34,19 @@ The address of the the provided 'path' components for the entries are managed
 by the class JSONPointer in accordance to RFC6901. 
 """
 __author__ = 'Arno-Can Uestuensoez'
+__maintainer__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.12'
+__version__ = '0.2.14'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 import sys
 
 version = '{0}.{1}'.format(*sys.version_info[:2])
-if version < '2.7': # pragma: no cover
-    raise Exception("Requires Python-2.7.* or higher")
+if not version in ('2.6','2.7',): # pragma: no cover
+    raise Exception("Requires Python-2.6.* or higher")
+# if version < '2.7': # pragma: no cover
+#     raise Exception("Requires Python-2.7.* or higher")
 
 if sys.modules.get('json'):
     import json as myjson
@@ -223,13 +226,13 @@ class JSONPatchItem(object):
     def __getitem__(self,key):
         """Support of various mappings.
         
-            # self[key]
+            #. self[key]
             
-            # self[i:j:k]
+            #. self[i:j:k]
             
-            # x in self
+            #. x in self
             
-            # for x in self
+            #. for x in self
 
         """
         if key in ('path', 'target',):
@@ -418,12 +421,17 @@ class JSONPatchFilter(object):
         Args:
             **kargs: Filter parameters:
                 Common:
+
                     contain=(True|False): Contain, else equal.
+
                     type=<node-type>: Node is of type.
                 
                 Paths:
+
                     branch=<branch>: 
+
                     deep=(): Determines the depth of comparison.
+
                     prefix=<prefix>: Any node of prefix. If prefix is
                         absolute: the only and one, else None.
                         relative: any node prefixed by the path fragment.
@@ -450,10 +458,15 @@ class JSONPatchFilter(object):
         
         pass
 
+    def __ne__(self,x):
+        
+        pass
+
 class JSONPatch(object):
     """ Representation of a JSONPatch task list for RFC6902.
     
-    Contains the 
+    Contains the defined methods from standards:
+
     * add
     * remove
     * replace
@@ -538,13 +551,13 @@ class JSONPatch(object):
     def __getitem__(self,key):
         """Support of slices, for 'iterator' refer to self.__iter__.
         
-            # self[key]
+            #. self[key]
             
-            # self[i:j:k]
+            #. self[i:j:k]
             
-            # x in self
+            #. x in self
             
-            # for x in self
+            #. for x in self
 
         """
         return self.patch[key] 

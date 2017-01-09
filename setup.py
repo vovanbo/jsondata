@@ -50,10 +50,11 @@ import sys,os
 #*** common source header
 #
 __author__ = 'Arno-Can Uestuensoez'
+__maintainer__ = 'Arno-Can Uestuensoez'
 __author_email__ = 'acue_sf2@sourceforge.net'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.13'
+__version__ = '0.2.15'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 _NAME = 'jsondata'
@@ -69,6 +70,10 @@ import os,sys
 from setuptools import setup #, find_packages
 import fnmatch
 import re, shutil, tempfile
+
+version = '{0}.{1}'.format(*sys.version_info[:2])
+if not version in ('2.6','2.7',): # pragma: no cover
+    raise Exception("Requires Python-2.6.* or higher")
 
 
 #
@@ -213,7 +218,6 @@ if 'build_doc' in sys.argv:
     rp  = r'<h4>API</h4><p class="topless"><a href="epydoc/index.html" title="API">Programming Interface</a></p>'
     rp += pt
 
-
     patchlist = [
         'shortcuts.html',
         'usecases.html',
@@ -344,7 +348,10 @@ if 'tests' in sys.argv or 'test' in sys.argv:
         print "# putenv:PATH[0]="+str(p0)
     print "#"
     print "# Test - call in: tests"
-    exit_code += os.system('python -m unittest discover -s tests -p CallCase.py') # traverse tree
+    if version in ('2.6',): # pragma: no cover
+        exit_code += os.system('python -m discover -s tests -p CallCase.py') # traverse tree
+    elif version in ('2.7',): # pragma: no cover
+        exit_code += os.system('python -m unittest discover -s tests -p CallCase.py') # traverse tree
     print "#"
     print "Called/Finished PyUnit tests => exit="+str(exit_code)
     print "exit setup.py now: exit="+str(exit_code)
@@ -365,7 +372,10 @@ if 'usecases' in sys.argv or 'usecase' in sys.argv:
         print "# putenv:PATH[0]="+str(p0)
     print "#"
     print "# Check 'inspect' paths - call in: UseCases"
-    exit_code = os.system('python -m unittest discover -s UseCases -p CallCase.py') # traverse tree
+    if version in ('2.6',): # pragma: no cover
+        exit_code = os.system('python -m discover -s UseCases -p CallCase.py') # traverse tree
+    elif version in ('2.7',): # pragma: no cover
+        exit_code = os.system('python -m unittest discover -s UseCases -p CallCase.py') # traverse tree
     print "#"
     print "Called/Finished PyUnit tests => exit="+str(exit_code)
     print "exit setup.py now: exit="+str(exit_code)
@@ -446,6 +456,7 @@ _classifiers = [
     "Operating System :: MacOS :: MacOS X",
     "Programming Language :: Python",
     "Programming Language :: Python :: 2",    
+    "Programming Language :: Python :: 2.6",    
     "Programming Language :: Python :: 2.7",    
     "Programming Language :: Unix Shell",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -457,7 +468,7 @@ _keywords += ' RFC7159 RFC4627 RFC6901 RFC6902 ECMA-262 ECMA-404 pointer schema 
 _keywords += ' serialization configuration plugins dynamic modules operations calculations'
 
 _packages = ["jsondata"]
-_scripts = ["bin/jsondatacheck","bin/jsondatacheck.py",]
+_scripts = ["bin/jsondc","bin/jsondc.py",]
 
 _package_data = {
     'jsondata': ['README','ArtisticLicense20.html', 'licenses-amendments.txt',
@@ -473,9 +484,13 @@ _download_url="https://sourceforge.net/projects/jsondata/files/"
 _url='https://sourceforge.net/projects/jsondata/'
 
 _install_requires=[
-    'json',
+#    'json',
     'jsonschema',
-    'termcolor'
+#    'functools32', # 7.x
+#    'repoze.lru',  # 6.x
+#    'termcolor',
+    'pyfilesysobjects',
+    'pysourceinfo',
 ]
 
 _test_suite="tests.CallCase"

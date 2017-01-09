@@ -3,58 +3,53 @@
 
 .. automodule:: jsondata.Selftest
 
-Functions:
-^^^^^^^^^^
+Basic
+=====
 
-runselftest
-"""""""""""
-	.. autofunction:: runselftest
+* **runselftest**
 
-printverbose
-""""""""""""
-	.. autofunction:: printverbose
+ .. autofunction:: runselftest
 
-load tests
-"""""""""
+* **printverbose**
 
-load_data
-'''''''''
+.. autofunction:: printverbose
 
-	.. autofunction:: load_data
+Load Tests
+==========
 
-load_appname
-''''''''''''
+* **load_data**
 
-	.. autofunction:: load_appname
+.. autofunction:: load_data
 
-validation tests
-""""""""""""""""
+* **load_appname**
 
-verify_data_schema
-''''''''''''''''''
-	.. autofunction:: verify_data_schema
+.. autofunction:: load_appname
 
-verify_appname_schema
-'''''''''''''''''''''
+Validation Tests
+================
 
-	.. autofunction:: verify_appname_schema
+* **verify_data_schema**
+
+.. autofunction:: verify_data_schema
+
+* **verify_appname_schema**
+
+.. autofunction:: verify_appname_schema
+
 
 JSONPointer tests
-"""""""""""""""""
+=================
 
-jsonpointer_data_schema
-'''''''''''''''''''''''
+* **jsonpointer_data_schema**
 
-	.. autofunction:: jsonpointer_data_schema
+.. autofunction:: jsonpointer_data_schema
 
-jsonpointer_selftest_data
-'''''''''''''''''''''''''
+* **jsonpointer_selftest_data**
 
-	.. autofunction:: jsonpointer_selftest_data
+.. autofunction:: jsonpointer_selftest_data
 
-jsonpointer_selftest_data_schema
-''''''''''''''''''''''''''''''''
+* **jsonpointer_selftest_data_schema**
 
-	.. autofunction:: jsonpointer_selftest_data_schema
+.. autofunction:: jsonpointer_selftest_data_schema
 
  

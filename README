@@ -79,13 +79,24 @@ setup.py
 
 The installer adds a few options to the standard setuptools options.
 
-* *build_sphinx*: Creates documentation for runtime system by Sphinx, html only. Calls 'callDocSphinx.sh'.
+* *build_doc*: Creates Sphinx based documentation with embeded javadoc-style
+  API documentation, html only.
 
-* *build_epydoc*: Creates documentation for runtime system by Epydoc, html only. Calls 'callDocEpydoc.sh'.
+* *build_sphinx*: Creates documentation for runtime system by Sphinx, html only.
+  Calls 'callDocSphinx.sh'.
+
+* *build_epydoc*: Creates standalone documentation for runtime system by Epydoc, 
+  html only.
+
+* *project_doc*: Install a local copy into the doc directory of the project.
+
+* *instal_doc*: Install a local copy of the previously build documents in 
+  accordance to PEP-370.
 
 * *test*: Runs PyUnit tests by discovery.
 
-* *--help-jsondata*: Displays this help.
+* *usecases: Runs PyUnit UseCases by discovery, a lightweight
+  set of unit tests.
 
 * *--no-install-required*: Suppresses installation dependency checks, requires appropriate PYTHONPATH.
 
@@ -93,16 +104,18 @@ The installer adds a few options to the standard setuptools options.
 
 * *--exit*: Exit 'setup.py'.
 
+* *--help-jsoncliopts*: Displays this help.
+
 After successful installation the 'selftest' verifies basic checks by:
 
-  *jsondatacheck --selftest*
+  *jsoncliopts --selftest*
 
 with the exit value '0' when OK.
 
 The option '-v' raises the degree of verbosity for inspection
 
-  *jsondatacheck --selftest -v -v -v -v*
-
+  *jsoncliopts --selftest -v -v -v -v*
+ 
 
 Project Data
 ------------
@@ -148,11 +161,15 @@ VERSIONS and RELEASES
 * RELEASE: 00.05.00x - Production: Various performance enhancements.
 
 
-**Current Release: 00.02.013 - Alpha:**
+**Current Release: 00.02.014 - Alpha:**
 
 Major Changes:
 
-* Fix of documentation.
+* Fix and extension of documentation.
+
+* Extended classes by operators.
+
+* Renamed 'jsondatacheck' to 'jsondc'.
 
 * Platforms: Currently tested on Fedora-Linux and Windows7, remaining are going to follow soon.
 

@@ -1,5 +1,5 @@
 Abstract
-========
+########
 
 The 'jsondata' package provides the management of modular data structures based on JSON. 
 The data is represented by in-memory tree structures with dynamically added
@@ -13,12 +13,12 @@ whereas higher level features of additional standards and extensions are introdu
 on top. 
 
 REMARK - Platforms
-==================
+##################
 
 This version supports Linux and Windows7 - The update for MacOS, BSD, and Solaris is going to follow soon.
 
 Blueprint
-=========
+#########
 
 The architecture is based on the interfaces of the packages 'json' and
 'jsonschema', and compatible packages such as `'ujson' [online] <https://pypi.python.org/pypi/ujson>`_
@@ -53,19 +53,28 @@ The architecture is based on the interfaces of the packages 'json' and
 
 The provided features comprise:
 
-* `JSON Data <jsondata_branch_operations.html>`_ : Manage branches of substructures - `jsondata.JSONData <jsondata_m_data.html#>`_.
+* `JSON Data <jsondata_branch_operations.html>`_ : Manage branches of substructures - jsondata.JSONData 
+  `[API] <jsondata_m_data.html#>`_
+  `[source] <_modules/jsondata/JSONData.html#JSONData>`_
 
-* `JSON Serializer <jsondata_branch_serializer.html>`_ : Serialize JSON documents - `jsondata.JSONDataSerializer <jsondata_m_serializer.html#>`_.
+* `JSON Serializer <jsondata_branch_serializer.html>`_ : Serialize JSON documents - jsondata.JSONDataSerializer 
+  `[API] <jsondata_m_serializer.html#>`_
+  `[source] <_modules/jsondata/JSONDataSerializer.html#JSONDataSerializer>`_
 
-* `JSON Pointer <jsondata_pointer_operations.html>`_ : Access pointer paths and values - `jsondata.JSONPointer <jsondata_m_pointer.html#>`_.
 
-* `JSON Patch <jsondata_patch_operations.html>`_ : Modify data structures and values - `jsondata.JSONPatch <jsondata_m_patch.html#>`_.
+* `JSON Pointer <jsondata_pointer_operations.html>`_ : Access pointer paths and values - jsondata.JSONPointer 
+  `[API] <jsondata_m_pointer.html#>`_
+  `[source] <_modules/jsondata/JSONPointer.html#JSONPointer>`_
 
-* JSON DSL: The JSON-DSL is moved into the package `'jsoncompute [pypi]' <https://pypi.python.org/pypi/jsoncompute/>`_
+* `JSON Patch <jsondata_patch_operations.html>`_ : Modify data structures and values - jsondata.JSONPatch 
+  `[API] <jsondata_m_patch.html#>`_
+  `[source] <_modules/jsondata/JSONPatch.html#JSONPatch>`_
 
 Including the utilities:
  
-* `JSON Tree <jsondata_m_tree.html>`_ : Utilities for structure analysis and operations on JSON data structures, e.g. diff.
+* JSON Tree: Utilities for structure analysis and operations on JSON data structures, e.g. diff 
+  `[API] <jsondata_m_tree.html>`_
+  `[source] <_modules/jsondata/JSONTree.html#JSONTree>`_
 
 The syntax primitives of underlying layers are processed by the imported standard packages 'json' and 'jsonschema' 
 in conformance to related standards.
@@ -85,7 +94,7 @@ For the implementation and architecture refer to
 * `Software design <software_design.html>`_ 
 
 Install - HowTo - FAQ - Help
-============================
+############################
 
 * **Install**:
 
@@ -108,7 +117,7 @@ Install - HowTo - FAQ - Help
 
 
 Shortcuts
-=========
+#########
 
 Concepts and workflows:
 
@@ -128,7 +137,7 @@ Complete technical API:
 
 
 Table of Contents
-=================
+#################
 
 .. toctree::
    :maxdepth: 3
@@ -149,7 +158,7 @@ Table of Contents
 
 
 Indices and tables
-==================
+##################
 
 * :ref:`genindex`
 * :ref:`modindex`
@@ -157,7 +166,7 @@ Indices and tables
 
 
 Resources
-=========
+#########
 
 For available downloads refer to:
 

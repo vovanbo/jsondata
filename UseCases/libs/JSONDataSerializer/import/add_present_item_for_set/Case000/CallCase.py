@@ -20,7 +20,7 @@ from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
 from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
-_APPNAME = "jsondatacheck"
+_APPNAME = "jsondc"
 appname = _APPNAME
 #
 #######################
@@ -28,10 +28,7 @@ appname = _APPNAME
 class CallUnits(unittest.TestCase):
     """Base branch import by branch_replace_set.
     """
-    name=os.path.curdir+__file__
 
-    output=True
-    output=False
 
     def testCase000(self):
         """Load initial main/master data, and validate it with standard validator.

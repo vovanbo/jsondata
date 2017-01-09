@@ -1,6 +1,6 @@
 PROJECT='jsondata'
-VERSION="0.2.13"
-RELEASE="0.2.13"
+VERSION="0.2.14"
+RELEASE="0.2.14"
 NICKNAME="Mafumo"
 AUTHOR='Arno-Can Uestuensoez'
 COPYRIGHT='Copyright (C) 2010,2011,2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez'
@@ -40,7 +40,7 @@ FILEDIRS="$FILEDIRS ${INDIR}bin"
 
 FILEDIRS="$FILEDIRS ${INDIR}UseCases"
 
-FILEDIRS="$FILEDIRS ${INDIR}tests"
+#FILEDIRS="$FILEDIRS ${INDIR}tests"
 FILEDIRS="$FILEDIRS ${INDIR}testdata"
 
 CALL=""
@@ -183,7 +183,7 @@ Project data summary:
   ${NICKNAME} the lion - see |kevinr|  \`Save the Lions\`_ - \`Mafumo and Vayetsi\`_ 
 
 .. _Save the Lions: https://www.youtube.com/watch?v=0XZQYC1lHr4
-.. _Mafumo and Vayetsi: https://www.youtube.com/watch?v=r0RCYUa3Kbg
+.. _Mafumo and Vayetsi: https://www.youtube.com/watch?v=Z8YbxFV7v2o
 
 .. |kevinr| image:: _static/lionwhisperer.png 
     :target: https://www.youtube.com/watch?v=0XZQYC1lHr4

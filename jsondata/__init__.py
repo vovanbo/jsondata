@@ -21,7 +21,7 @@ The components provides by  the package are:
 * **JSONCompute**:
   Moved to a seperate package 'http://pypi.python.org/pypi/jsoncompute/'. 
 
-* **Selftest** / **'jsondatacheck --selftest'**:
+* **Selftest** / **'jsondc --selftest'**:
   Last but not least, the selftest feature provides for a quick verification
   of the package itself.
  
@@ -29,6 +29,7 @@ For additional information refer to the documentation
 http://pythonhosted.org/jsondata/.
 """
 __author__ = 'Arno-Can Uestuensoez'
+__maintainer__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
 __version__ = '0.2.1'

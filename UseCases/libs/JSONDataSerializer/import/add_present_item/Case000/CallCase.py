@@ -21,16 +21,13 @@ from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
 from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
-_APPNAME = "jsondatacheck"
+_APPNAME = "jsondc"
 appname = _APPNAME
 #
 #######################
 #
 class CallUnits(unittest.TestCase):
-    name=os.path.curdir+__file__
 
-    output=True
-    output=False
 
     def testCase000(self):
         """Create an object by load of JSON data and JSONschema from files, finally validate.

@@ -28,7 +28,7 @@ except Exception as e:
     print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
-_APPNAME = "jsondatacheck"
+_APPNAME = "jsondc"
 appname = _APPNAME
 
 configdata = None
@@ -37,10 +37,7 @@ configdata = None
 #######################
 #
 class CallUnits(unittest.TestCase):
-    name=os.path.curdir+__file__
 
-    output=True
-    output=False
 
     def testCase000(self):
         """Create an object for data only - no schema.

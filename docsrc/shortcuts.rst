@@ -1,76 +1,169 @@
 API Shortcuts - jsondata
-^^^^^^^^^^^^^^^^^^^^^^^^
+************************
 
 jsondata - epydoc
-"""""""""""""""""
+=================
 Javadoc style API documentation for Python.
 
 * `API by Epydoc <epydoc/index.html>`_
 
 jsondata - CLI
-""""""""""""""
+==============
 CLI Wrapper for filtered subprocess calls and streaming of results
 `[details] <commandline_tools.html>`_ 
  
-* `jsondatacheck <jsondatacheck.html#>`_
+* `jsondc <jsondc.html#>`_
 
 
 jsondata.JSONData
-"""""""""""""""""
+=================
 
-* JSONData
+JSONData
+--------
 
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | [docs]                          | [source]                                           | [logic-operator]   |
-  +=================================+====================================================+====================+
-  | `JSONData`_                     | `JSONData.__init__`_                               |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__call__`_                     | `JSONData.__call__`_                               |  exec              |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__eq__`_                       | `JSONData.__eq__`_                                 |  ==                |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__repr__`_                     | `JSONData.__repr__`_                               |  repr              |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__str__`_                      | `JSONData.__str__`_                                |  str               |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__getitem__`_                  | `JSONData.__getitem__`_                            |  f(x)              |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__iter__`_                     | `JSONData.__iter__`_                               |  ->                |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__ne__`_                       | `JSONData.__ne__`_                                 |  !=                |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `branch_add`_                   | `JSONData.branch_add`_                             |  add               |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `branch_copy`_                  | `JSONData.branch_copy`_                            |  cp                |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `branch_create`_                | `JSONData.branch_create`_                          |  new               |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `branch_move`_                  | `JSONData.branch_move`_                            |  mv                |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `branch_remove`_                | `JSONData.branch_remove`_                          |  del               |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `branch_replace`_               | `JSONData.branch_replace`_                         |  replace           |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `branch_test`_                  | `JSONData.branch_test`_                            |  test              |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `getTreeDiff`_                  | `JSONData.getTreeDiff`_                            |  diff              |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `getPointerPath`_               | `JSONData.getPointerPath`_                         |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `getCanonical`_                 | `JSONData.getCanonical`_                           |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `isApplicable`_                 | `JSONData.isApplicable`_                           |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `pop`_                          | `JSONData.pop`_                                    |  pop               |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `printData`_                    | `JSONData.printData`_                              |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `printSchema`_                  | `JSONData.printSchema`_                            |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `set_schema`_                   | `JSONData.set_schema`_                             |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `validate`_                     | `JSONData.validate`_                               |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
+  The class JSONData provides branch operations, which actually are logical set operations on structured subsets
+  of attributes.
+  This comprises basically two types of operations:
+
+  * **branch operations**: 
+
+    The unit of action is a complete branch, thus the branch is not intermixed with other attributes 
+    e.g. 'branch_add' or 'branch_copy'.
+
+  * **attribute operations**:
+
+    The unit of action is/are attributes, thus the branches are intermixed, or disjoined at the level of attributes 
+    e.g.  '__add__' and '__or__', or '__xor__'.
+
+  The column [op-unit-scope] depicts the types and levels of provided operations:
+
+  * A: attribute 
+  * B: branch
+
+Methods
+^^^^^^^
+  
+* **Basic**:
+
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | [docs]                          | [source]                     | [op-unit-scope]      | [logic-operator]   |
+  +=================================+==============================+======================+====================+
+  | `JSONData`_                     | `JSONData.__init__`_         |                      |                    |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__repr__`_                     | `JSONData.__repr__`_         | B,A                  |  repr              |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__str__`_                      | `JSONData.__str__`_          | B,A                  |  str               |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `getData`_                      | `JSONData.getData`_          |                      |                    |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `getSchema`_                    | `JSONData.getSchema`_        |                      |                    |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `printData`_                    | `JSONData.printData`_        | A                    |                    |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `printSchema`_                  | `JSONData.printSchema`_      |                      |                    |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `setSchema`_                    | `JSONData.setSchema`_        |                      |                    |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `validate`_                     | `JSONData.validate`_         | B,A                  |                    |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+
+  .
+
+* **Branches and Trees**:
+
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | [docs]                          | [source]                     | [op-unit-scope]      | [logic-operator]   |
+  +=================================+==============================+======================+====================+
+  | `branch_add`_                   | `JSONData.branch_add`_       | B                    |  add               |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `branch_copy`_                  | `JSONData.branch_copy`_      | B                    |  cp                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `branch_create`_                | `JSONData.branch_create`_    | B                    |  new               |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `branch_move`_                  | `JSONData.branch_move`_      | B                    |  mv                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `branch_remove`_                | `JSONData.branch_remove`_    | B                    |  del               |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `branch_replace`_               | `JSONData.branch_replace`_   | B                    |  replace           |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `branch_test`_                  | `JSONData.branch_test`_      | B                    |  test              |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `getTreeDiff`_                  | `JSONData.getTreeDiff`_      | B,A                  |  diff              |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `getPointerPath`_               | `JSONData.getPointerPath`_   | B,A                  |                    |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `getCanonical`_                 | `JSONData.getCanonical`_     | B                    |                    |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `isApplicable`_                 | `JSONData.isApplicable`_     | B                    |                    |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `pop`_                          | `JSONData.pop`_              |                      |  pop               |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+
+Operators
+^^^^^^^^^
+
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | [docs]                          | [source]                     | [op-unit-scope]      | [logic-operator]   |
+  +=================================+==============================+======================+====================+
+  | `__add__`_                      | `JSONData.__add__`_          | B,A                  |  \+                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__and__`_                      | `JSONData.__and__`_          | B,A                  |  &&                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__call__`_                     | `JSONData.__call__`_         | A                    |  exec              |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__eq__`_                       | `JSONData.__eq__`_           | B,A                  |  ==                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__getitem__`_                  | `JSONData.__getitem__`_      | B,A                  |  f(x)              |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__iadd__`_                     | `JSONData.__iadd__`_         | B,A                  |  +=                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__iand__`_                     | `JSONData.__rand__`_         | B,A                  |  &&=               |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__imod__`_                     | `JSONData.__imod__`_         | B,A                  |  %                 |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__imul__`_                     | `JSONData.__imul__`_         | B,A                  |  \*                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__ior__`_                      | `JSONData.__ior__`_          | B,A                  |  ||=               |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__isub__`_                     | `JSONData.__isub__`_         | B,A                  |  \-                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__ixor__`_                     | `JSONData.__ixor__`_         | B,A                  |  ^                 |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__mod__`_                      | `JSONData.__mod__`_          | B,A                  |  %                 |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__mul__`_                      | `JSONData.__mul__`_          | B,A                  |  \*                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__ne__`_                       | `JSONData.__ne__`_           | B,A                  |  !=                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__or__`_                       | `JSONData.__or__`_           | B,A                  |  ||                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__radd__`_                     | `JSONData.__radd__`_         | B,A                  |  S \+ x            |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__rand__`_                     | `JSONData.__rand__`_         | B,A                  |  S && x            |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__rmod__`_                     | `JSONData.__rmod__`_         | B,A                  |  %                 |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__rmul__`_                     | `JSONData.__rmul__`_         | B,A                  |  \*                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__ror__`_                      | `JSONData.__ror__`_          | B,A                  |  S || x            |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__rsub__`_                     | `JSONData.__rsub__`_         | B,A                  |  \-                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__rxor__`_                     | `JSONData.__rxor__`_         | B,A                  |  ^                 |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__sub__`_                      | `JSONData.__sub__`_          | B,A                  |  \-                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | `__xor__`_                      | `JSONData.__xor__`_          | B,A                  |  ^                 |
+  +---------------------------------+------------------------------+----------------------+--------------------+
+
+Iterators
+^^^^^^^^^
+
+  +---------------------------------+------------------------------+----------------------+--------------------+
+  | [docs]                          | [source]                     | [op-unit-scope]      | [logic-operator]   |
+  +=================================+==============================+======================+====================+
+  | `__iter__`_                     | `JSONData.__iter__`_         | B,A                  |  ->                |
+  +---------------------------------+------------------------------+----------------------+--------------------+
 
 .. _JSONData: jsondata_m_data.html#jsondata.JSONData.JSONData.__init__
 .. _JSONData.__init__: _modules/jsondata/JSONData.html#JSONData.__init__
@@ -93,6 +186,56 @@ jsondata.JSONData
 .. _\__iter__: jsondata_m_data.html#jsondata.JSONData.JSONData.__iter__
 .. _JSONData.__iter__: _modules/jsondata/JSONData.html#JSONData.__iter__
 
+.. _\__add__: jsondata_m_data.html#jsondata.JSONData.JSONData.__add__
+.. _JSONData.__add__: _modules/jsondata/JSONData.html#JSONData.__add__
+.. _\__iadd__: jsondata_m_data.html#jsondata.JSONData.JSONData.__iadd__
+.. _JSONData.__iadd__: _modules/jsondata/JSONData.html#JSONData.__iadd__
+.. _\__radd__: jsondata_m_data.html#jsondata.JSONData.JSONData.__radd__
+.. _JSONData.__radd__: _modules/jsondata/JSONData.html#JSONData.__radd__
+
+.. _\__and__: jsondata_m_data.html#jsondata.JSONData.JSONData.__and__
+.. _JSONData.__and__: _andules/jsondata/JSONData.html#JSONData.__and__
+.. _\__iand__: jsondata_m_data.html#jsondata.JSONData.JSONData.__iand__
+.. _JSONData.__iand__: _andules/jsondata/JSONData.html#JSONData.__iand__
+.. _\__rand__: jsondata_m_data.html#jsondata.JSONData.JSONData.__rand__
+.. _JSONData.__rand__: _andules/jsondata/JSONData.html#JSONData.__rand__
+
+.. _\__mod__: jsondata_m_data.html#jsondata.JSONData.JSONData.__mod__
+.. _JSONData.__mod__: _modules/jsondata/JSONData.html#JSONData.__mod__
+.. _\__imod__: jsondata_m_data.html#jsondata.JSONData.JSONData.__imod__
+.. _JSONData.__imod__: _modules/jsondata/JSONData.html#JSONData.__imod__
+.. _\__rmod__: jsondata_m_data.html#jsondata.JSONData.JSONData.__rmod__
+.. _JSONData.__rmod__: _modules/jsondata/JSONData.html#JSONData.__rmod__
+
+.. _\__mul__: jsondata_m_data.html#jsondata.JSONData.JSONData.__mul__
+.. _JSONData.__mul__: _modules/jsondata/JSONData.html#JSONData.__mul__
+.. _\__imul__: jsondata_m_data.html#jsondata.JSONData.JSONData.__imul__
+.. _JSONData.__imul__: _modules/jsondata/JSONData.html#JSONData.__imul__
+.. _\__rmul__: jsondata_m_data.html#jsondata.JSONData.JSONData.__rmul__
+.. _JSONData.__rmul__: _modules/jsondata/JSONData.html#JSONData.__rmul__
+
+.. _\__or__: jsondata_m_data.html#jsondata.JSONData.JSONData.__or__
+.. _JSONData.__or__: _modules/jsondata/JSONData.html#JSONData.__or__
+.. _\__ior__: jsondata_m_data.html#jsondata.JSONData.JSONData.__ior__
+.. _JSONData.__ior__: _modules/jsondata/JSONData.html#JSONData.__ior__
+.. _\__ror__: jsondata_m_data.html#jsondata.JSONData.JSONData.__ror__
+.. _JSONData.__ror__: _modules/jsondata/JSONData.html#JSONData.__ror__
+
+.. _\__sub__: jsondata_m_data.html#jsondata.JSONData.JSONData.__sub__
+.. _JSONData.__sub__: _modules/jsondata/JSONData.html#JSONData.__sub__
+.. _\__isub__: jsondata_m_data.html#jsondata.JSONData.JSONData.__isub__
+.. _JSONData.__isub__: _modules/jsondata/JSONData.html#JSONData.__isub__
+.. _\__rsub__: jsondata_m_data.html#jsondata.JSONData.JSONData.__rsub__
+.. _JSONData.__rsub__: _modules/jsondata/JSONData.html#JSONData.__rsub__
+
+.. _\__xor__: jsondata_m_data.html#jsondata.JSONData.JSONData.__xor__
+.. _JSONData.__xor__: _modules/jsondata/JSONData.html#JSONData.__xor__
+.. _\__ixor__: jsondata_m_data.html#jsondata.JSONData.JSONData.__ixor__
+.. _JSONData.__ixor__: _modules/jsondata/JSONData.html#JSONData.__ixor__
+.. _\__rxor__: jsondata_m_data.html#jsondata.JSONData.JSONData.__rxor__
+.. _JSONData.__rxor__: _modules/jsondata/JSONData.html#JSONData.__rxor__
+
+
 .. _\__ne__: jsondata_m_data.html#jsondata.JSONData.JSONData.__ne__
 .. _JSONData.__ne__: _modules/jsondata/JSONData.html#JSONData.__ne__
 
@@ -102,19 +245,19 @@ jsondata.JSONData
 .. _branch_copy: jsondata_m_data.html#jsondata.JSONData.JSONData.branch_copy
 .. _JSONData.branch_copy: _modules/jsondata/JSONData.html#JSONData.branch_copy
 
-.. _branch_create: jsondata.html#branch-create
+.. _branch_create: jsondata_m_data.html#jsondata.JSONData.JSONData.branch_create
 .. _JSONData.branch_create: _modules/jsondata/JSONData.html#JSONData.branch_create
 
-.. _branch_move: jsondata.html#branch-move
+.. _branch_move: jsondata_m_data.html#jsondata.JSONData.JSONData.branch_move
 .. _JSONData.branch_move: _modules/jsondata/JSONData.html#JSONData.branch_move
 
-.. _branch_remove: jsondata.html#branch-remove
+.. _branch_remove: jsondata_m_data.html#jsondata.JSONData.JSONData.branch_remove
 .. _JSONData.branch_remove: _modules/jsondata/JSONData.html#JSONData.branch_remove
 
-.. _branch_replace: jsondata.html#branch-replace
+.. _branch_replace: jsondata_m_data.html#jsondata.JSONData.JSONData.branch_replace
 .. _JSONData.branch_replace: _modules/jsondata/JSONData.html#JSONData.branch_replace
 
-.. _branch_test: jsondata.html#branch-test
+.. _branch_test: jsondata_m_data.html#jsondata.JSONData.JSONData.branch_test
 .. _JSONData.branch_test: _modules/jsondata/JSONData.html#JSONData.branch_test
 
 .. _getTreeDiff: jsondata_m_data.html#jsondata.JSONData.JSONData.getTreeDiff
@@ -122,6 +265,12 @@ jsondata.JSONData
 
 .. _getPointerPath: jsondata_m_data.html#jsondata.JSONData.JSONData.getPointerPath
 .. _JSONData.getPointerPath: _modules/jsondata/JSONData.html#JSONData.getPointerPath
+
+.. _getData: jsondata_m_data.html#jsondata.JSONData.JSONData.getData
+.. _JSONData.getData: _modules/jsondata/JSONData.html#JSONData.getData
+
+.. _getSchema: jsondata_m_data.html#jsondata.JSONData.JSONData.getSchema
+.. _JSONData.getSchema: _modules/jsondata/JSONData.html#JSONData.getSchema
 
 .. _getCanonical: jsondata_m_data.html#jsondata.JSONData.JSONData.getCanonical
 .. _JSONData.getCanonical: _modules/jsondata/JSONData.html#JSONData.getCanonical
@@ -138,32 +287,44 @@ jsondata.JSONData
 .. _printSchema: jsondata_m_data.html#jsondata.JSONData.JSONData.printSchema
 .. _JSONData.printSchema: _modules/jsondata/JSONData.html#JSONData.printSchema
 
-.. _set_schema: jsondata_m_data.html#jsondata.JSONData.JSONData.set_schema
-.. _JSONData.set_schema: _modules/jsondata/JSONData.html#JSONData.set_schema
+.. _setSchema: jsondata_m_data.html#jsondata.JSONData.JSONData.setSchema
+.. _JSONData.setSchema: _modules/jsondata/JSONData.html#JSONData.setSchema
 
 .. _validate: jsondata_m_data.html#jsondata.JSONData.JSONData.validate
 .. _JSONData.validate: _modules/jsondata/JSONData.html#JSONData.validate
 
 
 jsondata.JSONDataSerializer
-"""""""""""""""""""""""""""
+===========================
 
-* JSONDataSerializer
+JSONDataSerializer
+------------------
+
+Methods
+^^^^^^^
+
+* **Basic**
 
   +---------------------------------+----------------------------------------------------+
   | [docs]                          | [source]                                           | 
   +=================================+====================================================+
   | `JSONDataSerializer`_           | `JSONDataSerializer.__init__`_                     |
   +---------------------------------+----------------------------------------------------+
-  | `json_export`_                  | `JSONDataSerializer.json_export`_                  |
-  +---------------------------------+----------------------------------------------------+
-  | `json_import`_                  | `JSONDataSerializer.json_import`_                  |
-  +---------------------------------+----------------------------------------------------+
   | `printData (1)`_                | `JSONDataSerializer.printData`_                    |
   +---------------------------------+----------------------------------------------------+
   | `printSchema (1)`_              | `JSONDataSerializer.printSchema`_                  |
   +---------------------------------+----------------------------------------------------+
-  | `set_schema (1)`_               | `JSONDataSerializer.set_schema`_                   |
+  | `setSchema (1)`_                | `JSONDataSerializer.setSchema`_                    |
+  +---------------------------------+----------------------------------------------------+
+
+* **Import/Export**
+
+  +---------------------------------+----------------------------------------------------+
+  | [docs]                          | [source]                                           | 
+  +=================================+====================================================+
+  | `json_export`_                  | `JSONDataSerializer.json_export`_                  |
+  +---------------------------------+----------------------------------------------------+
+  | `json_import`_                  | `JSONDataSerializer.json_import`_                  |
   +---------------------------------+----------------------------------------------------+
 
 .. _JSONDataSerializer.__init__: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.__init__
@@ -181,20 +342,47 @@ jsondata.JSONDataSerializer
 .. _JSONDataSerializer.printSchema: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.printSchema
 .. _printSchema (1): jsondata_m_serializer.html#jsondata.JSONDataSerializer.JSONDataSerializer.printSchema
 
-.. _JSONDataSerializer.set_schema: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.set_schema
-.. _set_schema (1): jsondata_m_serializer.html#jsondata.JSONDataSerializer.JSONDataSerializer.set_schema
+.. _JSONDataSerializer.setSchema: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.setSchema
+.. _setSchema (1): jsondata_m_serializer.html#jsondata.JSONDataSerializer.JSONDataSerializer.setSchema
 
 
 jsondata.JSONPatch
-""""""""""""""""""
+==================
 
-* JSONPatchItem
+JSONPatchItem
+-------------
+
+Methods
+^^^^^^^
+
+* **Basic**
 
   +---------------------------------+----------------------------------------------------+--------------------+
   | [docs]                          | [source]                                           | [logic-operator]   |
   +=================================+====================================================+====================+
   | `JSONPatchItem`_                | `JSONPatchItem.__init__`_                          |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
+  | `__repr__ (2)`_                 | `JSONPatchItem.__repr__`_                          | repr               |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__str__ (2)`_                  | `JSONPatchItem.__str__`_                           | str                |
+  +---------------------------------+----------------------------------------------------+--------------------+
+
+* **Basic**
+
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | [docs]                          | [source]                                           | [logic-operator]   |
+  +=================================+====================================================+====================+
+  | `apply (2)`_                    | `JSONPatchItem.apply`_                             |                    |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `repr_export (2)`_              | `JSONPatchItem.repr_export`_                       |                    |
+  +---------------------------------+----------------------------------------------------+--------------------+
+
+Operators
+^^^^^^^^^
+
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | [docs]                          | [source]                                           | [logic-operator]   |
+  +=================================+====================================================+====================+
   | `__call__ (2)`_                 | `JSONPatchItem.__call__`_                          | exec               |
   +---------------------------------+----------------------------------------------------+--------------------+
   | `__eq__ (2)`_                   | `JSONPatchItem.__eq__`_                            | ==                 |
@@ -202,14 +390,6 @@ jsondata.JSONPatch
   | `__getitem__ (2)`_              | `JSONPatchItem.__getitem__`_                       | [i]                |
   +---------------------------------+----------------------------------------------------+--------------------+
   | `__ne__ (2)`_                   | `JSONPatchItem.__ne__`_                            | !=                 |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__repr__ (2)`_                 | `JSONPatchItem.__repr__`_                          | repr               |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__str__ (2)`_                  | `JSONPatchItem.__str__`_                           | str                |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `apply (2)`_                    | `JSONPatchItem.apply`_                             |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `repr_export (2)`_              | `JSONPatchItem.repr_export`_                       |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
 
 .. _JSONPatchItem.__init__: _modules/jsondata/JSONPatch.html#JSONPatchItem.__init__
@@ -240,7 +420,11 @@ jsondata.JSONPatch
 .. _repr_export (2): jsondata_m_patch.html#jsondata.JSONPatch.JSONPatchItem.repr_export
 
 
-* JSONPatchItemRaw
+JSONPatchItemRaw
+----------------
+
+Methods
+^^^^^^^
 
   +---------------------------------+----------------------------------------------------+
   | [docs]                          | [source]                                           | 
@@ -251,13 +435,24 @@ jsondata.JSONPatch
 .. _JSONPatchItemRaw.__init__: _modules/jsondata/JSONPatch.html#JSONPatchItemRaw.__init__
 .. _JSONPatchItemRaw: jsondata_m_patch.html#jsondata.JSONPatch.JSONPatchItemRaw.__init__
 
-* JSONPatchFilter
+JSONPatchFilter
+---------------
+
+Methods
+^^^^^^^
 
   +---------------------------------+----------------------------------------------------+--------------------+
   | [docs]                          | [source]                                           | [logic-operator]   |
   +=================================+====================================================+====================+
   | `JSONPatchFilter`_              | `JSONPatchFilter.__init__`_                        |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
+
+Operators
+^^^^^^^^^
+
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | [docs]                          | [source]                                           | [logic-operator]   |
+  +=================================+====================================================+====================+
   | `__eq__ (4)`_                   | `JSONPatchFilter.__eq__`_                          | ==                 |
   +---------------------------------+----------------------------------------------------+--------------------+
 
@@ -268,13 +463,46 @@ jsondata.JSONPatch
 .. _\__eq__ (4): jsondata_m_patch.html#jsondata.JSONPatch.JSONPatchFilter.__eq__
 
 
-* JSONPatch
+JSONPatch
+---------
+
+Methods
+^^^^^^^
+
+* **Basic**
 
   +---------------------------------+----------------------------------------------------+--------------------+
   | [docs]                          | [source]                                           | [logic-operator]   |
   +=================================+====================================================+====================+
   | `JSONPatch`_                    | `JSONPatch.__init__`_                              |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
+  | `__repr__ (5)`_                 | `JSONPatch.__repr__`_                              | repr               |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__str__ (5)`_                  | `JSONPatch.__str__`_                               | str                |
+  +---------------------------------+----------------------------------------------------+--------------------+
+
+* **Patch**
+
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | [docs]                          | [source]                                           | [logic-operator]   |
+  +=================================+====================================================+====================+
+  | `apply (5)`_                    | `JSONPatch.apply`_                                 |                    |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `get (5)`_                      | `JSONPatch.get`_                                   |                    |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `patch_export (5)`_             | `JSONPatch.patch_export`_                          |                    |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `patch_import (5)`_             | `JSONPatch.patch_import`_                          |                    |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `repr_export (5)`_              | `JSONPatch.repr_export`_                           |                    |
+  +---------------------------------+----------------------------------------------------+--------------------+
+
+Operators
+^^^^^^^^^
+
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | [docs]                          | [source]                                           | [logic-operator]   |
+  +=================================+====================================================+====================+
   | `__add__ (5)`_                  | `JSONPatch.__add__`_                               | \+                 |
   +---------------------------------+----------------------------------------------------+--------------------+
   | `__call__ (5)`_                 | `JSONPatch.__call__`_                              | exec               |
@@ -287,27 +515,20 @@ jsondata.JSONPatch
   +---------------------------------+----------------------------------------------------+--------------------+
   | `__isub__ (5)`_                 | `JSONPatch.__isub__`_                              | -=                 |
   +---------------------------------+----------------------------------------------------+--------------------+
-  | `__iter__ (5)`_                 | `JSONPatch.__iter__`_                              | ->                 |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__len__ (5)`_                  | `JSONPatch.__len__`_                               | len                |
-  +---------------------------------+----------------------------------------------------+--------------------+
   | `__ne__ (5)`_                   | `JSONPatch.__ne__`_                                | !=                 |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__repr__ (5)`_                 | `JSONPatch.__repr__`_                              | repr               |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__str__ (5)`_                  | `JSONPatch.__str__`_                               | str                |
   +---------------------------------+----------------------------------------------------+--------------------+
   | `__sub__ (5)`_                  | `JSONPatch.__sub__`_                               | \-                 |
   +---------------------------------+----------------------------------------------------+--------------------+
-  | `apply (5)`_                    | `JSONPatch.apply`_                                 |                    |
+  | `__len__ (5)`_                  | `JSONPatch.__len__`_                               | len                |
   +---------------------------------+----------------------------------------------------+--------------------+
-  | `get (5)`_                      | `JSONPatch.get`_                                   |                    |
+
+Iterators
+^^^^^^^^^
+
   +---------------------------------+----------------------------------------------------+--------------------+
-  | `patch_export (5)`_             | `JSONPatch.patch_export`_                          |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `patch_import (5)`_             | `JSONPatch.patch_import`_                          |                    |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `repr_export (5)`_              | `JSONPatch.repr_export`_                           |                    |
+  | [docs]                          | [source]                                           | [logic-operator]   |
+  +=================================+====================================================+====================+
+  | `__iter__ (5)`_                 | `JSONPatch.__iter__`_                              | ->                 |
   +---------------------------------+----------------------------------------------------+--------------------+
 
 .. _JSONPatch.__init__: _modules/jsondata/JSONPatch.html#JSONPatch.__init__
@@ -366,39 +587,31 @@ jsondata.JSONPatch
 
 
 jsondata.JSONPointer
-""""""""""""""""""""
+====================
 
-* JSONPointer
+JSONPointer
+-----------
+
+Methods
+^^^^^^^
+
+* **Basic**:
 
   +---------------------------------+----------------------------------------------------+--------------------+
   | [docs]                          | [source]                                           | [logic-operator]   | 
   +=================================+====================================================+====================+
   | `JSONPointer`_                  | `JSONPointer.__init__`_                            |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
-  | `__add__ (6)`_                  | `JSONPointer.__add__`_                             | \+                 |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__call__ (6)`_                 | `JSONPointer.__call__`_                            | exec               |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__eq__ (6)`_                   | `JSONPointer.__eq__`_                              | ==                 |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__ge__ (6)`_                   | `JSONPointer.__ge__`_                              | >=                 |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__gt__ (6)`_                   | `JSONPointer.__gt__`_                              | >                  |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__iadd__ (6)`_                 | `JSONPointer.__iadd__`_                            | +=                 |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__le__ (6)`_                   | `JSONPointer.__le__`_                              | <=                 |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__lt__ (6)`_                   | `JSONPointer.__lt__`_                              | <                  |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__ne__ (6)`_                   | `JSONPointer.__ne__`_                              | !=                 |
-  +---------------------------------+----------------------------------------------------+--------------------+
-  | `__radd__ (6)`_                 | `JSONPointer.__radd__`_                            | x+                 |
-  +---------------------------------+----------------------------------------------------+--------------------+
   | `__repr__ (6)`_                 | `JSONPointer.__repr__`_                            | repr               |
   +---------------------------------+----------------------------------------------------+--------------------+
   | `__str__ (6)`_                  | `JSONPointer.__str__`_                             | str                |
   +---------------------------------+----------------------------------------------------+--------------------+
+
+* **Nodes**:
+
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | [docs]                          | [source]                                           | [logic-operator]   | 
+  +=================================+====================================================+====================+
   | `check_node_or_value`_          | `JSONPointer.check_node_or_value`_                 |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
   | `check_path_list`_              | `JSONPointer.check_path_list`_                     |                    |
@@ -419,6 +632,39 @@ jsondata.JSONPointer
   +---------------------------------+----------------------------------------------------+--------------------+
   | `get_raw`_                      | `JSONPointer.get_raw`_                             |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
+
+Operators
+^^^^^^^^^
+
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | [docs]                          | [source]                                           | [logic-operator]   | 
+  +=================================+====================================================+====================+
+  | `__add__ (6)`_                  | `JSONPointer.__add__`_                             | \+                 |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__call__ (6)`_                 | `JSONPointer.__call__`_                            | exec               |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__eq__ (6)`_                   | `JSONPointer.__eq__`_                              | ==                 |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__ge__ (6)`_                   | `JSONPointer.__ge__`_                              | >=                 |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__gt__ (6)`_                   | `JSONPointer.__gt__`_                              | >                  |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__iadd__ (6)`_                 | `JSONPointer.__iadd__`_                            | +=                 |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__le__ (6)`_                   | `JSONPointer.__le__`_                              | <=                 |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__lt__ (6)`_                   | `JSONPointer.__lt__`_                              | <                  |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__ne__ (6)`_                   | `JSONPointer.__ne__`_                              | !=                 |
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | `__radd__ (6)`_                 | `JSONPointer.__radd__`_                            | x+                 |
+  +---------------------------------+----------------------------------------------------+--------------------+
+
+Iterators
+^^^^^^^^^
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | [docs]                          | [source]                                           | [logic-operator]   | 
+  +=================================+====================================================+====================+
   | `iter_path`_                    | `JSONPointer.iter_path`_                           | (path)->           |
   +---------------------------------+----------------------------------------------------+--------------------+
   | `iter_path_nodes`_              | `JSONPointer.iter_path_nodes`_                     | (path-nodes)->     |
@@ -500,15 +746,27 @@ jsondata.JSONPointer
 .. _iter_path_nodes: jsondata_m_pointer.html#jsondata.JSONPointer.JSONPointer.iter_path_nodes
 
 jsondata.JSONTree
-"""""""""""""""""
+=================
 
-* JSONTree
+JSONTree
+--------
+
+Methods
+^^^^^^^
+
+* **Basic**
 
   +---------------------------------+----------------------------------------------------+--------------------+
   | [docs]                          | [source]                                           | [logic-operator]   |
   +=================================+====================================================+====================+
   | `JSONTree`_                     | `JSONTree.__init__`_                               |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
+
+* **Tree**
+
+  +---------------------------------+----------------------------------------------------+--------------------+
+  | [docs]                          | [source]                                           | [logic-operator]   |
+  +=================================+====================================================+====================+
   | `printDiff`_                    | `JSONTree.printDiff`_                              |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
   | `fetchDiff`_                    | `JSONTree.fetchDiff`_                              | diff               |
@@ -524,22 +782,36 @@ jsondata.JSONTree
 .. _fetchDiff: jsondata_m_tree.html#jsondata.JSONTree.JSONTree.fetchDiff
 
 
-Test data
-"""""""""
+Runtime Test data
+=================
 
-* data.json `[json] <_static/data.json>`_
-* datacheck.json `[json] <_static/datacheck.json>`_
-* datacheck.jsd `[schema] <_static/datacheck.jsd>`_
-* rfc6902.jsonp `[source] <_static/rfc6902.jsonp>`_
-* schema.jsd `[source] <_static/schema.jsd>`_
-* selftest.jsd `[source] <_static/selftest.jsd>`_
-* selftest.json `[source] <_static/selftest.json>`_
-* selftest.jsonp `[source] <_static/selftest.jsonp>`_
+basic
+-----
+* jsondata.data.json `[json] <_static/data.json>`_
+* jsondata.schema.jsd `[schema] <_static/schema.jsd>`_
+
+datacheck
+---------
+* jsondata.datacheck.json `[json] <_static/datacheck.json>`_
+* jsondata.datacheck.jsd `[schema] <_static/datacheck.jsd>`_
+
+rfc6902
+-------
+* jsondata.rfc6902.jsonp `[json-pointer] <_static/rfc6902.jsonp>`_
+
+selftest
+--------
+* jsondata.selftest.jsd `[schema] <_static/selftest.jsd>`_
+* jsondata.selftest.json `[json] <_static/selftest.json>`_
+* jsondata.selftest.jsonp `[json-pointer] <_static/selftest.jsonp>`_
 
 jsondata.Selftest
-"""""""""""""""""
+=================
 
-* Functions
+Hard-coded selftests for the runtime system.
+
+Functions
+---------
 
   +--------------------------------------+----------------------------------------------------+
   | [docs]                               | [source]                                           | 
