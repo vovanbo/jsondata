@@ -95,7 +95,7 @@ The installer adds a few options to the standard setuptools options.
 
 * *test*: Runs PyUnit tests by discovery.
 
-* *usecases: Runs PyUnit UseCases by discovery, a lightweight
+* *usecases*: Runs PyUnit UseCases by discovery, a lightweight
   set of unit tests.
 
 * *--no-install-required*: Suppresses installation dependency checks, requires appropriate PYTHONPATH.
@@ -162,7 +162,7 @@ VERSIONS and RELEASES
 * RELEASE: 00.05.00x - Production: Various performance enhancements.
 
 
-**Current Release: 00.02.017 - Alpha:**
+**Current Release: 00.02.018 - Alpha:**
 
 Major Changes:
 
@@ -174,7 +174,7 @@ Major Changes:
 
 * Removed 'callJSONDataCheck.sh'.
 
-* Platforms: Currently tested on Fedora-Linux and Windows7, remaining are 
+* Platforms: Currentl tested on Fedora-Linux, remaining are 
   going to follow soon.
 
 Current test status:

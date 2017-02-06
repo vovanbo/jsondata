@@ -54,8 +54,10 @@ __maintainer__ = 'Arno-Can Uestuensoez'
 __author_email__ = 'acue_sf2@sourceforge.net'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
-__version__ = '0.2.16'
+#__version__ = '0.2.18'
 __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
+
+import os,sys
 
 _NAME = 'jsondata'
 
@@ -63,18 +65,170 @@ _NAME = 'jsondata'
 if __debug__:
     __DEVELTEST__ = True
 
+__sdk = False
+"""Set by the option "--sdk". Controls the installation environment."""
+if '--sdk' in sys.argv:
+    _sdk = True
+    sys.argv.remove('--sdk')
+
+
 #
 #***
 #
-import os,sys
 from setuptools import setup #, find_packages
 import fnmatch
 import re, shutil, tempfile
+
 
 version = '{0}.{1}'.format(*sys.version_info[:2])
 if not version in ('2.6','2.7',): # pragma: no cover
     raise Exception("Requires Python-2.6.* or higher")
 
+
+#
+# required for various interfaces, thus just do it
+_mypath = os.path.dirname(os.path.abspath(__file__))
+"""Path of this file."""
+sys.path.insert(0,os.path.abspath(_mypath))
+
+
+#--------------------------------------
+#
+# Package parameters for setuptools
+#
+#--------------------------------------
+_name='jsondata'
+__pkgname__ = "jsondata"
+"""package name"""
+
+__vers__ = [0, 2, 18,]
+"""version parts for easy processing"""
+
+__version__ = "%02d.%02d.%03d"%(__vers__[0],__vers__[1],__vers__[2],)
+"""assembled version string"""
+
+__author__ = "acue"
+"""author of the package"""
+
+_packages = ["jsondata"]
+"""Python packages to be installed."""
+
+_scripts = ["bin/jsondc","bin/jsondc.py",]
+"""Scripts to be installed."""
+
+_package_data = {
+    'jsondata': ['README.md','ArtisticLicense20.html', 'licenses-amendments.txt',
+                 'data.json','schema.jsd','datacheck.json', 'datacheck.jsd',
+                 'selftest.json','selftest.jsd',
+                 'rfc6902.jsonp',
+                 ],
+}
+"""Provided data of the package."""
+
+_platforms = ['Linux','Windows','darwin',]
+"""provided platforms"""
+
+_url='https://sourceforge.net/projects/jsondata/'
+"""URL of this package"""
+
+#_download_url="https://github.com/ArnoCan/filesysobjects/"
+_download_url="https://sourceforge.net/projects/jsondata/files/"
+
+_install_requires = []
+"""prerequired non-standard packages"""
+
+_keywords  = ' JSON json json-schema jsonschema json-pointer jsonpointer JSONschema JSONPointer JSONPatch'
+_keywords += ' RFC7159 RFC4627 RFC6901 RFC6902 ECMA-262 ECMA-404 pointer schema path patch persistence'
+_keywords += ' serialization configuration plugins dynamic modules operations calculations'
+
+"""keywords for search index"""
+
+_description=(
+    "The 'jsondata' package provides for the modular in-memory processing of JSON data"
+  " by trees, branches, pointers, and patches in accordance to the standards " 
+  "JSON/RFC7951, JSON pointer / RFC6901, and JSON patch / RFC6902. "
+  "The syntax primitives build on the standard packages 'json' and 'jsonschema'. "
+)
+
+# def read(fname):
+#     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+_README = os.path.join(os.path.dirname(__file__), 'README.md')
+_long_description = open(_README).read() + 'nn'
+"""detailed description of this package"""
+
+_classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: Free To Use But Restricted",
+    "License :: OSI Approved :: Artistic License",
+    "Natural Language :: English",
+    "Operating System :: Microsoft :: Windows :: Windows 7",
+    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: BSD :: OpenBSD",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2",    
+    "Programming Language :: Python :: 2.6",    
+    "Programming Language :: Python :: 2.7",    
+    "Programming Language :: Unix Shell",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities"
+]
+"""the classification of this package"""
+
+_epydoc_api_patchlist = [
+    'path_syntax.html',
+    'usecases.html',
+    'shortcuts.html',
+    'filesysobjects.html',
+    'pyfilesysobjects.html',
+]
+
+"""Patch list of Sphinx documents for the insertion of links to API documentation."""
+
+_profiling_components = _mypath+os.sep+'bin'+os.sep+'*.py '+_mypath+os.sep+__pkgname__+os.sep+'*.py'
+"""Components to be used for the creation of profiling information for Epydoc."""
+
+_doc_subpath='en'+os.path.sep+'html'+os.path.sep+'man7'
+"""Relative path under the documents directory."""
+
+_sharepath = os.path.expanduser(os.path.sep+'share'+os.path.sep+'projdata'+os.path.sep+'twint'+os.path.sep+'devops'+os.path.sep+__pkgname__)
+"""Project specific common network directory on the AdNovum share."""
+
+
+# runtime dependencies - RHEL6.x standard is sufficient
+_install_requires=[
+#    'json',
+    'jsonschema',
+#    'functools32', # 7.x
+#    'repoze.lru',  # 6.x
+#    'termcolor',
+    'pyfilesysobjects >=0.1.12',
+    'pysourceinfo >=0.1.12',
+]
+
+if version in ('2.6',): # pragma: no cover
+    _install_requires.extend(
+        [
+            'pbr', 
+            'argparse',
+            'six',
+            'traceback2',
+            'unittest2', # pre-install dependencies seems to be faster
+        ]
+    )
+
+if __sdk: # pragma: no cover
+    _install_requires.extend(
+        [
+            'sphinx >= 1.4',
+            'epydoc >= 3.0',
+        ]
+    )
+
+_test_suite="tests.CallCase"
 
 #
 #*** ===>>> setup.py helper
@@ -424,76 +578,6 @@ if len(sys.argv)==1:
 #
 
 
-#
-#*** setup.py configuration
-#
-_name='jsondata'
-
-_description=("The 'jsondata' package provides for the modular in-memory processing of JSON data"
-              " by trees, branches, pointers, and patches in accordance to the standards " 
-              "JSON/RFC7951, JSON pointer / RFC6901, and JSON patch / RFC6902. "
-              "The syntax primitives build on the standard packages 'json' and 'jsonschema'. "
-              )
-
-# def read(fname):
-#     return open(os.path.join(os.path.dirname(__file__), fname)).read()
-_README = os.path.join(os.path.dirname(__file__), 'README')
-_long_description = open(_README).read() + 'nn'
-
-_platforms='any'
-
-_classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "License :: Free To Use But Restricted",
-    "License :: OSI Approved :: Artistic License",
-    "Natural Language :: English",
-    "Operating System :: Microsoft :: Windows :: Windows 7",
-    "Operating System :: OS Independent",
-    "Operating System :: POSIX :: BSD :: OpenBSD",
-    "Operating System :: POSIX :: Linux",
-    "Operating System :: POSIX",
-    "Operating System :: MacOS :: MacOS X",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 2",    
-    "Programming Language :: Python :: 2.6",    
-    "Programming Language :: Python :: 2.7",    
-    "Programming Language :: Unix Shell",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Utilities"
-]
-
-_keywords  = ' JSON json json-schema jsonschema json-pointer jsonpointer JSONschema JSONPointer JSONPatch'
-_keywords += ' RFC7159 RFC4627 RFC6901 RFC6902 ECMA-262 ECMA-404 pointer schema path patch persistence'
-_keywords += ' serialization configuration plugins dynamic modules operations calculations'
-
-_packages = ["jsondata"]
-_scripts = ["bin/jsondc","bin/jsondc.py",]
-
-_package_data = {
-    'jsondata': ['README','ArtisticLicense20.html', 'licenses-amendments.txt',
-                 'data.json','schema.jsd','datacheck.json', 'datacheck.jsd',
-                 'selftest.json','selftest.jsd',
-                 'rfc6902.jsonp',
-                 ],
-}
-
-#_download_url="https://github.com/ArnoCan/jsondata/"
-_download_url="https://sourceforge.net/projects/jsondata/files/"
-
-_url='https://sourceforge.net/projects/jsondata/'
-
-_install_requires=[
-#    'json',
-    'jsonschema',
-#    'functools32', # 7.x
-#    'repoze.lru',  # 6.x
-#    'termcolor',
-    'pyfilesysobjects',
-    'pysourceinfo',
-]
-
-_test_suite="tests.CallCase"
 
 if __debug__:
     if __DEVELTEST__:
