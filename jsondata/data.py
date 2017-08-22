@@ -194,47 +194,28 @@ class JSONData:
 
     """
 
-    def __init__(self, data, *, schema=None, indent_str=4, loadcached=False,
+    def __init__(self, data, *, schema=None, indent_str=4, load_cached=False,
                  requires=None, validator=SchemaMode.DRAFT4, **kwargs):
-        """Loads and validates a JSON definition with the corresponding schema file.
+        """
+        Loads and validates a JSON definition with the corresponding
+        schema file.
 
         Args:
-            args*: Optional position parameters, these branch_replace
-                corresponding key parameters. data
-                
-            **kwargs:
                 data: JSON data within memory.
-                    
+
+        Kwargs:
+                schema: A valid in-memory JSON schema.
+
                     default:= None
                 indent_str: Defied the indentation of 'str'.
-                    
+
                     default:= 4
-                interactive: Hints on command line call for optional change of display format. 
-                    
-                    default:= False
-                schema: A valid in-meory JSONschema.
-                    
-                    default:= None
                 validator: [default, draft3, draft4, on, off, ]
                     Sets schema validator for the data file.
                     The values are: default=validate, draft3=Draft3Validator,
                     off=None
                     
                     default:= off
-
-                printdata: branch=None
-                    Pretty print resulting final data of branch.
-                    
-                    default:= top
-                printschema: branch=None
-                    Pretty print resulting schema.
-                    
-                    default:= top
-
-                debug: Displays extended state data for developers.
-                    Requires __debug__==True.
-                verbose: Extends the amount of the display of 
-                    processing data.
 
         Returns:
             Results in an initialized object.
@@ -267,12 +248,12 @@ class JSONData:
         # a fixed set of files as final SchemaMode.DRAFT4
         self.schema = schema
         self.indent_str = indent_str
-        self.loadcached = loadcached
+        self.load_cached = load_cached
         self.requires = requires
         self.validator = validator
 
         logger.debug("JSON=%s / %s", myjson.__name__, myjson.__version__)
-        logger.debug("self.data=#[%s]#", self.schema_file)
+        logger.debug("self.data=#[%s]#", self.data)
         logger.debug("self.schema=#[%s]#", self.schema)
 
         # Check data.
@@ -286,12 +267,6 @@ class JSONData:
         # INPUT-BRANCH: validate data
         if self.validator is not SchemaMode.OFF:
             self.validate(self.data, self.schema, self.validator)
-
-        logger.debug("self.pathlist=%s", self.pathlist)
-        logger.debug("self.filelist=%s", self.filelist)
-        logger.debug("self.filepathlist=%s", self.filepathlist)
-        logger.debug("self.schema_file=%s", self.schema_file)
-        logger.debug("self.schema=#[%s]#", self.schema)
 
     def __add__(self, x):
         """
@@ -1325,7 +1300,7 @@ class JSONData:
                       child_attr_list=None):
         """ Checks applicability by validation of provided match criteria.
 
-        The contained data in 'datafile' could be either the initial data
+        The contained data in 'data_file' could be either the initial data
         tree, or a new branch defined by a fresh tree structure. The
         'targetnode' defines the parent container where the new branch has
         to be hooked-in.

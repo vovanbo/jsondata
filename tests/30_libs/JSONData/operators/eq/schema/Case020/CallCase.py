@@ -81,13 +81,13 @@ class CallUnits(unittest.TestCase):
 
         _path = mypath+os.sep+'datasets'+os.sep+'basic'+os.sep+'set00'+os.sep+'testdata.json'
 
-        kargs = {}
-        kargs['filelist'] = [_path]
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
-        self.configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['file_list'] = [_path]
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
+        self.configdata = ConfigData(appname,**kwargs)
 
         self.jval = None
         self.sval = None

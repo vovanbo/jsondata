@@ -26,7 +26,7 @@ class CallUnits(unittest.TestCase):
         global jval
 
         # data
-        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('datafile.json')
+        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('data_file.json')
         if not os.path.isfile(datafile):
             raise BaseException("Missing JSON data:file="+str(datafile))
         # load data

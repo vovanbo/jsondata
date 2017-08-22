@@ -28,7 +28,7 @@ class CallUnits(unittest.TestCase):
         global jval
 
         # data
-        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('datafile.json')
+        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('data_file.json')
         if not os.path.isfile(datafile):
             raise BaseException("Missing JSON data:file="+str(datafile))
         # load data
@@ -65,7 +65,7 @@ class CallUnits(unittest.TestCase):
         global sval
 
         # schema
-        schemafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('datafile.json')
+        schemafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('data_file.json')
         if not os.path.isfile(schemafile):
             raise BaseException("Missing JSONschema:file="+str(schemafile))
         with open(schemafile) as schema_file:

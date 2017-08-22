@@ -56,13 +56,13 @@ class CallUnits(unittest.TestCase):
         global configdata
         global appname
 
-        kargs = {}
-        kargs['datafile'] = os.path.dirname(__file__)+os.sep+'testdata.json'
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
+        kwargs = {}
+        kwargs['data_file'] = os.path.dirname(__file__)+os.sep+'testdata.json'
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
         
         # check generator replacement
-        kargs['pathlist'] = [ 
+        kwargs['path_list'] = [
             os.path.dirname(__file__),
             "$HOME/etc/",
             "~/etc/",
@@ -71,8 +71,8 @@ class CallUnits(unittest.TestCase):
             os.path.dirname(__file__)+os.sep+'..'+os.sep+'testsubdir1'+os.sep,
             ] 
         
-        kargs['validator'] = MODE_SCHEMA_OFF
-        configdata = ConfigData(appname,**kargs)
+        kwargs['validator'] = MODE_SCHEMA_OFF
+        configdata = ConfigData(appname,**kwargs)
 
     def testCase900(self):
         """Access some entries by constant references.

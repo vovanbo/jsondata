@@ -43,18 +43,18 @@ class CallUnits(unittest.TestCase):
         global appname
         global schemafile
 
-        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('datafile.json')
+        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('data_file.json')
         schemafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('schema.jsd')
 
-        kargs = {}
-        kargs['datafile'] = datafile
-        kargs['schema_file'] = schemafile
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        kwargs['data_file'] = datafile
+        kwargs['schema_file'] = schemafile
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
-        configdata = ConfigData(appname,**kargs)
+        configdata = ConfigData(appname,**kwargs)
 
         assert repr(configdata.data) == "{u'phoneNumber': [{u'type': u'home', u'number': u'212 555-1234'}, {u'type': u'office', u'number': u'313 444-555'}, {u'type': u'mobile', u'number': u'777 666-555'}], u'address': {u'city': u'New York', u'streetAddress': u'21 2nd Street', u'houseNumber': 12}}"
         pass
@@ -79,22 +79,22 @@ class CallUnits(unittest.TestCase):
         }
 
         # import settings
-        kargs = {}
-        kargs['schema'] = schema
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        kwargs['schema'] = schema
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
         # target container
         target,remaining = JSONPointer("/phoneNumber/-").get_node_exist(configdata.data)
 
         # do it...
-        ret = configdata.json_import(target, remaining[0], datafile, None, **kargs)
+        ret = configdata.json_import(target, remaining[0], datafile, None, **kwargs)
         assert ret == True
 
         # do it...
-        ret = configdata.json_import(target, remaining[0], datafile, None, **kargs)
+        ret = configdata.json_import(target, remaining[0], datafile, None, **kwargs)
         assert ret == True
 
         # expected - after branch_add_only the same state as before
@@ -128,22 +128,22 @@ class CallUnits(unittest.TestCase):
         }
 
         # import settings
-        kargs = {}
-        kargs['schema'] = schema
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_OFF
+        kwargs = {}
+        kwargs['schema'] = schema
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_OFF
 
         # target container
         target = JSONPointer("/phoneNumber/0").get_node(configdata.data)
 
         # do it...
-        ret = configdata.json_import(target, None, datafile, None, **kargs)
+        ret = configdata.json_import(target, None, datafile, None, **kwargs)
         assert ret == True
 
         # do it...
-        configdata.json_import(target, None, datafile, None, **kargs)
+        configdata.json_import(target, None, datafile, None, **kwargs)
 
         # expected - after branch_add_only the same state as before
         conf_dat = repr(configdata.data)
@@ -176,22 +176,22 @@ class CallUnits(unittest.TestCase):
         }
 
         # import settings
-        kargs = {}
-        kargs['schema'] = schema
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        kwargs['schema'] = schema
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
 
         # do it...
         target = JSONPointer("/phoneNumber/1").get_node(configdata.data)
-        ret = configdata.json_import(target, None, datafile, None, **kargs)
+        ret = configdata.json_import(target, None, datafile, None, **kwargs)
         assert ret == True
 
         # do it...
         target = JSONPointer("/phoneNumber/2").get_node(configdata.data)
-        ret = configdata.json_import(target, None, datafile, None, **kargs)
+        ret = configdata.json_import(target, None, datafile, None, **kwargs)
         assert ret == True
 
         # expected - after branch_add_only the same state as before
@@ -217,18 +217,18 @@ class CallUnits(unittest.TestCase):
         }
 
         # import settings
-        kargs = {}
-        #kargs['schema'] = schema
-        #kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        #kwargs['schema'] = schema
+        #kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
         # target container
         #target = configdata.data
         target = None
 
-        ret = configdata.json_export(target, datafile, **kargs)
+        ret = configdata.json_export(target, datafile, **kwargs)
         assert ret == True
 
-        ret = configdata.json_export(schema, schemafile, **kargs)
+        ret = configdata.json_export(schema, schemafile, **kwargs)
         assert ret == True
 
     def testCase910(self):
@@ -242,15 +242,15 @@ class CallUnits(unittest.TestCase):
         exdatafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('export.json')
         exschemafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('export.jsd')
 
-        kargs = {}
-        kargs['datafile'] = exdatafile
-        kargs['schema_file'] = exschemafile
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        kwargs['data_file'] = exdatafile
+        kwargs['schema_file'] = exschemafile
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
-        exporteddata = ConfigData(appname,**kargs)
+        exporteddata = ConfigData(appname,**kwargs)
 
         erepr = repr(exporteddata.data)
         #print erepr

@@ -1,8 +1,6 @@
 # -*- coding:utf-8   -*-
 """Common exceptions for the package 'jsondata'.
 """
-from jsondata.data import _interactive
-
 __author__ = 'Arno-Can Uestuensoez'
 __maintainer__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
@@ -118,15 +116,18 @@ class JSONDataAmbiguity(Exception):
     """ Error ambiguity of provided parameters."""
 
     def __init__(self, requested, *sources):
-        if _interactive:
-            s = "Ambiguious input for:\n  " + str(requested)
-            for sx in sources:
-                s += "\n    " + str(sx)
-        else:
-            s = "Ambiguious input for:" + str(requested)
-            for sx in sources:
-                s += ":" + str(sx)
-        Exception.__init__(self, s)
+        self.s = "Ambiguous input for:" + str(requested)
+        for sx in sources:
+            self.s += ":" + str(sx)
+        Exception.__init__(self, self.s)
 
     def __str__(self):
         return "JSONDataAmbiguity:" + self.s
+
+
+class JSONPatchException(Exception):
+    pass
+
+
+class JSONPatchItemException(JSONPatchException):
+    pass

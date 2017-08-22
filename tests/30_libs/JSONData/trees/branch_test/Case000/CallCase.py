@@ -31,13 +31,13 @@ class CallUnits(unittest.TestCase):
         global configdata
         global appname
 
-        kargs = {}
-        kargs['datafile'] = os.path.dirname(__file__)+os.sep+'datafile.json'
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_OFF
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data_file'] = os.path.dirname(__file__)+os.sep+'data_file.json'
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_OFF
+        configdata = ConfigData(appname,**kwargs)
 
         ref = """{u'phoneNumber': [{u'type': u'home', u'number': u'212 555-1234'}, {u'type': u'office', u'number': u'313 444-555'}, {u'type': u'mobile', u'number': u'777 666-555'}], u'address': {u'city': u'New York', u'streetAddress': u'21 2nd Street', u'houseNumber': 12}}"""
         assert ref == repr(configdata)

@@ -46,14 +46,14 @@ class CallUnits(unittest.TestCase):
         global configdata
         global appname
 
-        kargs = {}
-        kargs['datafile'] = os.path.dirname(__file__)+os.sep+'testdata.json'
-        kargs['schema_file'] = os.path.dirname(__file__)+os.sep+'testdata.jsd'
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_OFF
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data_file'] = os.path.dirname(__file__)+os.sep+'testdata.json'
+        kwargs['schema_file'] = os.path.dirname(__file__)+os.sep+'testdata.jsd'
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_OFF
+        configdata = ConfigData(appname,**kwargs)
         dummy4debugbreak = 0
         pass
 

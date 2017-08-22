@@ -29,21 +29,21 @@ class CallUnits(unittest.TestCase):
     # Create by object
     #
     def testCase000(self):
-        """Create a configuration object, load again by provided filelist.
+        """Create a configuration object, load again by provided file_list.
 
         Load parameters:
 
         * appname = 'jsondatacheck'
 
-        * kargs['filelist'] = ['testdata.json']
+        * kwargs['file_list'] = ['testdata.json']
 
-        * kargs['nodefaultpath'] = True
+        * kwargs['no_default_path'] = True
 
-        * kargs['nosubdata'] = True
+        * kwargs['nosubdata'] = True
 
-        * kargs['pathlist'] = os.path.dirname(__file__)
+        * kwargs['path_list'] = os.path.dirname(__file__)
 
-        * kargs['validator'] = ConfigData.MODE_SCHEMA_OFF
+        * kwargs['validator'] = ConfigData.MODE_SCHEMA_OFF
 
         """
         global jval
@@ -51,13 +51,13 @@ class CallUnits(unittest.TestCase):
         global configdata
         global appname
 
-        kargs = {}
-        kargs['filelist'] = ['testdata.json']
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['file_list'] = ['testdata.json']
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
+        configdata = ConfigData(appname,**kwargs)
         pass
 
     #

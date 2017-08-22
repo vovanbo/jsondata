@@ -42,17 +42,17 @@ class CallUnits(unittest.TestCase):
         global appname
         global schemafile
 
-        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('datafile.json')
+        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('data_file.json')
         schemafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('schema.jsd')
 
-        kargs = {}
-        kargs['datafile'] = datafile
-        kargs['schema_file'] = schemafile
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data_file'] = datafile
+        kwargs['schema_file'] = schemafile
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
+        configdata = ConfigData(appname,**kwargs)
         pass
 
     def testCase900(self):

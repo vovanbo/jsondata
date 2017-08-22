@@ -6,9 +6,9 @@
 Basic
 =====
 
-* **runselftest**
+* **run_self_test**
 
- .. autofunction:: runselftest
+ .. autofunction:: run_self_test
 
 * **printverbose**
 

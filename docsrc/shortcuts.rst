@@ -767,19 +767,19 @@ Methods
   +---------------------------------+----------------------------------------------------+--------------------+
   | [docs]                          | [source]                                           | [logic-operator]   |
   +=================================+====================================================+====================+
-  | `printDiff`_                    | `JSONTree.printDiff`_                              |                    |
+  | `print_diff`_                    | `JSONTree.print_diff`_                              |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
-  | `fetchDiff`_                    | `JSONTree.fetchDiff`_                              | diff               |
+  | `fetch_diff`_                    | `JSONTree.fetch_diff`_                              | diff               |
   +---------------------------------+----------------------------------------------------+--------------------+
 
 .. _JSONTree.__init__: _modules/jsondata/JSONTree.html#JSONTree.__init__
 .. _JSONTree: jsondata_m_tree.html#jsondata.JSONTree.JSONTree.__init__
 
-.. _JSONTree.printDiff: _modules/jsondata/JSONTree.html#JSONTree.printDiff
-.. _printDiff: jsondata_m_tree.html#jsondata.JSONTree.JSONTree.printDiff
+.. _JSONTree.print_diff: _modules/jsondata/JSONTree.html#JSONTree.print_diff
+.. _printDiff: jsondata_m_tree.html#jsondata.JSONTree.JSONTree.print_diff
 
-.. _JSONTree.fetchDiff: _modules/jsondata/JSONTree.html#JSONTree.fetchDiff
-.. _fetchDiff: jsondata_m_tree.html#jsondata.JSONTree.JSONTree.fetchDiff
+.. _JSONTree.fetch_diff: _modules/jsondata/JSONTree.html#JSONTree.fetch_diff
+.. _fetchDiff: jsondata_m_tree.html#jsondata.JSONTree.JSONTree.fetch_diff
 
 
 Runtime Test data
@@ -816,7 +816,7 @@ Functions
   +--------------------------------------+----------------------------------------------------+
   | [docs]                               | [source]                                           | 
   +======================================+====================================================+
-  | `runselftest`_                       | `Selftest.runselftest`_                            |
+  | `run_self_test`_                       | `Selftest.run_self_test`_                            |
   +--------------------------------------+----------------------------------------------------+
   | `printverbose`_                      | `Selftest.printverbose`_                           |
   +--------------------------------------+----------------------------------------------------+
@@ -835,8 +835,8 @@ Functions
   | `jsonpointer_selftest_data_schema`_  | `Selftest.jsonpointer_selftest_data_schema`_       |
   +--------------------------------------+----------------------------------------------------+
 
-.. _Selftest.runselftest: _modules/jsondata/Selftest.html#runselftest
-.. _runselftest: jsondata_m_selftest.html#jsondata.Selftest.runselftest
+.. _Selftest.run_self_test: _modules/jsondata/Selftest.html#run_self_test
+.. _runselftest: jsondata_m_selftest.html#jsondata.Selftest.run_self_test
 
 .. _Selftest.printverbose: _modules/jsondata/Selftest.html#printverbose
 .. _printverbose: jsondata_m_selftest.html#jsondata.Selftest.printverbose

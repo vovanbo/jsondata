@@ -59,13 +59,13 @@ class CallUnits(unittest.TestCase):
         global configdata
 
         # data
-        kargs = {}
-        kargs['data'] = jval
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_OFF
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data'] = jval
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_OFF
+        configdata = ConfigData(appname,**kwargs)
         assert jval == configdata.data
         pass
 

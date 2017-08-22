@@ -33,11 +33,14 @@ The module contains the following classes:
 The address of the the provided 'path' components for the entries are managed
 by the class JSONPointer in accordance to RFC6901. 
 """
+from enum import unique, Enum
+
 try:
     import ujson as myjson
 except ImportError:
     import json as myjson
 
+from .exceptions import JSONPatchException, JSONPatchItemException
 from .pointer import JSONPointer
 from .serializer import JSONDataSerializer
 from .data import SchemaMode
@@ -45,58 +48,35 @@ from .data import SchemaMode
 __author__ = 'Arno-Can Uestuensoez'
 __maintainer__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
-__copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
+__copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez " \
+                "@Ingenieurbuero Arno-Can Uestuensoez"
 __version__ = '0.2.18'
 __uuid__ = '63b597d6-4ada-4880-9f99-f5e0961351fb'
 
-#
-# Operations in accordance to RFC6902 
-RFC6902_ADD = 1
-RFC6902_COPY = 2
-RFC6902_MOVE = 3
-RFC6902_REMOVE = 4
-RFC6902_REPLACE = 5
-RFC6902_TEST = 6
 
-#
-# Mapping for reverse transformation
-op2str = {
-    RFC6902_ADD: "add",
-    RFC6902_COPY: "copy",
-    RFC6902_MOVE: "move",
-    RFC6902_REMOVE: "remove",
-    RFC6902_REPLACE: "replace",
-    RFC6902_TEST: "test"
-}
-
-#
-# Mapping for reverse transformation
-str2op = {
-    "add": RFC6902_ADD,
-    "copy": RFC6902_COPY,
-    "move": RFC6902_MOVE,
-    "remove": RFC6902_REMOVE,
-    "replace": RFC6902_REPLACE,
-    "test": RFC6902_TEST
-}
-
-
-def getOp(x):
-    """Converts input into corresponding enumeration.
+@unique
+class Op(str, Enum):
     """
-    if type(x) in (int, float,):
-        return int(x)
-    elif type(x) is (str, str,) and x.isdigit():
-        return int(x)
-    return str2op.get(x, None)
+    Operations in accordance to RFC6902
+    """
+    ADD = 'add'
+    COPY = 'copy'
+    MOVE = 'move'
+    REMOVE = 'remove'
+    REPLACE = 'replace'
+    TEST = 'test'
 
 
-class JSONPatchException(Exception):
-    pass
-
-
-class JSONPatchItemException(JSONPatchException):
-    pass
+def get_op(x):
+    """
+    Converts input into corresponding enumeration.
+    """
+    if isinstance(x, Op):
+        return x
+    elif isinstance(x, str):
+        return Op(x)
+    else:
+        return None
 
 
 class JSONPatchItem(object):
@@ -139,19 +119,16 @@ class JSONPatchItem(object):
         self.value = None
         self.src = None
 
-        self.op = getOp(op)
+        self.op = get_op(op)
         self.target = JSONPointer(target)
 
-        if self.op in (RFC6902_ADD, RFC6902_REPLACE, RFC6902_TEST):
+        if self.op in (Op.ADD, Op.REPLACE, Op.TEST):
             self.value = param
-
-        elif self.op is RFC6902_REMOVE:
+        elif self.op is Op.REMOVE:
             pass
-
-        elif self.op in (RFC6902_COPY, RFC6902_MOVE):
+        elif self.op in (Op.COPY, Op.MOVE):
             self.op = op
             self.src = param
-
         else:
             raise JSONPatchItemException("Unknown operation.")
 
@@ -187,27 +164,27 @@ class JSONPatchItem(object):
         """
         ret = True
 
-        if type(x) == dict:
+        if isinstance(x, dict):
             ret &= self.target == x['path']
         else:
             ret &= self.target == x['target']
 
-        if self.op == RFC6902_ADD:
-            ret &= x['op'] in ('add', RFC6902_ADD)
+        if self.op is Op.ADD:
+            ret &= x['op'] == Op.ADD
             ret &= self.value == x['value']
-        elif self.op == RFC6902_REMOVE:
-            ret &= x['op'] in ('remove', RFC6902_REMOVE)
-        elif self.op == RFC6902_REPLACE:
-            ret &= x['op'] in ('replace', RFC6902_REPLACE)
+        elif self.op is Op.REMOVE:
+            ret &= x['op'] == Op.REMOVE
+        elif self.op is Op.REPLACE:
+            ret &= x['op'] == Op.REPLACE
             ret &= self.value == x['value']
-        elif self.op == RFC6902_MOVE:
-            ret &= x['op'] in ('move', RFC6902_MOVE)
+        elif self.op is Op.MOVE:
+            ret &= x['op'] == Op.MOVE
             ret &= self.src == x['from']
-        elif self.op == RFC6902_COPY:
-            ret &= x['op'] in ('copy', RFC6902_COPY)
+        elif self.op is Op.COPY:
+            ret &= x['op'] == Op.COPY
             ret &= self.src == x['from']
-        elif self.op == RFC6902_TEST:
-            ret &= x['op'] in ('test', RFC6902_TEST)
+        elif self.op is Op.TEST:
+            ret &= x['op'] == Op.TEST
             ret &= self.value == x['value']
 
         return ret
@@ -250,39 +227,38 @@ class JSONPatchItem(object):
     def __repr__(self):
         """Prints the patch string in accordance to RFC6901.
         """
-        ret = "{'op': '" + str(op2str[self.op]) + "', 'path': '" + str(
-            self.target) + "'"
-        if self.op in (RFC6902_ADD, RFC6902_REPLACE, RFC6902_TEST):
-            if type(self.value) in (int, float):
-                ret += ", 'value': " + str(self.value)
+        ret = "{'op': '%s', 'path': '%s'" % (self.op.value, self.target)
+        if self.op in (Op.ADD, Op.REPLACE, Op.TEST):
+            if isinstance(self.value, (int, float)):
+                ret += ", 'value': %s" % self.value
             elif type(self.value) in (dict, list):
-                ret += ", 'value': " + repr(self.value)
+                ret += ", 'value': %r" % self.value
             else:
-                ret += ", 'value': '" + str(self.value) + "'"
+                ret += ", 'value': '%s'" % self.value
 
-        elif self.op is RFC6902_REMOVE:
+        elif self.op is Op.REMOVE:
             pass
 
-        elif self.op in (RFC6902_COPY, RFC6902_MOVE):
-            ret += ", 'from': '" + str(self.src) + "'"
+        elif self.op in (Op.COPY, Op.MOVE):
+            ret += ", 'from': '%s'" % self.src
         ret += "}"
         return ret
 
     def __str__(self):
         """Prints the patch string in accordance to RFC6901.
         """
-        ret = '{"op": "' + op2str[self.op] + '", "target": "' + str(self.target)
-        if self.op in (RFC6902_ADD, RFC6902_REPLACE, RFC6902_TEST):
+        ret = "{'op': '%s', 'target': '%s'" % (self.op.value, self.target)
+        if self.op in (Op.ADD, Op.REPLACE, Op.TEST):
             if type(self.value) in (int, float):
-                ret += '", "value": ' + str(self.value) + ' }'
+                ret += '", "value": %s }' % self.value
             else:
-                ret += '", "value": "' + str(self.value) + '" }'
+                ret += '", "value": "%s" }' % self.value
 
-        elif self.op is RFC6902_REMOVE:
+        elif self.op is Op.REMOVE:
             ret += '" }'
 
-        elif self.op in (RFC6902_COPY, RFC6902_MOVE):
-            ret += '", "src": "' + str(self.src) + '" }'
+        elif self.op in (Op.COPY, Op.MOVE):
+            ret += '", "src": "%s" }' % self.src
         return ret
 
     def apply(self, jsondata):
@@ -299,40 +275,37 @@ class JSONPatchItem(object):
             JSONPatchException:
         """
 
-        if self.op is RFC6902_ADD:
+        if self.op is Op.ADD:
             # n,b = self.target.get_node_and_child(jsondata)
 
-            nbranch = jsondata.branch_add(
-                self.target,  # target pointer
-                None,
-                self.value)  # value
+            nbranch = jsondata.branch_add(self.target, None, self.value)
             return True
 
         if isinstance(jsondata, JSONDataSerializer):
             jsondata = jsondata.data
 
-        if self.op is RFC6902_REPLACE:
+        if self.op is Op.REPLACE:
             n, b = self.target.get_node_and_child(jsondata)
             n[str(b)] = str(self.value)
 
-        elif self.op is RFC6902_TEST:
+        elif self.op is Op.TEST:
             n, b = JSONPointer(self.target, False).get_node_and_child(jsondata)
-            if type(self.value) is str:
+            if isinstance(self.value, str):
                 self.value = str(self.value)
-            if type(n) is list:
+            if isinstance(n, list):
                 return n[b] == self.value
             return n[str(b)] == self.value
-        elif self.op is RFC6902_COPY:
+        elif self.op is Op.COPY:
             val = JSONPointer(self.src).get_node_or_value(jsondata)
             tn, tc = self.target.get_node_and_child(jsondata)
             tn[tc] = val
 
-        elif self.op is RFC6902_MOVE:
+        elif self.op is Op.MOVE:
             val = JSONPointer(self.src).get_node_or_value(jsondata)
             sn, sc = JSONPointer(self.src).get_node_and_child(jsondata)
             sn.pop(sc)
             tn, tc = self.target.get_node_and_child(jsondata)
-            if type(tn) is list:
+            if isinstance(tn, list):
                 if len(tn) <= tc:
                     tn.append(val)
                 else:
@@ -340,7 +313,7 @@ class JSONPatchItem(object):
             else:
                 tn[tc] = val
 
-        elif self.op is RFC6902_REMOVE:
+        elif self.op is Op.REMOVE:
             n, b = self.target.get_node_and_child(jsondata)
             n.pop(b)
 
@@ -349,21 +322,20 @@ class JSONPatchItem(object):
     def repr_export(self):
         """Prints the patch string for export in accordance to RFC6901.
         """
-        ret = '{"op": "' + str(op2str[self.op]) + '", "path": "' + str(
-            self.target) + '"'
-        if self.op in (RFC6902_ADD, RFC6902_REPLACE, RFC6902_TEST):
-            if type(self.value) in (int, float):
-                ret += ', "value": ' + str(self.value)
-            elif type(self.value) in (dict, list):
-                ret += ', "value": ' + str(self.value)
+        ret = '{"op": "%s", "path": "%s"' % (self.op.value, self.target)
+        if self.op in (Op.ADD, Op.REPLACE, Op.TEST):
+            if isinstance(self.value, (int, float)):
+                ret += ', "value": %s' % self.value
+            elif isinstance(self.value, (dict, list)):
+                ret += ', "value": %s' % self.value
             else:
-                ret += ', "value": "' + str(self.value) + '"'
+                ret += ', "value": "%s"' % self.value
 
-        elif self.op is RFC6902_REMOVE:
+        elif self.op is Op.REMOVE:
             pass
 
-        elif self.op in (RFC6902_COPY, RFC6902_MOVE):
-            ret += ', "from": "' + str(self.src) + '"'
+        elif self.op in (Op.COPY, Op.MOVE):
+            ret += ', "from": "%s"' % self.src
         ret += '}'
         return ret
 
@@ -372,37 +344,37 @@ class JSONPatchItemRaw(JSONPatchItem):
     """Adds native patch strings or an unsorted dict for RFC6902.
     """
 
-    def __init__(self, patchstring):
-        """Parse a raw patch string in accordance to RFC6902.
+    def __init__(self, patch_string):
         """
-        if type(patchstring) in (str, str,):
-            ps = myjson.loads(patchstring)
+        Parse a raw patch string in accordance to RFC6902.
+        """
+        if isinstance(patch_string, str):
+            ps = myjson.loads(patch_string)
             sx = myjson.dumps(ps)
             # print "<"+str(sx)+">"
-            # print "<"+str(patchstring)+">"
+            # print "<"+str(patch_string)+">"
             # l0 = len(sx.replace(" ",""))
-            # l1 = len(patchstring.replace(" ",""))
-            if len(sx.replace(" ", "")) != len(patchstring.replace(" ", "")):
+            # l1 = len(patch_string.replace(" ",""))
+            if len(sx.replace(" ", "")) != len(patch_string.replace(" ", "")):
                 raise JSONPatchItemException(
-                    "Repetition is not compliant to RFC6902:" + str(
-                        patchstring))
-        elif type(patchstring) is dict:
-            ps = patchstring
+                    "Repetition is not compliant to RFC6902: %s" % patch_string
+                )
+        elif isinstance(patch_string, dict):
+            ps = patch_string
         else:
             raise JSONPatchItemException(
-                "Type not supported:" + str(patchstring))
+                "Type not supported: %s" % patch_string
+            )
 
         try:
             target = ps['path']
-            op = getOp(ps['op'])
+            op = get_op(ps['op'])
 
-            if op in (RFC6902_ADD, RFC6902_REPLACE, RFC6902_TEST):
+            if op in (Op.ADD, Op.REPLACE, Op.TEST):
                 param = ps['value']
-
-            elif op is RFC6902_REMOVE:
+            elif op is Op.REMOVE:
                 param = None
-
-            elif op in (RFC6902_COPY, RFC6902_MOVE):
+            elif op in (Op.COPY, Op.MOVE):
                 param = ps['from']
         except Exception as e:
             raise JSONPatchItemException(e)
@@ -411,10 +383,11 @@ class JSONPatchItemRaw(JSONPatchItem):
 
 
 class JSONPatchFilter(object):
-    """Filtering capabilities on the entries of patch lists.
+    """
+    Filtering capabilities on the entries of patch lists.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, prefix=None, branch=None):
         """
         Args:
             **kwargs: Filter parameters:
@@ -444,25 +417,19 @@ class JSONPatchFilter(object):
         Raises:
             JSONPointerException:
         """
-        for k, v in kwargs:
-            if k == 'prefix':
-                self.prefix = v
-            elif k == 'branch':
-                self.branch = v
-
-        pass
+        self.prefix = prefix
+        self.branch = branch
 
     def __eq__(self, x):
-
         pass
 
     def __ne__(self, x):
-
         pass
 
 
 class JSONPatch(object):
-    """ Representation of a JSONPatch task list for RFC6902.
+    """
+    Representation of a JSONPatch task list for RFC6902.
     
     Contains the defined methods from standards:
 
@@ -478,8 +445,8 @@ class JSONPatch(object):
         
     """
 
-    def __init__(self):
-        self.patch = []
+    def __init__(self, patch=None):
+        self.patch = patch or []
         """List of patch tasks. """
 
         self.deep = False
@@ -490,7 +457,8 @@ class JSONPatch(object):
     #
 
     def __add__(self, x=None):
-        """Creates a copy of 'self' and adds a patch jobs to the task queue.
+        """
+        Creates a copy of 'self' and adds a patch jobs to the task queue.
         """
         if not x:
             raise JSONPatchException("Missing patch entry/patch")
@@ -502,7 +470,8 @@ class JSONPatch(object):
             raise JSONPatchException("Unknown input" + type(x))
 
     def __call__(self, j, x=None):
-        """Evaluates the related task for the provided index.
+        """
+        Evaluates the related task for the provided index.
 
         Args:
             x: Task index.
@@ -526,7 +495,8 @@ class JSONPatch(object):
         return 1, [0]
 
     def __eq__(self, x):
-        """Compares this pointer with x.
+        """
+        Compares this pointer with x.
 
         Args:
             x: A valid Pointer.
@@ -549,7 +519,8 @@ class JSONPatch(object):
         return match == 0
 
     def __getitem__(self, key):
-        """Support of slices, for 'iterator' refer to self.__iter__.
+        """
+        Support of slices, for 'iterator' refer to self.__iter__.
         
             #. self[key]
             
@@ -563,7 +534,8 @@ class JSONPatch(object):
         return self.patch[key]
 
     def __iadd__(self, x=None):
-        """Adds patch jobs to the task queue in place.
+        """
+        Adds patch jobs to the task queue in place.
         """
         if not x:
             raise JSONPatchException("Missing patch entry/patch")
@@ -576,7 +548,8 @@ class JSONPatch(object):
         return self
 
     def __isub__(self, x):
-        """Removes the patch job from the task queue in place. 
+        """
+        Removes the patch job from the task queue in place.
         
         Removes one of the following type(x) variants:
         
@@ -601,17 +574,20 @@ class JSONPatch(object):
         return self
 
     def __iter__(self):
-        """Provides an iterator foreseen for large amounts of in-memory patches.
+        """
+        Provides an iterator foreseen for large amounts of in-memory patches.
         """
         return iter(self.patch)
 
     def __len__(self):
-        """The number of outstanding patches.
+        """
+        The number of outstanding patches.
         """
         return len(self.patch)
 
     def __ne__(self, x):
-        """Compares this pointer with x.
+        """
+        Compares this pointer with x.
 
         Args:
             x: A valid Pointer.
@@ -625,31 +601,34 @@ class JSONPatch(object):
         return not self.__eq__(x)
 
     def __repr__(self):
-        """Prints the representation format of a JSON patch list.
+        """
+        Prints the representation format of a JSON patch list.
         """
         ret = "["
         if self.patch:
             if len(self.patch) > 1:
                 for p in self.patch[:-1]:
-                    ret += repr(p) + ", "
+                    ret += '%r,' % p
             ret += repr(self.patch[-1])
         ret += "]"
         return str(ret)
 
     def __str__(self):
-        """Prints the display format.
+        """
+        Prints the display format.
         """
         ret = "[\n"
         if self.patch:
             if len(self.patch) > 1:
                 for p in self.patch[:-1]:
-                    ret += "  " + repr(p) + ",\n"
-            ret += "  " + repr(self.patch[-1]) + "\n"
+                    ret += "  %r,\n" % p
+            ret += "  %r\n" % self.patch[-1]
         ret += "]"
         return str(ret)
 
     def __sub__(self, x):
-        """Removes the patch job from the task queue. 
+        """
+        Removes the patch job from the task queue.
         
         Removes one of the following type(x) variants:
         
@@ -679,10 +658,11 @@ class JSONPatch(object):
         return ret
 
     def apply(self, jsondata):
-        """Applies the JSONPatch task.
+        """
+        Applies the JSONPatch task.
 
         Args:
-            jsondata: JSON data the joblist has to be applied on.
+            jsondata: JSON data the job list has to be applied on.
 
         Returns:
             Returns a tuple of:
@@ -700,14 +680,12 @@ class JSONPatch(object):
         return len(self.patch), status
 
     def get(self, x=None):
-        """
-        """
         ret = self.patch
 
         # FIXME:
         return ret
 
-    def patch_export(self, patchfile, schema=None, **kargs):
+    def patch_export(self, patch_file, schema=None, **kwargs):
         """Exports the current task list.
         
         Provided formats are:
@@ -717,11 +695,11 @@ class JSONPatch(object):
             RFC6902
 
         Args:
-            patchfile:
+            patch_file:
                 JSON patch for export.
             schema:
                 JSON-Schema for validation of the patch list.
-            **kargs:
+            **kwargs:
                 validator: [default, draft3, off, ]
                     Sets schema validator for the data file.
                     The values are: default=validate, draft3=Draft3Validator,
@@ -736,25 +714,28 @@ class JSONPatch(object):
 
         """
         try:
-            with open(patchfile, 'w') as fp:
+            with open(patch_file, 'w') as fp:
                 fp.writelines(self.repr_export())
         except Exception as e:
             raise JSONPatchException("open-" + str(e), "data.dump",
-                                     str(patchfile))
+                                     str(patch_file))
         return True
 
-    def patch_import(self, patchfile, schemafile=None, **kargs):
-        """Imports a task list.
+    def patch_import(self, patch_file, schema_file=None, appname='jsonpatch',
+                     validator=SchemaMode.OFF, no_default_path=True,
+                     path_list=None,):
+        """
+        Imports a task list.
 
         Supports the formats:
             RFC6902
 
         Args:
-            patchfile:
+            patch_file:
                 JSON patch filename containing the list of patch operations.
-            schemafile:
+            schema_file:
                 JSON-Schema filename for validation of the patch list.
-            **kargs:
+            **kwargs:
                 validator: [default, draft3, off, ]
                     Sets schema validator for the data file.
                     The values are: default=validate, draft3=Draft3Validator,
@@ -768,28 +749,19 @@ class JSONPatch(object):
             JSONPatchException:
 
         """
-        appname = 'jsonpatch'
-        kargs = {}
-        kargs['datafile'] = patchfile
-        kargs['schema_file'] = schemafile
-        kargs['validator'] = SchemaMode.OFF
-        for k, v in list(kargs.items()):
-            if k == 'nodefaultpath':
-                kargs['nodefaultpath'] = True
-            elif k == 'pathlist':
-                kargs['pathlist'] = v
-            elif k == 'validator':
-                kargs['validator'] = v
-            elif k == 'appname':
-                appname = v
-        patchdata = JSONDataSerializer(appname, **kargs)
+        patch_data = JSONDataSerializer(
+            appname, data_file=patch_file, schema_file=schema_file,
+            validator=validator, no_default_path=no_default_path,
+            path_list=path_list
+        )
 
-        for pi in patchdata.data:
+        for pi in patch_data.data:
             self += JSONPatchItemRaw(pi)
         return True
 
     def repr_export(self):
-        """Prints the export representation format of a JSON patch list.
+        """
+        Prints the export representation format of a JSON patch list.
         """
         ret = "["
         if self.patch:

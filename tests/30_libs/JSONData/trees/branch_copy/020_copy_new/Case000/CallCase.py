@@ -41,18 +41,18 @@ class CallUnits(unittest.TestCase):
         global appname
         global schemafile
 
-        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('datafile.json')
+        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('data_file.json')
         schemafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('schema.jsd')
 
-        kargs = {}
-        kargs['datafile'] = datafile
-        kargs['schema_file'] = schemafile
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        kwargs['data_file'] = datafile
+        kwargs['schema_file'] = schemafile
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
-        configdata = ConfigData(appname,**kargs)
+        configdata = ConfigData(appname,**kwargs)
 
         assert repr(configdata.data) == "{u'phoneNumber': [{u'type': u'home', u'number': u'212 555-1234'}, {u'type': u'office', u'number': u'313 444-555'}, {u'type': u'mobile', u'number': u'777 666-555'}], u'address': {u'city': u'New York', u'streetAddress': u'21 2nd Street', u'houseNumber': 12}}"
         pass
@@ -90,15 +90,15 @@ class CallUnits(unittest.TestCase):
         datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('branch0.json')
 
         # import settings
-        kargs = {}
-        kargs['schema'] = schema
-        kargs['nodefaultpath'] = True
-        kargs['datafile'] = datafile
-        kargs['nosubdata'] = True
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        kwargs['schema'] = schema
+        kwargs['no_default_path'] = True
+        kwargs['data_file'] = datafile
+        kwargs['nosubdata'] = True
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
         # load branch data into memory
-        branchdata = ConfigData(appname,**kargs)
+        branchdata = ConfigData(appname,**kwargs)
         assert repr(branchdata.data) == """{u'phoneNumber': [{u'type': u'home', u'number': u'111 222-333'}]}"""
 
 
@@ -149,15 +149,15 @@ class CallUnits(unittest.TestCase):
         datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('branch1.json')
 
         # import settings
-        kargs = {}
-        kargs['schema'] = schema
-        kargs['nodefaultpath'] = True
-        kargs['datafile'] = datafile
-        kargs['nosubdata'] = True
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        kwargs['schema'] = schema
+        kwargs['no_default_path'] = True
+        kwargs['data_file'] = datafile
+        kwargs['nosubdata'] = True
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
         # load branch data into memory
-        branchdata = ConfigData(appname,**kargs)
+        branchdata = ConfigData(appname,**kwargs)
         assert repr(branchdata.data) == """{u'type': u'home2', u'number': u'222 222-333'}"""
 
 
@@ -205,15 +205,15 @@ class CallUnits(unittest.TestCase):
         datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('branch2.json')
 
         # import settings
-        kargs = {}
-        kargs['schema'] = schema
-        kargs['nodefaultpath'] = True
-        kargs['datafile'] = datafile
-        kargs['nosubdata'] = True
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        kwargs['schema'] = schema
+        kwargs['no_default_path'] = True
+        kwargs['data_file'] = datafile
+        kwargs['nosubdata'] = True
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
         # load branch data into memory
-        branchdata = ConfigData(appname,**kargs)
+        branchdata = ConfigData(appname,**kwargs)
         assert repr(branchdata.data) == """{u'type': u'home2', u'number': u'333 222-333'}"""
 
 
@@ -261,15 +261,15 @@ class CallUnits(unittest.TestCase):
 
         # import settings
         branchfile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('branch2.json')
-        kargs = {}
-        kargs['schema'] = schema
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['datafile'] = branchfile
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        kwargs['schema'] = schema
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['data_file'] = branchfile
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
-        branchdata = ConfigData(appname,**kargs)
+        branchdata = ConfigData(appname,**kwargs)
         assert repr(branchdata.data) == """{u'type': u'home2', u'number': u'333 222-333'}"""
 
         # target container
@@ -320,12 +320,12 @@ class CallUnits(unittest.TestCase):
         }
 
         # import settings
-        kargs = {}
-        kargs['schema'] = schema
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
+        kwargs = {}
+        kwargs['schema'] = schema
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
         # target container
         target = configdata.data['phoneNumber']
@@ -333,7 +333,7 @@ class CallUnits(unittest.TestCase):
         # do it...
         datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('branch2.json')
         try:
-            ret = configdata.json_import(target, None, datafile, None, **kargs)
+            ret = configdata.json_import(target, None, datafile, None, **kwargs)
         except JSONDataNodeType as e:
             pass
         try:

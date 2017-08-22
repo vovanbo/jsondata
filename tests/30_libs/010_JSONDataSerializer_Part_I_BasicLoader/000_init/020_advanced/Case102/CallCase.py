@@ -76,23 +76,23 @@ class CallUnits(unittest.TestCase):
     # Create by object
     #
     def testCase050(self):
-        """Create a configuration object, load again by provided filelist.
+        """Create a configuration object, load again by provided file_list.
 
         Load parameters:
 
         * appname = 'jsondatacheck'
 
-        * kargs['datafile'] = datafile
+        * kwargs['data_file'] = data_file
 
-        * kargs['schema_file'] = schema_file
+        * kwargs['schema_file'] = schema_file
 
-        * kargs['nodefaultpath'] = True
+        * kwargs['no_default_path'] = True
 
-        * kargs['nosubdata'] = True
+        * kwargs['nosubdata'] = True
 
-        * kargs['pathlist'] = os.path.dirname(__file__)
+        * kwargs['path_list'] = os.path.dirname(__file__)
 
-        * kargs['validator'] = ConfigData.MODE_SCHEMA_DRAFT3
+        * kwargs['validator'] = ConfigData.MODE_SCHEMA_DRAFT3
 
         """
         global jval
@@ -104,14 +104,14 @@ class CallUnits(unittest.TestCase):
         datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('testdata.json')
         schemafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('schema.jsd')
 
-        kargs = {}
-        kargs['datafile'] = datafile
-        kargs['schema_file'] = schemafile
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data_file'] = datafile
+        kwargs['schema_file'] = schemafile
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
+        configdata = ConfigData(appname,**kwargs)
         pass
 
     #

@@ -6,10 +6,10 @@
 Functions
 =========
 
-getOp
+get_op
 -----
 
-.. autofunction:: getOp
+.. autofunction:: get_op
 
 
 JSONPatch

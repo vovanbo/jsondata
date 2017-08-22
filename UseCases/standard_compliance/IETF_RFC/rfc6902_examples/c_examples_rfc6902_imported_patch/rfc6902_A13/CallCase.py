@@ -25,7 +25,8 @@ except Exception as e:
 try:
     from jsondata.serializer import JSONDataSerializer as ConfigData
     from jsondata.serializer import MODE_SCHEMA_OFF
-    from jsondata.patch import JSONPatch,JSONPatchItem,JSONPatchItemRaw,JSONPatchItemException
+    from jsondata.patch import JSONPatch,JSONPatchItem,JSONPatchItemRaw
+    from jsondata.exceptions import JSONPatchItemException
     from jsondata.pointer import JSONPointer
 except Exception as e:
     print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
@@ -45,13 +46,13 @@ class CallUnits(unittest.TestCase):
         global configdata
         global appname
 
-        kargs = {}
-        kargs['datafile'] = os.path.dirname(__file__)+os.sep+'data.json'
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_OFF
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data_file'] = os.path.dirname(__file__)+os.sep+'data.json'
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_OFF
+        configdata = ConfigData(appname,**kwargs)
 
         ref = repr(configdata)
         ref = """{u'foo': u'bar'}"""

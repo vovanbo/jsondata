@@ -36,7 +36,7 @@ class CallUnits(unittest.TestCase):
         global datafile
 
         # data
-        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('datafile.json')
+        datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('data_file.json')
         if not os.path.isfile(datafile):
             raise BaseException("Missing JSON data:file="+str(datafile))
         # load data
@@ -75,14 +75,14 @@ class CallUnits(unittest.TestCase):
         global appname
         global schemafile
 
-        kargs = {}
-        kargs['datafile'] = datafile
-        kargs['schema_file'] = schemafile
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_OFF
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data_file'] = datafile
+        kwargs['schema_file'] = schemafile
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_OFF
+        configdata = ConfigData(appname,**kwargs)
 
     def testCase030(self):
         """Replace object with a new including validator - ConfigData.MODE_SCHEMA_DRAFT4.
@@ -93,14 +93,14 @@ class CallUnits(unittest.TestCase):
         global appname
         global schemafile
 
-        kargs = {}
-        kargs['datafile'] = datafile
-        kargs['schema_file'] = schemafile
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data_file'] = datafile
+        kwargs['schema_file'] = schemafile
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
+        configdata = ConfigData(appname,**kwargs)
 
     def testCase040(self):
         """Replace object with a new including validator - ConfigData.MODE_SCHEMA_DRAFT3.
@@ -111,14 +111,14 @@ class CallUnits(unittest.TestCase):
         global appname
         global schemafile
 
-        kargs = {}
-        kargs['datafile'] = datafile
-        kargs['schema_file'] = schemafile
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_DRAFT3
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data_file'] = datafile
+        kwargs['schema_file'] = schemafile
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = MODE_SCHEMA_DRAFT3
+        configdata = ConfigData(appname,**kwargs)
 
 
     def testCase900(self):

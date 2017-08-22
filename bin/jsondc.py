@@ -51,7 +51,7 @@ OPTIONS:
      default: jsondc.json
   -D, --print-data
      Pretty print data.
-  -f --filelist= <list-of-filenames>
+  -f --file_list= <list-of-filenames>
      List of colon seperated filenames to be searched for. These 
      could be relative pathnames too.
      default:=[<appname>.json]
@@ -66,10 +66,10 @@ OPTIONS:
   -N, --no-sub-data
      Supress load of sub-data files, e.g. from plugins.
      default: False
-  -p, --pathlist= <search-path-JSON-data>
+  -p, --path_list= <search-path-JSON-data>
      Search path for JSON data file(s), standard list for current platform.
      default:= ../dirname(__file__)/:dirname(__file__)/:/etc/:$HOME/
-  -P, --plugins-pathlist= <search-path-JSON-data-branches>
+  -P, --plugins-path_list= <search-path-JSON-data-branches>
      Search path for JSON data file(s) to be inserted as additional branches,
      standard list for current platform.
      default:= ../dirname(__file__)/:dirname(__file__)/:/etc/:$HOME/
@@ -147,8 +147,8 @@ try:
     _longopts = [
         "help","debug","verbose","version","Version",
         "appname=", "configfile=","schema_file=","validator=","no-default-path",
-        "no-sub-data","pathlist=","plugins-pathlist=","print-schema","print-data",
-        "interactive", "filelist=",
+        "no-sub-data","path_list=","plugins-path_list=","print-schema","print-data",
+        "interactive", "file_list=",
         "selftest", "json="
     ]
     _opts, _args = getopt.getopt(sys.argv[1:], "a:c:f:j:is:np:P:NDShdvV:", _longopts)
@@ -171,8 +171,8 @@ for _o,_a in _opts:
         _kargs['configfile'] = _a
     elif _o in ("-D","--print-data"):
         _kargs['printdata'] = True
-    elif _o in ("-f","--filelist"):
-        _kargs['filelist'] = _a.split(":")
+    elif _o in ("-f","--file_list"):
+        _kargs['file_list'] = _a.split(":")
 
     elif _o in ("-j","--json"):
         if _a == 'ujson':
@@ -185,12 +185,12 @@ for _o,_a in _opts:
         #i = importlib.import_module(_myjson)
 
     elif _o in ("-n","--no-default-path"):
-        _kargs['nodefaultpath'] = True
+        _kargs['no_default_path'] = True
     elif _o in ("-N","--no-sub-data"):
         _kargs['nosubdata'] = True
-    elif _o in ("-p","--pathlist"):
-        _kargs['pathlist'] = _a
-    elif _o in ("-P","--plugins-pathlist"):
+    elif _o in ("-p","--path_list"):
+        _kargs['path_list'] = _a
+    elif _o in ("-P","--plugins-path_list"):
         _kargs['pluginspathlist'] = _a
     elif _o in ("-s","--schema_file"):
         _kargs['schema_file'] = _a
@@ -228,7 +228,7 @@ for _o,_a in _opts:
 
 if _selftest:
     try:
-        from jsondata.Selftest import runselftest
+        from jsondata.self_test import run_self_test
     except Exception as e:
         print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+"\n")
         print("\n#sys.path="+str(sys.path)+"\n#\n")
@@ -237,7 +237,7 @@ if _selftest:
     _appname = "selftest"
     if _verbose>0:
         _kargs['_verbose'] = _verbose 
-    stest = runselftest(_appname,**_kargs)
+    stest = run_self_test(_appname, **_kargs)
 else:
     if _verbose>0:
         _kargs['verbose'] = True 

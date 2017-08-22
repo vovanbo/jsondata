@@ -53,15 +53,15 @@ __init__
 
 .. automethod:: JSONTree.__init__
 
-printDiff
+print_diff
 ^^^^^^^^^
 
-.. automethod:: JSONTree.printDiff
+.. automethod:: JSONTree.print_diff
 
-fetchDiff
+fetch_diff
 ^^^^^^^^^
 
-.. automethod:: JSONTree.fetchDiff
+.. automethod:: JSONTree.fetch_diff
 
 
 Exceptions

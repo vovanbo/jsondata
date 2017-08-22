@@ -36,16 +36,16 @@ Import-Document
    #
    # set some control keys for the import, refer to API 
    #
-   kargs = {}
-   kargs['datafile'] = datafile
-   kargs['schemafile'] = schemafile
-   kargs['nodefaultpath'] = True
-   kargs['nosubdata'] = True
-   kargs['pathlist'] = os.path.dirname(__file__)
-   kargs['validator'] = MODE_SCHEMA_DRAFT4
+   kwargs = {}
+   kwargs['datafile'] = datafile
+   kwargs['schemafile'] = schemafile
+   kwargs['nodefaultpath'] = True
+   kwargs['nosubdata'] = True
+   kwargs['pathlist'] = os.path.dirname(__file__)
+   kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
    # load JSON data, with validation by draft4
-   configdata = ConfigData(appname,**kargs)
+   configdata = ConfigData(appname,**kwargs)
 
 
 Import-Branch
@@ -65,12 +65,12 @@ Import-Branch
    }
 
    # import settings
-   kargs = {}
-   kargs['schema'] = schema
-   kargs['nodefaultpath'] = True
-   kargs['nosubdata'] = True
-   kargs['pathlist'] = os.path.dirname(__file__)
-   kargs['validator'] = MODE_SCHEMA_DRAFT4
+   kwargs = {}
+   kwargs['schema'] = schema
+   kwargs['nodefaultpath'] = True
+   kwargs['nosubdata'] = True
+   kwargs['pathlist'] = os.path.dirname(__file__)
+   kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
    # target container
    target = configdata.data['phoneNumber']
@@ -79,7 +79,7 @@ Import-Branch
    datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('branch1.json')
 
    # use '*args' here
-   ret = configdata.json_import(target, '-', datafile, None, **kargs)
+   ret = configdata.json_import(target, '-', datafile, None, **kwargs)
    assert ret == True
 
 

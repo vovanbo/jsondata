@@ -74,11 +74,11 @@ class CallUnits(unittest.TestCase):
         global configdata
 
         # data
-        kargs = {}
-        kargs['data'] = jval
-        kargs['schema'] = sval
-        kargs['validator'] = MODE_SCHEMA_DRAFT4
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data'] = jval
+        kwargs['schema'] = sval
+        kwargs['validator'] = MODE_SCHEMA_DRAFT4
+        configdata = ConfigData(appname,**kwargs)
         assert jval == configdata.data
         pass
 
@@ -90,11 +90,11 @@ class CallUnits(unittest.TestCase):
         global configdata
 
         # data
-        kargs = {}
-        kargs['data'] = jval
-        kargs['schema'] = sval
-        kargs['validator'] = MODE_SCHEMA_DRAFT3
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data'] = jval
+        kwargs['schema'] = sval
+        kwargs['validator'] = MODE_SCHEMA_DRAFT3
+        configdata = ConfigData(appname,**kwargs)
         assert jval == configdata.data
         pass
 

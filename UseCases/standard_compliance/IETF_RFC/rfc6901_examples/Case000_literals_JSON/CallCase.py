@@ -52,10 +52,10 @@ class CallUnits(unittest.TestCase):
         global appname
 
         kwargs = {}
-        kwargs['datafile'] = os.path.dirname(__file__) + os.sep + 'rfc6901.json'
-        kwargs['nodefaultpath'] = True
+        kwargs['data_file'] = os.path.dirname(__file__) + os.sep + 'rfc6901.json'
+        kwargs['no_default_path'] = True
         kwargs['nosubdata'] = True
-        kwargs['pathlist'] = os.path.dirname(__file__)
+        kwargs['path_list'] = os.path.dirname(__file__)
         kwargs['validator'] = SchemaMode.OFF
         configdata = ConfigData(appname, **kwargs)
 

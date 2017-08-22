@@ -25,20 +25,20 @@ appname = _APPNAME
 #
 class CallUnits(unittest.TestCase):
 
-    def __init__(self,*args,**kargs):
-        super(CallUnits,self).__init__(*args,**kargs)
+    def __init__(self,*args,**kwargs):
+        super(CallUnits,self).__init__(*args,**kwargs)
         
     def setUp(self):
         global configdata
         global appname
 
-        kargs = {}
-        kargs['datafile'] = os.path.dirname(__file__)+os.sep+'rfc7159_13_02.json'
-        kargs['nodefaultpath'] = True
-        kargs['nosubdata'] = True
-        kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = SchemaMode.OFF
-        configdata = ConfigData(appname,**kargs)
+        kwargs = {}
+        kwargs['data_file'] = os.path.dirname(__file__)+os.sep+'rfc7159_13_02.json'
+        kwargs['no_default_path'] = True
+        kwargs['nosubdata'] = True
+        kwargs['path_list'] = os.path.dirname(__file__)
+        kwargs['validator'] = SchemaMode.OFF
+        configdata = ConfigData(appname,**kwargs)
 
 
     def testCase900(self):
