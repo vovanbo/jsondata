@@ -1,6 +1,6 @@
 """Basic operator tests for: __iadd__
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -17,14 +17,14 @@ import jsonschema
 jval = None
 
 try:
-    from jsondata.JSONPointer import JSONPointer
+    from jsondata.pointer import JSONPointer
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 try:
-    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-    from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
+    from jsondata.serializer import JSONDataSerializer as ConfigData
+    from jsondata.serializer import MODE_SCHEMA_OFF
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondatacheck"
@@ -68,7 +68,7 @@ class CallUnits(unittest.TestCase):
 
         kargs = {}
         kargs['datafile'] = os.path.dirname(__file__)+os.sep+'testdata.json'
-        kargs['schemafile'] = os.path.dirname(__file__)+os.sep+'testdata.jsd'
+        kargs['schema_file'] = os.path.dirname(__file__)+os.sep+'testdata.jsd'
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True
         kargs['pathlist'] = os.path.dirname(__file__)
@@ -96,7 +96,7 @@ class CallUnits(unittest.TestCase):
             raise BaseException("Failed to create JSONPointer")    
         jsonptr += 'streetAddress'
 
-        assert jsonptr == u'/address/streetAddress'
+        assert jsonptr == '/address/streetAddress'
 
     def testCase902(self):
         """Access by constant references and by pointer.

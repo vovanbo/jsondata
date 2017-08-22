@@ -1,35 +1,21 @@
 # -*- coding: utf-8 -*-
 """Standards tests from RFC7159, Chapter 13, Example 2
 """
-from __future__ import absolute_import
-
 import unittest
 import os
 import sys
 
-
-if 'ujson' in sys.argv:
+try:
     import ujson as myjson
-else:
+except ImportError:
     import json as myjson
-import jsonschema
 
+from jsondata.data import SchemaMode
+from jsondata.serializer import JSONDataSerializer as ConfigData
 
 jval = None
 configdata = None
 
-try:
-    from jsondata.JSONPointer import JSONPointer
-except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
-try:
-    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
-try:
-    from jsondata.JSONData import MODE_SCHEMA_OFF
-except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
@@ -51,7 +37,7 @@ class CallUnits(unittest.TestCase):
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True
         kargs['pathlist'] = os.path.dirname(__file__)
-        kargs['validator'] = MODE_SCHEMA_OFF
+        kargs['validator'] = SchemaMode.OFF
         configdata = ConfigData(appname,**kargs)
 
 
@@ -71,7 +57,7 @@ class CallUnits(unittest.TestCase):
         if version >= '2.7': # pragma: no cover
             #due to a bug in python2.6.x
             assert repr(configdata.data[0]) == """{u'City': u'SAN FRANCISCO', u'Zip': u'94107', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.3959, u'State': u'CA', u'Address': u'', u'Latitude': 37.7668}"""
-        assert configdata.data[0] == {u'City': u'SAN FRANCISCO', u'Zip': u'94107', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.3959, u'State': u'CA', u'Address': u'', u'Latitude': 37.7668}
+        assert configdata.data[0] == {'City': 'SAN FRANCISCO', 'Zip': '94107', 'Country': 'US', 'precision': 'zip', 'Longitude': -122.3959, 'State': 'CA', 'Address': '', 'Latitude': 37.7668}
 
     def testCase903(self):
         """Access: rfc7159: Chapter 13, Example 2""
@@ -109,12 +95,12 @@ class CallUnits(unittest.TestCase):
         if version >= '2.7': # pragma: no cover
             #due to a bug in python2.6.x
             assert repr(configdata.data[1]) == """{u'City': u'SUNNYVALE', u'Zip': u'94085', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.02602, u'State': u'CA', u'Address': u'', u'Latitude': 37.371991}"""
-        assert configdata.data[1]       ==    {u'City': u'SUNNYVALE', u'Zip': u'94085', u'Country': u'US', u'precision': u'zip', u'Longitude': -122.02602, u'State': u'CA', u'Address': u'', u'Latitude': 37.371991}
+        assert configdata.data[1]       ==    {'City': 'SUNNYVALE', 'Zip': '94085', 'Country': 'US', 'precision': 'zip', 'Longitude': -122.02602, 'State': 'CA', 'Address': '', 'Latitude': 37.371991}
 
     def testCase909(self):
         """Access: rfc7159: Chapter 13, Example 2
         """
-        assert configdata.data[1][u'precision'] == u"zip"
+        assert configdata.data[1]['precision'] == "zip"
         assert configdata.data[1]['City'] == "SUNNYVALE"
         assert configdata.data[1]['State'] == "CA"
         assert configdata.data[1]['Zip'] == "94085"

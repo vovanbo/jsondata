@@ -1,0 +1,14 @@
+-e .
+coverage==4.4.1
+flake8==3.4.1
+flake8_docstrings==1.1.0
+invoke==0.20.4
+punch.py==1.4.0
+pytest==3.2.1
+pyyaml==3.12
+sphinx==1.6.3
+sphinx-autodoc-typehints==1.2.1
+tox==2.7.0
+twine==1.9.1
+wheel==0.29.0
+watchdog==0.8.3

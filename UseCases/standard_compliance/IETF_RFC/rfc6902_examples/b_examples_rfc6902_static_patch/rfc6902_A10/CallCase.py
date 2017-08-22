@@ -2,7 +2,7 @@
 """Standards tests from RFC6902 for compliance of patch syntax.
 
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -19,16 +19,16 @@ import jsonschema
 jval = None
 
 try:
-    from jsondata.JSONPointer import JSONPointer
+    from jsondata.pointer import JSONPointer
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 try:
-    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-    from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
-    from jsondata.JSONPatch import JSONPatch,JSONPatchItem
-    from jsondata.JSONPointer import JSONPointer
+    from jsondata.serializer import JSONDataSerializer as ConfigData
+    from jsondata.serializer import MODE_SCHEMA_OFF
+    from jsondata.patch import JSONPatch,JSONPatchItem
+    from jsondata.pointer import JSONPointer
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
@@ -69,7 +69,7 @@ class CallUnits(unittest.TestCase):
         jsonpatchlist  = JSONPatch()
         jsonpatchlist += JSONPatchItem("add", "/child", { "grandchild": { } })
         
-        ref = [{u'op': u'add', u'path': u'/child', u'value': {'grandchild': {}}}]
+        ref = [{'op': 'add', 'path': '/child', 'value': {'grandchild': {}}}]
         assert ref == jsonpatchlist
         assert jsonpatchlist == ref
         pass
@@ -85,7 +85,7 @@ class CallUnits(unittest.TestCase):
         assert cnt == 1 # number of patch items
         assert failed == [] # list of failed patch items
 
-        ref = {u'foo': u'bar', u'child': {u'grandchild': {}}}
+        ref = {'foo': 'bar', 'child': {'grandchild': {}}}
         assert configdata.data == ref
         pass
 

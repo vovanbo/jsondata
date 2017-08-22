@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 PROJECT='jsondata'
 VERSION="0.2.18"
 RELEASE="0.2.18"

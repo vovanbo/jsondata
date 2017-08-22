@@ -1,16 +1,16 @@
 """Simple print self.schema.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os, sys
-from StringIO import StringIO
+from io import StringIO
 
 import json #,jsonschema
 jval = None
 
-from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4
+from jsondata.serializer import JSONDataSerializer as ConfigData
+from jsondata.serializer import MODE_SCHEMA_DRAFT4
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
 appname = _APPNAME
@@ -85,7 +85,7 @@ class CallUnits(unittest.TestCase):
         """
         oout = sys.stdout
         sys.stdout = StringIO()
-        configdata.printSchema(False)
+        configdata.print_schema(False)
         sout = sys.stdout.getvalue()
         sys.stdout = oout
         conf_out = """{"required": false, "_comment": "This is a comment to be dropped by the initial scan:object(0)", "_doc": "Concatenated for the same instance.:object(0)", "$schema": "http://json-schema.org/draft-03/schema", "type": "object", "properties": {"phoneNumber": {"items": {"required": false, "type": "object", "properties": {"type": {"required": false, "type": "string"}, "number": {"required": false, "type": "string"}}}, "_comment": "This is a comment(1):array", "required": false, "type": "array"}, "address": {"_comment": "This is a comment(0):address", "required": true, "type": "object", "properties": {"city": {"required": true, "type": "string"}, "streetAddress": {"required": true, "type": "string"}, "houseNumber": {"required": false, "type": "number"}}}}}

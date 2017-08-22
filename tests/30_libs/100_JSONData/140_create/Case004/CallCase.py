@@ -2,7 +2,7 @@
 """Standards tests from RFC6902 for compliance of patch syntax.
 
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -10,11 +10,11 @@ import os
 jval = None
 
 try:
-    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-    from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
-    from jsondata.JSONPointer import JSONPointer
+    from jsondata.serializer import JSONDataSerializer as ConfigData
+    from jsondata.serializer import MODE_SCHEMA_OFF
+    from jsondata.pointer import JSONPointer
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondatacheck"
@@ -58,10 +58,10 @@ class CallUnits(unittest.TestCase):
         nbranch = configdata.branch_create(
                     JSONPointer("/phoneNumber").get_node(configdata.data),
                     JSONPointer("/-/skype/de/home"),
-                    u"000-111-222")
+                    "000-111-222")
         
         # fetch pathlist 
-        pbranch = ConfigData.getPointerPath(nbranch,configdata.data)[0][:-1]
+        pbranch = ConfigData.get_pointer_path(nbranch, configdata.data)[0][:-1]
         
         # get value of pointed node by pathlist
         pdata = JSONPointer(pbranch).get_node_or_value(configdata.data)

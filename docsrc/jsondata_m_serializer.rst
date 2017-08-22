@@ -45,20 +45,20 @@ json_import
 
 .. automethod:: JSONDataSerializer.json_import
 
-printData
+print_data
 ^^^^^^^^^
 
-.. automethod:: JSONDataSerializer.printData
+.. automethod:: JSONDataSerializer.print_data
 
-printSchema
+print_schema
 ^^^^^^^^^^^
 
-.. automethod:: JSONDataSerializer.printSchema
+.. automethod:: JSONDataSerializer.print_schema
 
-setSchema
+set_schema
 ^^^^^^^^^^
 
-.. automethod:: JSONDataSerializer.setSchema
+.. automethod:: JSONDataSerializer.set_schema
 
 Exceptions
 ==========

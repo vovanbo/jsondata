@@ -1,13 +1,13 @@
-from __future__ import absolute_import
+
 
 import unittest
 import os, sys
-from StringIO import StringIO
+from io import StringIO
 
 import json #,jsonschema
 
-from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4
+from jsondata.serializer import JSONDataSerializer as ConfigData
+from jsondata.serializer import MODE_SCHEMA_DRAFT4
 
 from testdata import mypath
 
@@ -99,9 +99,9 @@ class CallUnits(unittest.TestCase):
 #        print "sout<"+sout+">"
 #        print "conf_out<"+conf_out+">"
 
-#        a = self.configdata.getSchema()
+#        a = self.configdata.get_schema()
 
-        self.assertEqual(self.configdata.getSchema(), self.schemaRef)
+        self.assertEqual(self.configdata.get_schema(), self.schemaRef)
 
 
 #
@@ -113,7 +113,7 @@ class CallUnits(unittest.TestCase):
         """
         oout = sys.stdout
         sys.stdout = StringIO()
-        self.configdata.printSchema()
+        self.configdata.print_schema()
         sout = sys.stdout.getvalue()
         sys.stdout = oout
         conf_out = """{

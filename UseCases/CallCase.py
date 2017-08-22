@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 """Test PyUnit environment. This is a required call-dummy only.
 """
 __author__ = 'Arno-Can Uestuensoez'

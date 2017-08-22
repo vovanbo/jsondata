@@ -1,6 +1,6 @@
 """Import of new branches by jsondata.JSONDataSerializer.branch_import().
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -16,9 +16,9 @@ else:
 import jsonschema
 
 # import 'jsondata'
-from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4
-from jsondata.JSONDataExceptions import JSONDataKeyError,JSONDataNodeType
+from jsondata.serializer import JSONDataSerializer as ConfigData
+from jsondata.serializer import MODE_SCHEMA_DRAFT4
+from jsondata.exceptions import JSONDataKeyError,JSONDataNodeType
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
@@ -46,7 +46,7 @@ class CallUnits(unittest.TestCase):
 
         kargs = {}
         kargs['datafile'] = datafile
-        kargs['schemafile'] = schemafile
+        kargs['schema_file'] = schemafile
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True
         kargs['pathlist'] = os.path.dirname(__file__)
@@ -103,7 +103,7 @@ class CallUnits(unittest.TestCase):
         target = configdata.data['phoneNumber']
 
         # do it...
-        # REMARK: schemafile is here None, because we use an in memory schema,
+        # REMARK: schema_file is here None, because we use an in memory schema,
         #         and do not export - for now
         #
         # Expect False, because the node is already present, thus 'branch_add_only'
@@ -165,7 +165,7 @@ class CallUnits(unittest.TestCase):
         target = configdata.data['phoneNumber']
 
         # do it...
-        # REMARK: schemafile is here None, because we use an in memory schema,
+        # REMARK: schema_file is here None, because we use an in memory schema,
         #         and do not export - for now
         # branch to be loaded
         datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('branch2.json')
@@ -226,7 +226,7 @@ class CallUnits(unittest.TestCase):
         target = configdata.data['phoneNumber']
 
         # do it...
-        # REMARK: schemafile is here None, because we use an in memory schema,
+        # REMARK: schema_file is here None, because we use an in memory schema,
         #         and do not export - for now
         # branch to be loaded
         datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('branch2.json')
@@ -291,7 +291,7 @@ class CallUnits(unittest.TestCase):
         target = configdata.data['phoneNumber']
 
         # do it...
-        # REMARK: schemafile is here None, because we use an in memory schema,
+        # REMARK: schema_file is here None, because we use an in memory schema,
         #         and do not export - for now
         # branch to be loaded
         datafile = os.path.abspath(os.path.dirname(__file__))+os.sep+str('branch2.json')

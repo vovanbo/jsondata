@@ -33,7 +33,7 @@ For fragments notation of RFC6901/RFC3986::
   #/m~0n       8
 
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -50,14 +50,14 @@ import jsonschema
 jval = None
 
 try:
-    from jsondata.JSONPointer import JSONPointer
+    from jsondata.pointer import JSONPointer
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 try:
-    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-    from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
+    from jsondata.serializer import JSONDataSerializer as ConfigData
+    from jsondata.serializer import MODE_SCHEMA_OFF
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"

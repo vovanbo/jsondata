@@ -1,6 +1,6 @@
 """Basic operator __add__ tests.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -17,14 +17,14 @@ import jsonschema
 jval = None
 
 try:
-    from jsondata.JSONPointer import JSONPointer
+    from jsondata.pointer import JSONPointer
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 try:
-    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-    from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
+    from jsondata.serializer import JSONDataSerializer as ConfigData
+    from jsondata.serializer import MODE_SCHEMA_OFF
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
@@ -65,7 +65,7 @@ class CallUnits(unittest.TestCase):
 
         kargs = {}
         kargs['datafile'] = os.path.dirname(__file__)+os.sep+'testdata.json'
-        kargs['schemafile'] = os.path.dirname(__file__)+os.sep+'testdata.jsd'
+        kargs['schema_file'] = os.path.dirname(__file__)+os.sep+'testdata.jsd'
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True
         kargs['pathlist'] = os.path.dirname(__file__)
@@ -87,29 +87,29 @@ class CallUnits(unittest.TestCase):
                 assert cdata == jdata
 
                 #now pointer
-                px = JSONPointer(u'/customers/'+unicode(l)+u'/'+unicode(n)+JSONPointer('name'))
+                px = JSONPointer('/customers/'+str(l)+'/'+str(n)+JSONPointer('name'))
                 vx = px.get_node_or_value(configdata.data)
                 assert configdata.data["customers"][l][n]["name"] == vx
 
                 
-                vx = JSONPointer(u'/customers/'+unicode(l)+u'/'+unicode(n)+JSONPointer('name')).get_node_or_value(configdata.data)
+                vx = JSONPointer('/customers/'+str(l)+'/'+str(n)+JSONPointer('name')).get_node_or_value(configdata.data)
                 assert configdata.data["customers"][l][n]["name"] == vx
                 
-                assert configdata.data["customers"][l][n]["name"] == JSONPointer(u'/customers/'+unicode(l)+u'/'+unicode(n)+JSONPointer('name')).get_node_or_value(configdata.data)
+                assert configdata.data["customers"][l][n]["name"] == JSONPointer('/customers/'+str(l)+'/'+str(n)+JSONPointer('name')).get_node_or_value(configdata.data)
         
                 #now pointer with add
-                jp = '/customers/'+unicode(l)+u'/'+unicode(n)+JSONPointer('name')
+                jp = '/customers/'+str(l)+'/'+str(n)+JSONPointer('name')
                 assert configdata.data["customers"][l][n]["name"] == JSONPointer(jp).get_node_or_value(configdata.data)
 
                 #now pointer with add
-                assert configdata.data["customers"][l][n]["name"] == JSONPointer('/customers/'+unicode(l)+u'/'+unicode(n)+JSONPointer('name')).get_node_or_value(configdata.data)
+                assert configdata.data["customers"][l][n]["name"] == JSONPointer('/customers/'+str(l)+'/'+str(n)+JSONPointer('name')).get_node_or_value(configdata.data)
                 
                 cdata = configdata.data["customers"][l][n]["industries"]
                 jdata = configdata.data["customers"][l][n]["industries"]
                 assert cdata == jdata 
 
                 #now pointer
-                assert configdata.data["customers"][l][n]["industries"] == JSONPointer('/customers/'+str(l)+u'/'+str(n)+JSONPointer('/industries')).get_node_or_value(configdata.data)
+                assert configdata.data["customers"][l][n]["industries"] == JSONPointer('/customers/'+str(l)+'/'+str(n)+JSONPointer('/industries')).get_node_or_value(configdata.data)
         
                 #now pointer add
                 assert configdata.data["customers"][l][n]["industries"] == (JSONPointer('/customers')+l+n+'industries').get_node_or_value(configdata.data)

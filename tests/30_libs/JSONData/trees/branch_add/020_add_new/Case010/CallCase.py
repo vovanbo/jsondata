@@ -1,6 +1,6 @@
 """Add new branches by jsondata.JSONDataSerializer.branch_add().
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -16,9 +16,9 @@ else:
 import jsonschema
 
 # import 'jsondata'
-from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4
-from jsondata.JSONDataExceptions import JSONDataKeyError,JSONDataNodeType
+from jsondata.serializer import JSONDataSerializer as ConfigData
+from jsondata.serializer import MODE_SCHEMA_DRAFT4
+from jsondata.exceptions import JSONDataKeyError,JSONDataNodeType
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
@@ -46,7 +46,7 @@ class CallUnits(unittest.TestCase):
 
         kargs = {}
         kargs['datafile'] = datafile
-        kargs['schemafile'] = schemafile
+        kargs['schema_file'] = schemafile
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True
         kargs['pathlist'] = os.path.dirname(__file__)
@@ -108,7 +108,7 @@ class CallUnits(unittest.TestCase):
 
 #         ret = configdata.branch_add(target, '-', branchdata['phoneNumber'])
         
-        from jsondata.JSONPointer import JSONPointer 
+        from jsondata.pointer import JSONPointer
         p = JSONPointer('phoneNumber').get_node(branchdata.data)
 
         ret = configdata.branch_add(target, None, p)

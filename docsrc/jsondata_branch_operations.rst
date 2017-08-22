@@ -43,7 +43,7 @@ Branch operators::
 
 Generic operations::
 
-   ops := getTreeDiff | getPointerPath | getValueNode
+   ops := get_tree_diff | get_pointer_path | getValueNode
 
 
 Examples 
@@ -177,7 +177,7 @@ Access values
     print n['c']
 
     n = JSONPointer('/a/b/c').get_node(D.data,True)
-    px = D.getPointerPath(n, D.data)[0]
+    px = D.get_pointer_path(n, D.data)[0]
     px.append('c')
     print D(JSONPointer(px))
 

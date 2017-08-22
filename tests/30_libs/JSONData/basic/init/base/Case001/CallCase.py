@@ -1,6 +1,6 @@
 """Load and validate JSON data from files, access to entries.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -17,8 +17,8 @@ import jsonschema
 jval = None
 
 #from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigDataLoader
-from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF,MODE_SCHEMA_DRAFT4,MODE_SCHEMA_DRAFT3
-from jsondata.JSONData import JSONData as ConfigData
+from jsondata.serializer import MODE_SCHEMA_OFF,MODE_SCHEMA_DRAFT4,MODE_SCHEMA_DRAFT3
+from jsondata.data import JSONData as ConfigData
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
@@ -46,7 +46,7 @@ class CallUnits(unittest.TestCase):
         if jval == None:
             raise BaseException("Failed to load data:"+str(data_file))
 
-        cdata = {u'phoneNumber': [{u'type': u'home', u'number': u'212 555-1234'}], u'address': {u'city': u'New York', u'streetAddress': u'21 2nd Street', u'houseNumber': 12}}
+        cdata = {'phoneNumber': [{'type': 'home', 'number': '212 555-1234'}], 'address': {'city': 'New York', 'streetAddress': '21 2nd Street', 'houseNumber': 12}}
         assert cdata == jval
         pass
 

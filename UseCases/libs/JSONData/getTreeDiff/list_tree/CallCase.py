@@ -1,6 +1,6 @@
 """Append list element.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -15,7 +15,7 @@ else:
     import json as myjson
 import jsonschema
 
-from jsondata.JSONData import JSONData
+from jsondata.data import JSONData
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
@@ -33,7 +33,7 @@ class CallUnits(unittest.TestCase):
         """Equal."""
         n0 = [ [ [ 2 ]]]
         n1 = [ [ [ 2 ]]]
-        ret = JSONData.getTreeDiff(n0, n1)
+        ret = JSONData.get_tree_diff(n0, n1)
         assert ret == True
         pass
 
@@ -41,7 +41,7 @@ class CallUnits(unittest.TestCase):
         """Diff."""
         n0 = [ [ [ 2 ]]]
         n1 = [ 'x', [ [ 2 ]]]
-        ret = JSONData.getTreeDiff(n0, n1)
+        ret = JSONData.get_tree_diff(n0, n1)
         assert ret == False
         pass
  
@@ -49,7 +49,7 @@ class CallUnits(unittest.TestCase):
         """Diff."""
         n0 = [ [ [ 2 ]]]
         n1 = [ [ 'x', [ 2 ]]]
-        ret = JSONData.getTreeDiff(n0, n1)
+        ret = JSONData.get_tree_diff(n0, n1)
         assert ret == False
         pass
 
@@ -57,7 +57,7 @@ class CallUnits(unittest.TestCase):
         """Diff."""
         n0 = [ [ [ 2 ]]]
         n1 = [ [ [ 'x', 2 ]]]
-        ret = JSONData.getTreeDiff(n0, n1)
+        ret = JSONData.get_tree_diff(n0, n1)
         assert ret == False
         pass
 
@@ -65,7 +65,7 @@ class CallUnits(unittest.TestCase):
         """Diff."""
         n0 = [ [ [ 2 ]]]
         n1 = [ 'x', [ 'y', [ 'z', 2 ]]]
-        ret = JSONData.getTreeDiff(n0, n1)
+        ret = JSONData.get_tree_diff(n0, n1)
         assert ret == False
         pass
 
@@ -74,7 +74,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [ [ 2 ]]]
         n1 = [ 'x', [ 'y', [ 'z', 3 ]]]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs)
         assert ret == False
 
         assert mydiffs == [{'n0': [[[2]]], 'n1': ['x', ['y', ['z', 3]]], 'dl': 0}]         
@@ -85,7 +85,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [ [ 2 ]]]
         n1 = [ [ 'y', [ 'z', 3 ]]]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs)
         assert ret == False
 
         assert mydiffs == [{'n1[0]': ['y', ['z', 3]], 'dl': 1, 'n0[0]': [[2]]}]        
@@ -96,7 +96,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [ [ 2 ]]]
         n1 = [ [ [ 'z', 3 ]]]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs)
         assert ret == False
 
         assert mydiffs == [{'dl': 2, 'n1[0][0]': ['z', 3], 'n0[0][0]': [2]}]
@@ -107,7 +107,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [ [ 2 ]]]
         n1 = [ 'x', [ 'y', [ 'z', 3 ]]]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs, True)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs, True)
         assert ret == False
 
         assert mydiffs == [{'n0': [[[2]]], 'n1': ['x', ['y', ['z', 3]]], 'dl': 0}]         
@@ -118,7 +118,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [ [ 2 ]]]
         n1 = [ [ 'y', [ 'z', 3 ]]]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs, True)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs, True)
         assert ret == False
 
         assert mydiffs == [{'n1[0]': ['y', ['z', 3]], 'dl': 1, 'n0[0]': [[2]]}]     
@@ -129,7 +129,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [ [ 2 ]]]
         n1 = [ [ [ 'z', 3 ]]]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs, True)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs, True)
         assert ret == False
 
         assert mydiffs == [{'dl': 2, 'n1[0][0]': ['z', 3], 'n0[0][0]': [2]}]
@@ -140,7 +140,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [[0,1]] ]
         n1 = [ [[0,2]] ]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs, True)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs, True)
         assert ret == False
 
         assert mydiffs == [{'n0[0][0][1]': 1, 'dl': 2, 'n1[0][0][1]': 2}]     
@@ -151,7 +151,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [0,1] ]
         n1 = [ [0,2] ]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs, True)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs, True)
         assert ret == False
 
         assert mydiffs ==  [{'dl': 1, 'n1[0][1]': 2, 'n0[0][1]': 1}]    
@@ -162,7 +162,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [[0,1]] ]
         n1 = [ [[0,2]] ]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs, True)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs, True)
         assert ret == False
 
         assert mydiffs == [{'n0[0][0][1]': 1, 'dl': 2, 'n1[0][0][1]': 2}]   
@@ -173,10 +173,10 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [ [ 2 ]], [3]]
         n1 = [ 'x', [ 'y', [ 'z', 3 ]]]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs, True)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs, True)
         assert ret == False
 
-        assert mydiffs == [{'n1[0]': u'x', 'dl': 1, 'n0[0]': [[2]]}, {'n0[1]': [3], 'dl': 1, 'n1[1]': ['y', ['z', 3]]}]         
+        assert mydiffs == [{'n1[0]': 'x', 'dl': 1, 'n0[0]': [[2]]}, {'n0[1]': [3], 'dl': 1, 'n1[1]': ['y', ['z', 3]]}]         
         pass
 
     def testCase820(self):
@@ -184,7 +184,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ 0,  [3],  [[0,1]],  [ [ 2 ]          ] ]
         n1 = [ 1,  [1],  [[0,2]],  [ 'y', [ 'z', 3 ]] ]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs, True)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs, True)
         assert ret == False
 
         assert mydiffs == [{'n1[0]': 1, 'dl': 0, 'n0[0]': 0}, {'dl': 1, 'n0[1][0]': 3, 'n1[1][0]': 1}, {'n1[2][0][1]': 2, 'dl': 2, 'n0[2][0][1]': 1}, {'dl': 1, 'n0[3]': [[2]], 'n1[3]': ['y', ['z', 3]]}]        
@@ -195,7 +195,7 @@ class CallUnits(unittest.TestCase):
         mydiffs = []
         n0 = [ [ [ 2 ]]]
         n1 = [ [ [ 'z', 3 ]]]
-        ret = JSONData.getTreeDiff(n0, n1, mydiffs, True)
+        ret = JSONData.get_tree_diff(n0, n1, mydiffs, True)
         assert ret == False
 
         assert mydiffs == [{'dl': 2, 'n1[0][0]': ['z', 3], 'n0[0][0]': [2]}]

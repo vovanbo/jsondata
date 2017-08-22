@@ -54,15 +54,15 @@ Methods
   +---------------------------------+------------------------------+----------------------+--------------------+
   | `__str__`_                      | `JSONData.__str__`_          | B,A                  |  str               |
   +---------------------------------+------------------------------+----------------------+--------------------+
-  | `getData`_                      | `JSONData.getData`_          |                      |                    |
+  | `get_data`_                      | `JSONData.get_data`_          |                      |                    |
   +---------------------------------+------------------------------+----------------------+--------------------+
-  | `getSchema`_                    | `JSONData.getSchema`_        |                      |                    |
+  | `get_schema`_                    | `JSONData.get_schema`_        |                      |                    |
   +---------------------------------+------------------------------+----------------------+--------------------+
-  | `printData`_                    | `JSONData.printData`_        | A                    |                    |
+  | `print_data`_                    | `JSONData.print_data`_        | A                    |                    |
   +---------------------------------+------------------------------+----------------------+--------------------+
-  | `printSchema`_                  | `JSONData.printSchema`_      |                      |                    |
+  | `print_schema`_                  | `JSONData.print_schema`_      |                      |                    |
   +---------------------------------+------------------------------+----------------------+--------------------+
-  | `setSchema`_                    | `JSONData.setSchema`_        |                      |                    |
+  | `set_schema`_                    | `JSONData.set_schema`_        |                      |                    |
   +---------------------------------+------------------------------+----------------------+--------------------+
   | `validate`_                     | `JSONData.validate`_         | B,A                  |                    |
   +---------------------------------+------------------------------+----------------------+--------------------+
@@ -88,13 +88,13 @@ Methods
   +---------------------------------+------------------------------+----------------------+--------------------+
   | `branch_test`_                  | `JSONData.branch_test`_      | B                    |  test              |
   +---------------------------------+------------------------------+----------------------+--------------------+
-  | `getTreeDiff`_                  | `JSONData.getTreeDiff`_      | B,A                  |  diff              |
+  | `get_tree_diff`_                  | `JSONData.get_tree_diff`_      | B,A                  |  diff              |
   +---------------------------------+------------------------------+----------------------+--------------------+
-  | `getPointerPath`_               | `JSONData.getPointerPath`_   | B,A                  |                    |
+  | `get_pointer_path`_               | `JSONData.get_pointer_path`_   | B,A                  |                    |
   +---------------------------------+------------------------------+----------------------+--------------------+
-  | `getCanonical`_                 | `JSONData.getCanonical`_     | B                    |                    |
+  | `get_canonical`_                 | `JSONData.get_canonical`_     | B                    |                    |
   +---------------------------------+------------------------------+----------------------+--------------------+
-  | `isApplicable`_                 | `JSONData.isApplicable`_     | B                    |                    |
+  | `is_applicable`_                 | `JSONData.is_applicable`_     | B                    |                    |
   +---------------------------------+------------------------------+----------------------+--------------------+
   | `pop`_                          | `JSONData.pop`_              |                      |  pop               |
   +---------------------------------+------------------------------+----------------------+--------------------+
@@ -260,35 +260,35 @@ Iterators
 .. _branch_test: jsondata_m_data.html#jsondata.JSONData.JSONData.branch_test
 .. _JSONData.branch_test: _modules/jsondata/JSONData.html#JSONData.branch_test
 
-.. _getTreeDiff: jsondata_m_data.html#jsondata.JSONData.JSONData.getTreeDiff
-.. _JSONData.getTreeDiff: _modules/jsondata/JSONData.html#JSONData.getTreeDiff
+.. _getTreeDiff: jsondata_m_data.html#jsondata.JSONData.JSONData.get_tree_diff
+.. _JSONData.get_tree_diff: _modules/jsondata/JSONData.html#JSONData.get_tree_diff
 
-.. _getPointerPath: jsondata_m_data.html#jsondata.JSONData.JSONData.getPointerPath
-.. _JSONData.getPointerPath: _modules/jsondata/JSONData.html#JSONData.getPointerPath
+.. _getPointerPath: jsondata_m_data.html#jsondata.JSONData.JSONData.get_pointer_path
+.. _JSONData.get_pointer_path: _modules/jsondata/JSONData.html#JSONData.get_pointer_path
 
-.. _getData: jsondata_m_data.html#jsondata.JSONData.JSONData.getData
-.. _JSONData.getData: _modules/jsondata/JSONData.html#JSONData.getData
+.. _getData: jsondata_m_data.html#jsondata.JSONData.JSONData.get_data
+.. _JSONData.get_data: _modules/jsondata/JSONData.html#JSONData.get_data
 
-.. _getSchema: jsondata_m_data.html#jsondata.JSONData.JSONData.getSchema
-.. _JSONData.getSchema: _modules/jsondata/JSONData.html#JSONData.getSchema
+.. _getSchema: jsondata_m_data.html#jsondata.JSONData.JSONData.get_schema
+.. _JSONData.get_schema: _modules/jsondata/JSONData.html#JSONData.get_schema
 
-.. _getCanonical: jsondata_m_data.html#jsondata.JSONData.JSONData.getCanonical
-.. _JSONData.getCanonical: _modules/jsondata/JSONData.html#JSONData.getCanonical
+.. _getCanonical: jsondata_m_data.html#jsondata.JSONData.JSONData.get_canonical
+.. _JSONData.get_canonical: _modules/jsondata/JSONData.html#JSONData.get_canonical
 
-.. _isApplicable: jsondata_m_data.html#jsondata.JSONData.JSONData.isApplicable
-.. _JSONData.isApplicable: _modules/jsondata/JSONData.html#JSONData.isApplicable
+.. _isApplicable: jsondata_m_data.html#jsondata.JSONData.JSONData.is_applicable
+.. _JSONData.is_applicable: _modules/jsondata/JSONData.html#JSONData.is_applicable
 
 .. _pop: jsondata_m_data.html#jsondata.JSONData.JSONData.pop
 .. _JSONData.pop: _modules/jsondata/JSONData.html#JSONData.pop
 
-.. _printData: jsondata_m_data.html#jsondata.JSONData.JSONData.printData
-.. _JSONData.printData: _modules/jsondata/JSONData.html#JSONData.printData
+.. _printData: jsondata_m_data.html#jsondata.JSONData.JSONData.print_data
+.. _JSONData.print_data: _modules/jsondata/JSONData.html#JSONData.print_data
 
-.. _printSchema: jsondata_m_data.html#jsondata.JSONData.JSONData.printSchema
-.. _JSONData.printSchema: _modules/jsondata/JSONData.html#JSONData.printSchema
+.. _printSchema: jsondata_m_data.html#jsondata.JSONData.JSONData.print_schema
+.. _JSONData.print_schema: _modules/jsondata/JSONData.html#JSONData.print_schema
 
-.. _setSchema: jsondata_m_data.html#jsondata.JSONData.JSONData.setSchema
-.. _JSONData.setSchema: _modules/jsondata/JSONData.html#JSONData.setSchema
+.. _setSchema: jsondata_m_data.html#jsondata.JSONData.JSONData.set_schema
+.. _JSONData.set_schema: _modules/jsondata/JSONData.html#JSONData.set_schema
 
 .. _validate: jsondata_m_data.html#jsondata.JSONData.JSONData.validate
 .. _JSONData.validate: _modules/jsondata/JSONData.html#JSONData.validate
@@ -310,11 +310,11 @@ Methods
   +=================================+====================================================+
   | `JSONDataSerializer`_           | `JSONDataSerializer.__init__`_                     |
   +---------------------------------+----------------------------------------------------+
-  | `printData (1)`_                | `JSONDataSerializer.printData`_                    |
+  | `print_data (1)`_                | `JSONDataSerializer.print_data`_                    |
   +---------------------------------+----------------------------------------------------+
-  | `printSchema (1)`_              | `JSONDataSerializer.printSchema`_                  |
+  | `print_schema (1)`_              | `JSONDataSerializer.print_schema`_                  |
   +---------------------------------+----------------------------------------------------+
-  | `setSchema (1)`_                | `JSONDataSerializer.setSchema`_                    |
+  | `set_schema (1)`_                | `JSONDataSerializer.set_schema`_                    |
   +---------------------------------+----------------------------------------------------+
 
 * **Import/Export**
@@ -336,14 +336,14 @@ Methods
 .. _JSONDataSerializer.json_import: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.json_import
 .. _json_import: jsondata_m_serializer.html#jsondata.JSONDataSerializer.JSONDataSerializer.json_import
 
-.. _JSONDataSerializer.printData: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.printData
-.. _printData (1): jsondata_m_serializer.html#jsondata.JSONDataSerializer.JSONDataSerializer.printData
+.. _JSONDataSerializer.print_data: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.print_data
+.. _printData (1): jsondata_m_serializer.html#jsondata.JSONDataSerializer.JSONDataSerializer.print_data
 
-.. _JSONDataSerializer.printSchema: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.printSchema
-.. _printSchema (1): jsondata_m_serializer.html#jsondata.JSONDataSerializer.JSONDataSerializer.printSchema
+.. _JSONDataSerializer.print_schema: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.print_schema
+.. _printSchema (1): jsondata_m_serializer.html#jsondata.JSONDataSerializer.JSONDataSerializer.print_schema
 
-.. _JSONDataSerializer.setSchema: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.setSchema
-.. _setSchema (1): jsondata_m_serializer.html#jsondata.JSONDataSerializer.JSONDataSerializer.setSchema
+.. _JSONDataSerializer.set_schema: _modules/jsondata/JSONDataSerializer.html#JSONDataSerializer.set_schema
+.. _setSchema (1): jsondata_m_serializer.html#jsondata.JSONDataSerializer.JSONDataSerializer.set_schema
 
 
 jsondata.JSONPatch

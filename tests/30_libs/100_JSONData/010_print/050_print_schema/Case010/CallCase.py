@@ -1,16 +1,16 @@
 """Pretty print schema read from 'sourcefile'.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os, sys
-from StringIO import StringIO
+from io import StringIO
 
 import json #,jsonschema
 jval = None
 
-from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
+from jsondata.serializer import JSONDataSerializer as ConfigData
+from jsondata.serializer import MODE_SCHEMA_OFF
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondatacheck"
 appname = _APPNAME
@@ -92,7 +92,7 @@ class CallUnits(unittest.TestCase):
         sys.stdout = StringIO()
         
         kargs = {'sourcefile':os.path.dirname(__file__)+os.sep+"testdata.jsd" }
-        configdata.printSchema(**kargs)
+        configdata.print_schema(**kargs)
         sout = sys.stdout.getvalue()
         sys.stdout = oout
         conf_out = """{

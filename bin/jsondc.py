@@ -73,7 +73,7 @@ OPTIONS:
      Search path for JSON data file(s) to be inserted as additional branches,
      standard list for current platform.
      default:= ../dirname(__file__)/:dirname(__file__)/:/etc/:$HOME/
-  -s, --schemafile= <schemafile>
+  -s, --schema_file= <schema_file>
      Schema file - JSONschema.
      default: jsondc.jsd
   -S, --print-schema
@@ -121,9 +121,9 @@ __uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 
 try:
-    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
+    from jsondata.serializer import JSONDataSerializer as ConfigData
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
     import sys
     sys.exit(1)
 # name of application, used for several filenames as default
@@ -138,7 +138,7 @@ def usage():
     if __name__ == '__main__':
         import pydoc
         #FIXME: literally displayed '__main__'
-        print pydoc.help(__name__)
+        print(pydoc.help(__name__))
     else:
         help(str(os.path.basename(sys.argv[0]).split('.')[0]))
 
@@ -146,14 +146,14 @@ _kargs={}
 try:
     _longopts = [
         "help","debug","verbose","version","Version",
-        "appname=", "configfile=","schemafile=","validator=","no-default-path",
+        "appname=", "configfile=","schema_file=","validator=","no-default-path",
         "no-sub-data","pathlist=","plugins-pathlist=","print-schema","print-data",
         "interactive", "filelist=",
         "selftest", "json="
     ]
     _opts, _args = getopt.getopt(sys.argv[1:], "a:c:f:j:is:np:P:NDShdvV:", _longopts)
-except getopt.GetoptError, err:
-    print str(err)
+except getopt.GetoptError as err:
+    print(str(err))
     usage()
     sys.exit(2)
 
@@ -192,8 +192,8 @@ for _o,_a in _opts:
         _kargs['pathlist'] = _a
     elif _o in ("-P","--plugins-pathlist"):
         _kargs['pluginspathlist'] = _a
-    elif _o in ("-s","--schemafile"):
-        _kargs['schemafile'] = _a
+    elif _o in ("-s","--schema_file"):
+        _kargs['schema_file'] = _a
     elif _o in ("-S","--print-schema"):
         _kargs['printschema'] = True
     elif _o in ("-V","--validator"):
@@ -212,15 +212,15 @@ for _o,_a in _opts:
         sys.exit()
 
     elif _o in ("--version"):
-        print str(__version__)
+        print(str(__version__))
         sys.exit()
     elif _o in ("--Version"):
-        print "app:      "+str(_APPNAME)
-        print "version:  "+str(__version__)
-        print "author:   "+str(__author__)
-        print "copyright:"+str(__copyright__)
-        print "license:  "+str(__license__)
-        print "file:     "+str(os.path.basename(__file__))
+        print("app:      "+str(_APPNAME))
+        print("version:  "+str(__version__))
+        print("author:   "+str(__author__))
+        print("copyright:"+str(__copyright__))
+        print("license:  "+str(__license__))
+        print("file:     "+str(os.path.basename(__file__)))
         sys.exit()
 
     else:
@@ -230,8 +230,8 @@ if _selftest:
     try:
         from jsondata.Selftest import runselftest
     except Exception as e:
-        print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+"\n"
-        print "\n#sys.path="+str(sys.path)+"\n#\n"
+        print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+"\n")
+        print("\n#sys.path="+str(sys.path)+"\n#\n")
 
     # name of application, used for several filenames as default
     _appname = "selftest"

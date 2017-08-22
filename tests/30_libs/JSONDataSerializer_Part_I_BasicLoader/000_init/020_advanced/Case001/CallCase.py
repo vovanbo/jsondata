@@ -1,7 +1,7 @@
 """Load, verify, and compare data and schema with raw calls,
 and by encapsulation via a container object.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -15,8 +15,8 @@ else:
 #import jsonschema
 jval = None
 
-from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
+from jsondata.serializer import JSONDataSerializer as ConfigData
+from jsondata.serializer import MODE_SCHEMA_OFF
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
@@ -79,7 +79,7 @@ class CallUnits(unittest.TestCase):
 
             * kargs['datafile'] = datafile
 
-            * kargs['schemafile'] = schemafile
+            * kargs['schema_file'] = schema_file
 
             * kargs['nodefaultpath'] = True
 
@@ -98,7 +98,7 @@ class CallUnits(unittest.TestCase):
 
         kargs = {}
         kargs['datafile'] = datafile
-        kargs['schemafile'] = schemafile
+        kargs['schema_file'] = schemafile
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True
         kargs['pathlist'] = os.path.dirname(__file__)

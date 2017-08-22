@@ -9,15 +9,15 @@ Constants
 Compliance modes
 ----------------
 
-* MODE_JSON_RFC4927 = 0: Compliant to IETF RFC4927.
+* JSONMode.RFC4927 = 0: Compliant to IETF RFC4927.
 
-* MODE_JSON_RF7951 = 2: Compliant to IETF RF7951.
+* JSONMode.RFC7951 = 2: Compliant to IETF RFC7951.
 
-* MODE_JSON_ECMA264 = 10: Compliant to ECMA-264, refer to Chapter 15.12 The JSON Object.
+* JSONMode.ECMA264 = 10: Compliant to ECMA-264, refer to Chapter 15.12 The JSON Object.
 
-* MODE_POINTER_RFC6901 = 20: Compliant to IETF RFC6901.            
+* PointerMode.RFC6901 = 20: Compliant to IETF RFC6901.
 
-* MODE_PATCH_RFC6902 = 30: Compliant to IETF RFC6902.            
+* PatchMode.RFC6902 = 30: Compliant to IETF RFC6902.
 
 * MODE_SCHEMA_DRAFT3 = 43: Compliant to IETF DRAFT3.            
 
@@ -130,55 +130,55 @@ branch_test
 
 .. automethod:: JSONData.branch_test
 
-getData
+get_data
 ^^^^^^^
 
-.. automethod:: JSONData.getData
+.. automethod:: JSONData.get_data
 
-getPointerPath
+get_pointer_path
 ^^^^^^^^^^^^^^
 
-.. automethod:: JSONData.getPointerPath
+.. automethod:: JSONData.get_pointer_path
 
-getSchema
+get_schema
 ^^^^^^^^^
 
-.. automethod:: JSONData.getSchema
+.. automethod:: JSONData.get_schema
 
-getTreeDiff
+get_tree_diff
 ^^^^^^^^^^^
 
-.. automethod:: JSONData.getTreeDiff
+.. automethod:: JSONData.get_tree_diff
 
 getValueNode
 ^^^^^^^^^^^^
 
 .. automethod:: JSONData.getValueNode
 
-isApplicable
+is_applicable
 ^^^^^^^^^^^^
 
-.. automethod:: JSONData.isApplicable
+.. automethod:: JSONData.is_applicable
 
-printData
+print_data
 ^^^^^^^^^
 
-.. automethod:: JSONData.printData
+.. automethod:: JSONData.print_data
 
-printSchema
+print_schema
 ^^^^^^^^^^^
 
-.. automethod:: JSONData.printSchema
+.. automethod:: JSONData.print_schema
 
 pop
 ^^^
 
 .. automethod:: JSONData.pop
 
-setSchema
+set_schema
 ^^^^^^^^^^
 
-.. automethod:: JSONData.setSchema
+.. automethod:: JSONData.set_schema
 
 validate
 ^^^^^^^^

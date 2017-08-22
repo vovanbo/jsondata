@@ -1,6 +1,6 @@
 """Append list element.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -15,8 +15,8 @@ else:
     import json as myjson
 import jsonschema
 
-from jsondata.JSONData import JSONData
-from jsondata.JSONPointer import JSONPointer
+from jsondata.data import JSONData
+from jsondata.pointer import JSONPointer
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondatacheck"
@@ -39,7 +39,7 @@ class CallUnits(unittest.TestCase):
         n0 = [ [ { 'c0': 'c0'},    { 'c3': [ 3 ] }, [ 'c0' ] ] ]
         sl = [ n0, ]
 
-        p0 = JSONData.getPointerPath(c0,sl,JSONData.ALL)
+        p0 = JSONData.get_pointer_path(c0, sl, JSONData.ALL)
         resx = []
         assert p0 == resx
         
@@ -63,7 +63,7 @@ class CallUnits(unittest.TestCase):
         n2 = [ [ { 'c0': 'c0'},    { 'c3': [ 3 ] }, [  c0  ] ] ]
         
         sl = [ n0, n1, ]
-        p0 = JSONData.getPointerPath(c0,sl,JSONData.ALL)
+        p0 = JSONData.get_pointer_path(c0, sl, JSONData.ALL)
         resx = [
             [1, 0, 0, 'c0'], 
         ]
@@ -73,7 +73,7 @@ class CallUnits(unittest.TestCase):
         for rx in resx:
             pathlst.append(JSONPointer(rx).get_pointer())
         pathx = [
-            u'/1/0/0/c0', 
+            '/1/0/0/c0', 
         ]
         assert pathlst == pathx
         
@@ -94,7 +94,7 @@ class CallUnits(unittest.TestCase):
         
         sl = [ n0, n1, n2, ]
 
-        p0 = JSONData.getPointerPath(c0,sl,JSONData.ALL)
+        p0 = JSONData.get_pointer_path(c0, sl, JSONData.ALL)
         resx = [
             [1, 0, 0, 'c0'], 
             [2, 0, 2, 0]
@@ -105,8 +105,8 @@ class CallUnits(unittest.TestCase):
         for rx in resx:
             pathlst.append(JSONPointer(rx).get_pointer())
         pathx = [
-            u'/1/0/0/c0', 
-            u'/2/0/2/0', 
+            '/1/0/0/c0', 
+            '/2/0/2/0', 
         ]
         assert pathlst == pathx
         
@@ -134,7 +134,7 @@ class CallUnits(unittest.TestCase):
 
         sl = [ n0, n1, n2, n3, n6, n4, n7, n8, ]
 
-        p0 = JSONData.getPointerPath(c0,sl,JSONData.ALL)
+        p0 = JSONData.get_pointer_path(c0, sl, JSONData.ALL)
         resx = [
             [1, 0, 0, 'c0'], 
             [2, 0, 2, 0], 
@@ -154,17 +154,17 @@ class CallUnits(unittest.TestCase):
         for rx in resx:
             pathlst.append(JSONPointer(rx).get_pointer())
         pathx = [
-            u'/1/0/0/c0', 
-            u'/2/0/2/0', 
-            u'/3/0/0/c0', 
-            u'/3/0/2/0', 
-            u'/4/0/0/0/0/x0/0/1/c0', 
-            u'/4/0/0/0/0/x0/0/2/0', 
-            u'/5/x0/0/1/c0', 
-            u'/5/x0/0/2/0', 
-            u'/6/0/0/x0/0/1/c0', 
-            u'/6/0/0/x0/0/2/0', 
-            u'/7/x/c0'
+            '/1/0/0/c0', 
+            '/2/0/2/0', 
+            '/3/0/0/c0', 
+            '/3/0/2/0', 
+            '/4/0/0/0/0/x0/0/1/c0', 
+            '/4/0/0/0/0/x0/0/2/0', 
+            '/5/x0/0/1/c0', 
+            '/5/x0/0/2/0', 
+            '/6/0/0/x0/0/1/c0', 
+            '/6/0/0/x0/0/2/0', 
+            '/7/x/c0'
         ]
         assert pathlst == pathx
         
@@ -197,7 +197,7 @@ class CallUnits(unittest.TestCase):
 
         sl6 = [ n3, n6, n4, n7, n8, ]
 
-        p0 = JSONData.getPointerPath(n4['x0'][0][2][0],sl6,JSONData.ALL)
+        p0 = JSONData.get_pointer_path(n4['x0'][0][2][0], sl6, JSONData.ALL)
         resx = [
             [0, 0, 0, 'c0'], 
             [0, 0, 2, 0], 
@@ -215,15 +215,15 @@ class CallUnits(unittest.TestCase):
         for rx in resx:
             pathlst.append(JSONPointer(rx).get_pointer())
         pathx = [
-            u'/0/0/0/c0', 
-            u'/0/0/2/0', 
-            u'/1/0/0/0/0/x0/0/1/c0', 
-            u'/1/0/0/0/0/x0/0/2/0', 
-            u'/2/x0/0/1/c0', 
-            u'/2/x0/0/2/0', 
-            u'/3/0/0/x0/0/1/c0', 
-            u'/3/0/0/x0/0/2/0', 
-            u'/4/x/c0'
+            '/0/0/0/c0', 
+            '/0/0/2/0', 
+            '/1/0/0/0/0/x0/0/1/c0', 
+            '/1/0/0/0/0/x0/0/2/0', 
+            '/2/x0/0/1/c0', 
+            '/2/x0/0/2/0', 
+            '/3/0/0/x0/0/1/c0', 
+            '/3/0/0/x0/0/2/0', 
+            '/4/x/c0'
         ]
         assert pathlst == pathx
         

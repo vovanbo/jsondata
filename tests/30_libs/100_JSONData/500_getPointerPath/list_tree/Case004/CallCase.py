@@ -1,6 +1,6 @@
 """Append list element.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -15,7 +15,7 @@ else:
     import json as myjson
 import jsonschema
 
-from jsondata.JSONData import JSONData
+from jsondata.data import JSONData
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondatacheck"
@@ -41,16 +41,16 @@ class CallUnits(unittest.TestCase):
         a = n4[0][0][2]
         assert n4[0][0][2] == [[5]]
 
-        p0 = JSONData.getPointerPath(n4[0][0][2],n4)
+        p0 = JSONData.get_pointer_path(n4[0][0][2], n4)
         resx = [[0, 0, 2]]
         assert p0 == resx
 
         
-        p0 = JSONData.getPointerPath(n4[0][0][2],sl6)
+        p0 = JSONData.get_pointer_path(n4[0][0][2], sl6)
         resx = [[1, 0, 0, 0, 0, 0, 0, 2]]
         assert p0 == resx
 
-        p0 = JSONData.getPointerPath(n4[0][0][2],sl6,JSONData.FIRST)
+        p0 = JSONData.get_pointer_path(n4[0][0][2], sl6, JSONData.FIRST)
         resx = [[1, 0, 0, 0, 0, 0, 0, 2]]
         assert p0 == resx
 
@@ -75,7 +75,7 @@ class CallUnits(unittest.TestCase):
 #         
 #         res = []
 #         
-#         p0 = JSONData.getPointerPath(n5,sl5)
+#         p0 = JSONData.get_pointer_path(n5,sl5)
 #         resx = [[0]]
 #         assert p0 == resx
 #         pass

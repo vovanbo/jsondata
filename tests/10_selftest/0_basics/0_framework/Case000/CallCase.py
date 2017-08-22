@@ -1,6 +1,6 @@
 """Test PyUnit environment.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import doctest
@@ -32,7 +32,7 @@ class CallUnits(unittest.TestCase):
         """
         try:
             import examp
-        except ImportError, e:
+        except ImportError as e:
             self.Fail( str( e ) )
 
 #

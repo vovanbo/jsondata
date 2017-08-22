@@ -1,4 +1,4 @@
-Use-Cases 'JSONData.getPointerPath'
+Use-Cases 'JSONData.get_pointer_path'
 ===================================
 
 mixed\_tree

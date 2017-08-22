@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Standards tests from RFC7159, Chapter 13, Example 1
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -18,14 +18,14 @@ import jsonschema
 jval = None
 
 try:
-    from jsondata.JSONPointer import JSONPointer
+    from jsondata.pointer import JSONPointer
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 try:
-    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-    from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
+    from jsondata.serializer import JSONDataSerializer as ConfigData
+    from jsondata.serializer import MODE_SCHEMA_OFF
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
@@ -64,7 +64,7 @@ class CallUnits(unittest.TestCase):
     def testCase901(self):
         """Access: rfc7159: Chapter 13, Example 1""
         """
-        assert configdata.data['Image']['Title'] == u'View from 15th Floor' 
+        assert configdata.data['Image']['Title'] == 'View from 15th Floor' 
 
     def testCase902(self):
         """Access: rfc7159: Chapter 13, Example 1""
@@ -95,19 +95,19 @@ class CallUnits(unittest.TestCase):
         """Access: rfc7159: Chapter 13, Example 1""
         """
         assert repr(configdata.data['Image']['Thumbnail']) == """{u'Url': u'http://www.example.com/image/481989943', u'Width': 100, u'Height': 125}""" 
-        assert configdata.data['Image']['Thumbnail'] == {u'Url': u'http://www.example.com/image/481989943', u'Width': 100, u'Height': 125} 
+        assert configdata.data['Image']['Thumbnail'] == {'Url': 'http://www.example.com/image/481989943', 'Width': 100, 'Height': 125} 
 
     def testCase907(self):
         """Access: rfc7159: Chapter 13, Example 1""
         """
-        assert configdata.data['Image']['Thumbnail']['Url'] == u'http://www.example.com/image/481989943' 
+        assert configdata.data['Image']['Thumbnail']['Url'] == 'http://www.example.com/image/481989943' 
         assert configdata.data['Image']['Thumbnail']['Width'] == 100 
         assert configdata.data['Image']['Thumbnail']['Height'] ==125
 
     def testCase908(self):
         """Access: rfc7159: Chapter 13, Example 1""
         """
-        assert configdata.data['Image']['Title'] == u'View from 15th Floor' 
+        assert configdata.data['Image']['Title'] == 'View from 15th Floor' 
         assert configdata.data['Image']['IDs'][0] == 116
         assert configdata.data['Image']['IDs'][1] == 943
         assert configdata.data['Image']['IDs'][2] == 234
@@ -115,7 +115,7 @@ class CallUnits(unittest.TestCase):
         assert configdata.data['Image']['Height'] == 600 
         assert configdata.data['Image']['Width'] == 800 
         assert configdata.data['Image']['Animated'] == False 
-        assert configdata.data['Image']['Thumbnail']['Url'] == u'http://www.example.com/image/481989943' 
+        assert configdata.data['Image']['Thumbnail']['Url'] == 'http://www.example.com/image/481989943' 
         assert configdata.data['Image']['Thumbnail']['Width'] == 100 
         assert configdata.data['Image']['Thumbnail']['Height'] ==125
 #

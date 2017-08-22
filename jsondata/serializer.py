@@ -1,38 +1,31 @@
 # -*- coding:utf-8   -*-
 """Basic features for the persistence of JSON based in-memory data.
 """
+import logging
+import os
+
+try:
+    import ujson as myjson
+except ImportError:
+    import json as myjson
+
+from .data import SchemaMode, Match
+from .exceptions import (
+    JSONDataException, JSONDataValue, JSONDataSourceFile, JSONDataTargetFile
+)
+from .data import JSONData
+from jsondata.exceptions import JSONDataAmbiguity
+
 __author__ = 'Arno-Can Uestuensoez'
 __maintainer__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
-__copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
+__copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez " \
+                "@Ingenieurbuero Arno-Can Uestuensoez"
 __version__ = '0.2.18'
-__uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
+__uuid__ = '63b597d6-4ada-4880-9f99-f5e0961351fb'
 
-import os,sys
-version = '{0}.{1}'.format(*sys.version_info[:2])
-if not version in ('2.6','2.7',): # pragma: no cover
-    raise Exception("Requires Python-2.6.* or higher")
-# if version < '2.7': # pragma: no cover
-#     raise Exception("Requires Python-2.7.* or higher")
+logger = logging.getLogger(__name__)
 
-#
-# Check whether the application has selected a verified JSON package
-if sys.modules.get('json'):
-    import json as myjson #@UnusedImport
-elif sys.modules.get('ujson'):
-    import ujson as myjson
-else:
-    import json as myjson
-
-from jsondata.JSONData import MODE_SCHEMA_OFF,MODE_SCHEMA_DRAFT3,MODE_SCHEMA_DRAFT4
-from jsondata.JSONData import MATCH_NO,MATCH_KEY,MATCH_CHLDATTR,MATCH_INDEX,MATCH_MEM
-
-# Sets display for inetractive JSON/JSONschema design.
-_interactive = False
-
-# generic exceptions for 'jsondata'
-from jsondata.JSONDataExceptions import JSONDataException,JSONDataValue,JSONDataSourceFile,JSONDataTargetFile
-from jsondata.JSONData import JSONData,JSONDataAmbiguity
 
 class JSONDataSerializer(JSONData):
     """Persistency of JSON based data for the class jsondata.JSONData.
@@ -135,7 +128,8 @@ class JSONDataSerializer(JSONData):
     for keys.  
 
     """
-    def __init__(self,appname,*args,**kargs):
+
+    def __init__(self, appname, *args, **kwargs):
         """Loads and validates a JSON definition with the corresponding schema file.
 
         Args:
@@ -145,8 +139,8 @@ class JSONDataSerializer(JSONData):
 
             args*: Optional position parameters, these branch_replace corresponding key
                 parameters.
-                filelist, pathlist, filepathlist, schemafile
-            **kargs:
+                filelist, pathlist, filepathlist, schema_file
+            **kwargs:
                 datafile: Filepathname of JSON data file, when provided a further
                     search by pathlist, filelist, and filepathlist is suppressed.
                     Therefore it has to be a valid filepathname.
@@ -194,7 +188,7 @@ class JSONDataSerializer(JSONData):
                 schema: A valid in-meory JSONschema.
                     
                     default:= None
-                schemafile: Filepathname of JSONschema file.
+                schema_file: Filepathname of JSONschema file.
                     
                     default:= <appname>.jsd
                 validator: [default, draft3, off, ]
@@ -236,20 +230,20 @@ class JSONDataSerializer(JSONData):
 
         """
         # Init basic data, control actions not to be repeated
-        _validate = kargs.get('validator',False)
+        _validate = kwargs.get('validator', False)
         if _validate:
-            kargs['validator'] = MODE_SCHEMA_OFF
-        JSONData.__init__(self,[],**kargs)
+            kwargs['validator'] = SchemaMode.OFF
+        JSONData.__init__(self, [], **kwargs)
         if _validate:
-            kargs['validator'] = _validate
+            kwargs['validator'] = _validate
 
         #
         # static final defaults
         #
-        
+
         # prep import subcall
-        kimp={}
-        
+        kimp = {}
+
         self.nodefaultpath = False
         self.nodesubdata = False
         self.requires = False
@@ -260,28 +254,28 @@ class JSONDataSerializer(JSONData):
         afile = os.path.abspath(str(__file__))
 
         # The internal object schema for the framework - a fixed set of files as final MODE_SCHEMA_DRAFT4.
-        self.schemafile = kargs.get('schemafile',None)
+        self.schemafile = kwargs.get('schema_file', None)
         if self.schema and self.schemafile:
             # When a schema/schema file is provided, it is the only and one
             # for the top-level,
-            raise JSONDataAmbiguity('schemafile/schema',
-                "schemafile="+str(self.schemafile),
-                "schema="+str(self.schema)
-                )
+            raise JSONDataAmbiguity('schema_file/schema',
+                                    "schema_file=" + str(self.schemafile),
+                                    "schema=" + str(self.schema)
+                                    )
 
-        self.nodefaultpath = kargs.get('nodefaultpath',False)
+        self.nodefaultpath = kwargs.get('nodefaultpath', False)
 
-        self.pathlist = kargs.get('pathlist','')
+        self.pathlist = kwargs.get('pathlist', '')
 
-        self.filelist = kargs.get('filelist',None)
+        self.filelist = kwargs.get('filelist', None)
         if not self.filelist:
-            self.filelist = [ appname+'.json', ]
+            self.filelist = [appname + '.json', ]
 
-        self.filepathlist = kargs.get('filepathlist',[])
+        self.filepathlist = kwargs.get('filepathlist', [])
 
         # positional parameters dominate, remaining are MODE_SCHEMA_DRAFT4
         if args:
-            for i in range(0,len(args)):
+            for i in range(0, len(args)):
                 if i == 0:
                     self.filelist = args[i]
                 elif i == 1:
@@ -291,14 +285,15 @@ class JSONDataSerializer(JSONData):
                 elif i == 3:
                     self.schemafile = args[i]
                 else:
-                    raise JSONDataValue("unknown","args["+str(i)+"]",str(args))
+                    raise JSONDataValue("unknown", "args[" + str(i) + "]",
+                                        str(args))
 
         #
-        #*** Fetch parameters
+        # *** Fetch parameters
         #
-        for k,v in kargs.items():
-#             if k == 'branch':
-#                 self.branch = v
+        for k, v in list(kwargs.items()):
+            #             if k == 'branch':
+            #                 self.branch = v
             if k == 'datafile':
                 self.datafile = v
             elif k == 'filepathlist':
@@ -315,42 +310,48 @@ class JSONDataSerializer(JSONData):
                 self.nodesubdata = v
             elif k == 'requires':
                 self.requires = v
-            elif k == 'schemafile':
+            elif k == 'schema_file':
                 self.schemafile = v
             elif k == 'validator':
                 self.validator = v
 
         if __debug__:
             if self.debug:
-                print "DBG:self.pathlist=    "+str(self.pathlist)
-                print "DBG:self.filelist=    "+str(self.filelist)
-                print "DBG:self.filepathlist="+str(self.filepathlist)
-                print "DBG:self.schemafile=  "+str(self.schemafile)
+                print("DBG:self.pathlist=    " + str(self.pathlist))
+                print("DBG:self.filelist=    " + str(self.filelist))
+                print("DBG:self.filepathlist=" + str(self.filepathlist))
+                print("DBG:self.schema_file=  " + str(self.schemafile))
 
-        if type(self.pathlist) == list: # a list of single-paths
+        if type(self.pathlist) == list:  # a list of single-paths
             if not self.nodefaultpath:
                 # Fixed set of data files as final default.
                 self.pathlist.extend(
-                    [os.path.dirname(afile)+os.sep+'etc'+os.sep+appname+os.sep,
-                    os.pathsep+os.sep+'etc'+os.sep,
-                    os.pathsep+"$HOME"+os.sep+'etc'+os.sep,
-                    os.pathsep+os.path.dirname(__file__)+os.sep,
-                    ])
+                    [os.path.dirname(
+                        afile) + os.sep + 'etc' + os.sep + appname + os.sep,
+                     os.pathsep + os.sep + 'etc' + os.sep,
+                     os.pathsep + "$HOME" + os.sep + 'etc' + os.sep,
+                     os.pathsep + os.path.dirname(__file__) + os.sep,
+                     ])
 
             # expand all
-            self.pathlist = [os.path.expandvars(os.path.expanduser(p)) for p in self.pathlist]
-            #parts = [part.branch_replace('~', '~0') for part in self.parts]
+            self.pathlist = [os.path.expandvars(os.path.expanduser(p)) for p in
+                             self.pathlist]
+            # parts = [part.branch_replace('~', '~0') for part in self.parts]
 
-        else: # a PATH like variable, so do it at once
+        else:  # a PATH like variable, so do it at once
             if not self.nodefaultpath:
                 # Fixed set of data files as the final default.
-                self.pathlist += os.path.dirname(afile)+os.sep+'etc'+os.sep+appname+os.sep+os.pathsep+os.sep+'etc'+os.sep+os.pathsep+"$HOME"+os.sep+'etc'+os.sep+os.pathsep+os.path.dirname(__file__)+os.sep
-            self.pathlist  = os.path.expandvars(os.path.expanduser(self.pathlist)).split(os.pathsep)
-        
-        # canonical
-        self.pathlist = [os.path.realpath(os.path.abspath(p))+os.sep for p in self.pathlist]
+                self.pathlist += os.path.dirname(
+                    afile) + os.sep + 'etc' + os.sep + appname + os.sep + os.pathsep + os.sep + 'etc' + os.sep + os.pathsep + "$HOME" + os.sep + 'etc' + os.sep + os.pathsep + os.path.dirname(
+                    __file__) + os.sep
+            self.pathlist = os.path.expandvars(
+                os.path.expanduser(self.pathlist)).split(os.pathsep)
 
-        if not self.datafile: # No explicit given
+        # canonical
+        self.pathlist = [os.path.realpath(os.path.abspath(p)) + os.sep for p in
+                         self.pathlist]
+
+        if not self.datafile:  # No explicit given
             if self.filelist:
                 for f in self.filelist:
                     if os.path.isabs(f):
@@ -358,87 +359,105 @@ class JSONDataSerializer(JSONData):
                         self.filelist.remove(f)
                     else:
                         for p in self.pathlist:
-                            fx=p+os.sep+f
+                            fx = p + os.sep + f
                             if os.path.isfile(fx):
                                 self.filepathlist.append(fx)
-                                if f in self.filelist: # could occur under multiple paths
+                                if f in self.filelist:  # could occur under multiple paths
                                     self.filelist.remove(f)
 
-        elif not os.path.isfile(self.datafile): # a provided datafile has to exist
-            raise JSONDataSourceFile("open","datafile",str(self.datafile))
+        elif not os.path.isfile(
+                self.datafile):  # a provided datafile has to exist
+            raise JSONDataSourceFile("open", "datafile", str(self.datafile))
 
         if not self.filepathlist:
             if not self.datafile:
-                raise JSONDataSourceFile("value","datasource",str(self.filelist)+":"+str(self.pathlist))
+                raise JSONDataSourceFile("value", "datasource",
+                                         str(self.filelist) + ":" + str(
+                                             self.pathlist))
 
         # Check whether validation is requested.
         # If so, do a last trial for plausible construction.
-        if not self.schema and self.validator != MODE_SCHEMA_OFF:
+        if not self.schema and self.validator is not SchemaMode.OFF:
             # require schema for validation, no schema provided, now-than...
-            if not self.schemafile: # do we have a file
+            if not self.schemafile:  # do we have a file
                 if self.datafile:
-                    if os.path.isfile(os.path.splitext(self.datafile)[0]+'.jsd'): # coallocated pair - datafile+schemafile
-                        self.schemafile = os.path.splitext(self.datafile)[0]+'.jsd'
-                elif self.filepathlist: # search, use the first found
+                    if os.path.isfile(os.path.splitext(self.datafile)[
+                                          0] + '.jsd'):  # coallocated pair - datafile+schema_file
+                        self.schemafile = os.path.splitext(self.datafile)[
+                                              0] + '.jsd'
+                elif self.filepathlist:  # search, use the first found
                     for f in self.filepathlist:
-                        if os.path.isfile(f) and os.path.isfile(os.path.splitext(f)[0]+".jsd"):
-                            self.schemafile = os.path.splitext(f)[0]+".jsd"
-                            break # just use the first valid-pair
-                        raise JSONDataSourceFile("open","schemafile",str(self.filepathlist))
+                        if os.path.isfile(f) and os.path.isfile(
+                                        os.path.splitext(f)[0] + ".jsd"):
+                            self.schemafile = os.path.splitext(f)[0] + ".jsd"
+                            break  # just use the first valid-pair
+                        raise JSONDataSourceFile("open", "schema_file",
+                                                 str(self.filepathlist))
                 else:
-                    raise JSONDataSourceFile("value","datasource",str(self.filelist)+":"+str(self.pathlist))
+                    raise JSONDataSourceFile("value", "datasource",
+                                             str(self.filelist) + ":" + str(
+                                                 self.pathlist))
 
             # when defined => has to be present
             if self.schemafile:
                 if not os.path.isfile(self.schemafile):
-                    raise JSONDataSourceFile("open","schemafile",str(self.schemafile))
-    
+                    raise JSONDataSourceFile("open", "schema_file",
+                                             str(self.schemafile))
+
                 # initialize schema
-                kargs['schemafile'] = self.schemafile
-                self.setSchema(**kargs)
+                kwargs['schema_file'] = self.schemafile
+                self.set_schema(**kwargs)
 
         if __debug__:
             if self.debug:
-                print "DBG:self.pathlist=    "+str(self.pathlist)
-                print "DBG:self.filelist=    "+str(self.filelist)
-                print "DBG:self.filepathlist="+str(self.filepathlist)
-                print "DBG:self.schemafile=  "+str(self.schemafile)
+                print("DBG:self.pathlist=    " + str(self.pathlist))
+                print("DBG:self.filelist=    " + str(self.filelist))
+                print("DBG:self.filepathlist=" + str(self.filepathlist))
+                print("DBG:self.schema_file=  " + str(self.schemafile))
 
         #
         # load data, therefore search data files within pathlist
         #
-        confok=False
+        confok = False
         onenok = False
-        if not self.datafile: # No explicit given
+        if not self.datafile:  # No explicit given
             if self.filepathlist:
                 for f in self.filepathlist:
-                    if self.json_import(self.branch,None,f,self.schemafile,**kimp):
-                        confok=True
+                    if self.json_import(self.branch, None, f, self.schemafile,
+                                        **kimp):
+                        confok = True
                     else:
                         onenok = True
 
-                if not confok: # base loaded only
-                    if not self.requires: # there is a rule
-                        if self.requires == 'base': # is mandatory, reaching this means is OK
+                if not confok:  # base loaded only
+                    if not self.requires:  # there is a rule
+                        if self.requires == 'base':  # is mandatory, reaching this means is OK
                             pass
                         else:
-                            raise JSONDataSourceFile("value","datasource",str(self.filepathlist)+":"+str(self.filelist)+":"+str(self.pathlist))
+                            raise JSONDataSourceFile("value", "datasource", str(
+                                self.filepathlist) + ":" + str(
+                                self.filelist) + ":" + str(self.pathlist))
 
-                else: # at least one application configuration loaded
-                    if self.requires != False: # there is a rule
-                        if self.requires == 'all': # no exeception allowed
-                            if onenok: # one has failed
-                                raise JSONDataSourceFile("value","datasource",str(self.filepathlist)+":"+str(self.filelist)+":"+str(self.pathlist))
-                        elif self.requires == 'base': # is mandatory, reaching this means is OK
+                else:  # at least one application configuration loaded
+                    if self.requires != False:  # there is a rule
+                        if self.requires == 'all':  # no exeception allowed
+                            if onenok:  # one has failed
+                                raise JSONDataSourceFile("value", "datasource",
+                                                         str(
+                                                             self.filepathlist) + ":" + str(
+                                                             self.filelist) + ":" + str(
+                                                             self.pathlist))
+                        elif self.requires == 'base':  # is mandatory, reaching this means is OK
                             pass
-                        elif self.requires == 'one': # reaching this means is OK
+                        elif self.requires == 'one':  # reaching this means is OK
                             pass
 
         else:
             if os.path.exists(self.datafile):
                 if not self.schemafile and self.schema:
                     kimp['schema'] = self.schema
-                self.json_import(self.branch, None, self.datafile, self.schemafile,**kimp)
+                self.json_import(self.branch, None, self.datafile,
+                                 self.schemafile, **kimp)
 
     def json_export(self, sourcenode, fname, **kargs):
         """ Exports current data for later import.
@@ -465,10 +484,10 @@ class JSONDataSerializer(JSONData):
             sourcenode = self.data
         try:
             with open(fname, 'w') as fp:
-                #ret = 
+                # ret =
                 myjson.dump(sourcenode, fp)
         except Exception as e:
-            raise JSONDataTargetFile("open-"+str(e),"data.dump",str(fname))
+            raise JSONDataTargetFile("open-" + str(e), "data.dump", str(fname))
         return True
 
     def json_import(self, targetnode, key, datafile, schemafile=None, **kargs):
@@ -497,7 +516,7 @@ class JSONDataSerializer(JSONData):
                     the requirement and the type of applied container.
 
                     For information on applicable values refer to:
-                        'JSONDataSerializer.isApplicable()'
+                        'JSONDataSerializer.is_applicable()'
 
                 validator: [default, draft3, off, ]
                     Sets schema validator for the data file.
@@ -519,92 +538,94 @@ class JSONDataSerializer(JSONData):
 
         """
         if self.verbose:
-            print "VERB:json_import:datafile=   "+str(datafile)
-            print "VERB:json_import:schemafile= "+str(schemafile)
+            print("VERB:json_import:datafile=   " + str(datafile))
+            print("VERB:json_import:schema_file= " + str(schemafile))
 
         jval = None
         sval = None
         matchcondition = []
 
         #
-        #*** Fetch parameters
+        # *** Fetch parameters
         #
-        validator = self.validator # use class settings as MODE_SCHEMA_DRAFT4
-        for k,v in kargs.items():
+        validator = self.validator  # use class settings as MODE_SCHEMA_DRAFT4
+        for k, v in list(kargs.items()):
             if k == 'matchcondition':
-                #For now just passed through to self.isApplicable()
-                if v == 'key' or v == MATCH_KEY:
-                    matchcondition.append(MATCH_KEY)
-                elif v == 'no' or v == MATCH_NO:
-                    matchcondition.append(MATCH_NO)
-                elif v == 'child_attr_list' or v == MATCH_CHLDATTR:
-                    matchcondition.append(MATCH_CHLDATTR)
-                elif v == 'index' or v == MATCH_INDEX:
-                    matchcondition.append(MATCH_INDEX)
-                elif v == 'mem' or v == MATCH_MEM:
-                    matchcondition.append(MATCH_MEM)
+                # For now just passed through to self.is_applicable()
+                if v == 'key' or v == Match.KEY:
+                    matchcondition.append(Match.KEY)
+                elif v == 'no' or v is Match.NO:
+                    matchcondition.append(Match.NO)
+                elif v == 'child_attr_list' or v == Match.CHLDATTR:
+                    matchcondition.append(Match.CHLDATTR)
+                elif v == 'index' or v == Match.INDEX:
+                    matchcondition.append(Match.INDEX)
+                elif v == 'mem' or v == Match.MEM:
+                    matchcondition.append(Match.MEM)
                 else:
-                    raise JSONDataValue(k,str(v))
-            elif k == 'validator': # controls validation by JSONschema
-                if v == 'default' or v == MODE_SCHEMA_DRAFT4:
-                    validator = MODE_SCHEMA_DRAFT4
-                elif v == 'draft3' or v == MODE_SCHEMA_DRAFT3:
-                    validator = MODE_SCHEMA_DRAFT3
-                elif v == 'off' or v == MODE_SCHEMA_OFF:
-                    validator = MODE_SCHEMA_OFF
+                    raise JSONDataValue(k, str(v))
+            elif k == 'validator':  # controls validation by JSONschema
+                if v == 'default' or v is SchemaMode.DRAFT4:
+                    validator = SchemaMode.DRAFT4
+                elif v == 'draft3' or v is SchemaMode.DRAFT3:
+                    validator = SchemaMode.DRAFT3
+                elif v == 'off' or v is SchemaMode.OFF:
+                    validator = SchemaMode.OFF
                 else:
-                    raise JSONDataValue("unknown",k,str(v))
+                    raise JSONDataValue("unknown", k, str(v))
             elif k == 'schema':
                 sval = v
 
         # INPUT-BRANCH: schema for validation
-        if validator != MODE_SCHEMA_OFF: # validation requested, requires schema
-            if not schemafile: # no new import, use present data
-                if not self.schema: # no schema data present
-                    raise JSONDataException("value","schema",self.schema)
+        if validator is not SchemaMode.OFF:  # validation requested, requires schema
+            if not schemafile:  # no new import, use present data
+                if not self.schema:  # no schema data present
+                    raise JSONDataException("value", "schema", self.schema)
             else:
                 schemafile = os.path.abspath(schemafile)
                 if not os.path.isfile(schemafile):
-                    raise JSONDataSourceFile("open","schemafile",str(schemafile))
+                    raise JSONDataSourceFile("open", "schema_file",
+                                             str(schemafile))
                 with open(schemafile) as schema_file:
                     sval = myjson.load(schema_file)
                 if not sval:
-                    raise JSONDataSourceFile("read","schemafile",str(schemafile))
+                    raise JSONDataSourceFile("read", "schema_file",
+                                             str(schemafile))
 
         # INPUT-BRANCH: data
         datafile = os.path.abspath(datafile)
         if not os.path.isfile(datafile):
-            raise JSONDataSourceFile("open","datafile",str(datafile))
+            raise JSONDataSourceFile("open", "datafile", str(datafile))
         try:
-            with open(datafile) as data_file: # load data
+            with open(datafile) as data_file:  # load data
                 jval = myjson.load(data_file)
         except Exception as e:
-            raise JSONDataSourceFile("open","datafile",str(datafile),str(e))
+            raise JSONDataSourceFile("open", "datafile", str(datafile), str(e))
         if not jval:
-            raise JSONDataSourceFile("read","datafile",str(datafile))
+            raise JSONDataSourceFile("read", "datafile", str(datafile))
 
         # INPUT-BRANCH: validate data
-        self.validate(jval,sval,validator)
+        self.validate(jval, sval, validator)
 
         #
         # TARGET-CONTAINER: manage new branch data
         #
-        if not targetnode: # use defaults
-            if not self.data: # the initial load, thus OK in any case
+        if not targetnode:  # use defaults
+            if not self.data:  # the initial load, thus OK in any case
                 self.data = jval
             targetnode = self.data
             ret = jval != None
-        else: # data history present, so decide how to handle
+        else:  # data history present, so decide how to handle
 
             # Checks that the branch fits into the target container
-            if not self.isApplicable(targetnode, key, jval):
+            if not self.is_applicable(targetnode, key, jval):
                 return False
 
-            ret = self.branch_add(targetnode,key,jval)
+            ret = self.branch_add(targetnode, key, jval)
 
-        return ret # jval != None
+        return ret  # jval != None
 
-    def printData(self, pretty=True, **kargs):
+    def print_data(self, pretty=True, **kwargs):
         """Prints structured data.
 
         Args:
@@ -627,25 +648,25 @@ class JSONDataSerializer(JSONData):
             forwarded from 'json'
 
         """
-        source = kargs.get('source',None)
-        sourcefile = kargs.get('sourcefile',None)
+        source = kwargs.get('source', None)
+        sourcefile = kwargs.get('sourcefile', None)
         if sourcefile and source:
             raise JSONDataAmbiguity('sourcefile/source',
-                "sourcefile="+str(sourcefile),
-                "source="+str(source)
-                )
+                                    "sourcefile=" + str(sourcefile),
+                                    "source=" + str(source)
+                                    )
         if sourcefile:
             source = open(sourcefile)
             source = myjson.load(source)
         elif not source:
-            source = self.data # yes, almost the same...
+            source = self.data  # yes, almost the same...
 
         if pretty:
-            print myjson.dumps(source,indent=self.indent)
+            print(myjson.dumps(source, indent=self.indent))
         else:
-            print myjson.dumps(source)
+            print(myjson.dumps(source))
 
-    def printSchema(self, pretty=True, **kargs):
+    def print_schema(self, pretty=True, **kwargs):
         """Prints structured schema.
 
         Args:
@@ -668,25 +689,25 @@ class JSONDataSerializer(JSONData):
             forwarded from 'json'
 
         """
-        source = kargs.get('source',None)
-        sourcefile = kargs.get('sourcefile',None)
+        source = kwargs.get('source', None)
+        sourcefile = kwargs.get('sourcefile', None)
         if sourcefile and source:
             raise JSONDataAmbiguity('sourcefile/source',
-                "sourcefile="+str(sourcefile),
-                "source="+str(source)
-                )
+                                    "sourcefile=" + str(sourcefile),
+                                    "source=" + str(source)
+                                    )
         if sourcefile:
             source = open(sourcefile)
             source = myjson.load(source)
         elif not source:
-            source = self.schema # yes, almost the same...
+            source = self.schema  # yes, almost the same...
 
         if pretty:
-            print myjson.dumps(source,indent=self.indent)
+            print(myjson.dumps(source, indent=self.indent))
         else:
-            print myjson.dumps(source)
+            print(myjson.dumps(source))
 
-    def setSchema(self,schemafile=None, targetnode=None, **kargs):
+    def set_schema(self, schema_file=None, target_node=None, **kwargs):
         """Sets schema or inserts a new branch into the current assigned schema.
 
         The main schema(targetnode==None) is the schema related to the current
@@ -696,15 +717,15 @@ class JSONDataSerializer(JSONData):
         file in order as extension of the original for later combined reuse.
 
         Args:
-            schemafile:
+            schema_file:
                 JSON-Schema filename for validation of the subtree/branch.
                 See also **kargs['schema'].
-            targetnode:
+            target_node:
                 Target container hook for the inclusion of the loaded branch.
-            **kargs:
+            **kwargs:
                 schema:
-                    In-memory JSON-Schema as an alternative to schemafile.
-                    When provided the 'schemafile' is ignored.
+                    In-memory JSON-Schema as an alternative to schema_file.
+                    When provided the 'schema_file' is ignored.
                     
                     default:=None
                 validator: [default, draft3, off, ]
@@ -714,9 +735,9 @@ class JSONDataSerializer(JSONData):
                     
                     default:= validate
                 persistent:
-                    Stores the 'schema' persistently into 'schemafile' after
+                    Stores the 'schema' persistently into 'schema_file' after
                     completion of update including addition of branches.
-                    Requires valid 'schemafile'.
+                    Requires valid 'schema_file'.
                     
                     default:=False
 
@@ -735,25 +756,25 @@ class JSONDataSerializer(JSONData):
         """
         if __debug__:
             if self.debug:
-                print "DBG:setSchema:schemafile="+str(schemafile)
+                print("DBG:set_schema:schema_file=" + str(schema_file))
 
         #
-        #*** Fetch parameters
+        # *** Fetch parameters
         #
         datafile = None
-        validator = self.validator # use class settings as MODE_SCHEMA_DRAFT4
+        validator = self.validator  # use class settings as MODE_SCHEMA_DRAFT4
         persistent = False
         schema = None
-        for k,v in kargs.items():
-            if k == 'validator': # controls validation by JSONschema
-                if v == 'default' or v == MODE_SCHEMA_DRAFT4:
-                    validator = MODE_SCHEMA_DRAFT4
-                elif v == 'draft3' or v == MODE_SCHEMA_DRAFT3:
-                    validator = MODE_SCHEMA_DRAFT3
-                elif v == 'off' or v == MODE_SCHEMA_OFF:
-                    validator = MODE_SCHEMA_OFF
+        for k, v in list(kwargs.items()):
+            if k == 'validator':  # controls validation by JSONschema
+                if v == 'default' or v is SchemaMode.DRAFT4:
+                    validator = SchemaMode.DRAFT4
+                elif v == 'draft3' or v is SchemaMode.DRAFT3:
+                    validator = SchemaMode.DRAFT3
+                elif v == 'off' or v is SchemaMode.OFF:
+                    validator = SchemaMode.OFF
                 else:
-                    raise JSONDataValue("unknown",k,str(v))
+                    raise JSONDataValue("unknown", k, str(v))
             elif k == 'schema':
                 schema = v
             elif k == 'datafile':
@@ -761,54 +782,58 @@ class JSONDataSerializer(JSONData):
             elif k == 'persistent':
                 persistent = v
 
-        if schemafile != None: # change filename
-            self.schemafile = schemafile
-        elif self.schemafile != None: # use present
-            schemafile = self.schemafile
-        elif datafile != None: # derive coallocated from config
-            schemafile = os.path.splitext(self.datafile)[0]+'.jsd'
-            if not os.path.isfile(schemafile):
-                schemafile = None
+        if schema_file != None:  # change filename
+            self.schemafile = schema_file
+        elif self.schemafile != None:  # use present
+            schema_file = self.schemafile
+        elif datafile != None:  # derive coallocated from config
+            schema_file = os.path.splitext(self.datafile)[0] + '.jsd'
+            if not os.path.isfile(schema_file):
+                schema_file = None
             else:
-                self.schemafile = schemafile
+                self.schemafile = schema_file
 
-        if not schemafile:
-            if persistent: # persistence requires storage
-                raise JSONDataTargetFile("open","JSONSchemaFilename",schemafile)
+        if not schema_file:
+            if persistent:  # persistence requires storage
+                raise JSONDataTargetFile("open", "JSONSchemaFilename",
+                                         schema_file)
 
         # schema for validation
-        if schema: # use loaded
+        if schema:  # use loaded
             pass
 
-        elif schemafile: # load from file
-            schemafile = os.path.abspath(schemafile)
-            self.schemafile = schemafile
-            if not os.path.isfile(schemafile):
-                raise JSONDataSourceFile("open","schemafile",str(schemafile))
-            with open(schemafile) as schema_file:
+        elif schema_file:  # load from file
+            schema_file = os.path.abspath(schema_file)
+            self.schemafile = schema_file
+            if not os.path.isfile(schema_file):
+                raise JSONDataSourceFile("open", "schema_file", str(schema_file))
+            with open(schema_file) as schema_file:
                 schema = myjson.load(schema_file)
             if schema == None:
-                raise JSONDataSourceFile("read","schemafile",str(schemafile))
+                raise JSONDataSourceFile("read", "schema_file", str(schema_file))
 
-        else: # missing at all
-            raise JSONDataSourceFile("open","schemafile",str(schemafile))
+        else:  # missing at all
+            raise JSONDataSourceFile("open", "schema_file", str(schema_file))
             pass
 
         #
         # manage new branch data
         #
-        if not targetnode:
+        if not target_node:
             self.schema = schema
 
-        else: # data history present, so decide how to handle
+        else:  # data history present, so decide how to handle
 
             # the container hook has to match for insertion-
-            if type(targetnode) != type(schema):
-                raise JSONDataException("type","target!=branch",str(type(targetnode))+"!="+str(type(schema)))
-        
-            self.branch_add(targetnode,schema)
+            if type(target_node) != type(schema):
+                raise JSONDataException("type", "target!=branch",
+                                        str(type(target_node)) + "!=" + str(
+                                            type(schema)))
 
-        return schema != None
+            self.branch_add(target_node, schema)
 
-from jsondata.JSONPointer import JSONPointer 
+        return schema is not None
+
+
+from .pointer import JSONPointer
 # avoid nested recursion problems

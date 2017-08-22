@@ -1,16 +1,16 @@
 """Simple print self.data.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os, sys
-from StringIO import StringIO
+from io import StringIO
 
 import json #,jsonschema
 jval = None
 
-from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
+from jsondata.serializer import JSONDataSerializer as ConfigData
+from jsondata.serializer import MODE_SCHEMA_OFF
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"
@@ -86,7 +86,7 @@ class CallUnits(unittest.TestCase):
         """
         oout = sys.stdout
         sys.stdout = StringIO()
-        configdata.printData(False)
+        configdata.print_data(False)
         sout = sys.stdout.getvalue()
         sys.stdout = oout
         conf_out = """{"phoneNumber": [{"type": "home", "number": "212 555-1234"}], "address": {"city": "New York", "streetAddress": "21 2nd Street", "houseNumber": 12}}

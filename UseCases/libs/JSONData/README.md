@@ -46,17 +46,17 @@ getValueNode
 
 Evaluates to the value of a node.
 
-isApplicable
+is_applicable
 ------------
 
 Check whether condition is matched.
 
-printData
+print_data
 ---------
 
 Print data.
 
-printSchema
+print_schema
 -----------
 
 Print schema.

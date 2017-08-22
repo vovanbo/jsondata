@@ -2,7 +2,7 @@
 """Standards tests from RFC6902 for compliance of patch syntax.
 
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -15,10 +15,10 @@ else:
     import json as myjson
 
 try:
-    from jsondata.JSONPointer import JSONPointer
-    from jsondata.JSONData import JSONData
+    from jsondata.pointer import JSONPointer
+    from jsondata.data import JSONData
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 
 #
 #######################
@@ -37,7 +37,7 @@ class CallUnits(unittest.TestCase):
         """Add and convert."""
         global result010
 
-        val0 = jdata.getCanonical(JSONPointer(['value0',0]))
+        val0 = jdata.get_canonical(JSONPointer(['value0', 0]))
         assert val0 == 11
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@
 """Standards tests from RFC6902 for compliance of patch syntax.
 
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -19,16 +19,16 @@ import jsonschema
 jval = None
 
 try:
-    from jsondata.JSONPointer import JSONPointer
+    from jsondata.pointer import JSONPointer
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 try:
-    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-    from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
-    from jsondata.JSONPatch import JSONPatch,JSONPatchItem,JSONPatchItemRaw
-    from jsondata.JSONPointer import JSONPointer
+    from jsondata.serializer import JSONDataSerializer as ConfigData
+    from jsondata.serializer import MODE_SCHEMA_OFF
+    from jsondata.patch import JSONPatch,JSONPatchItem,JSONPatchItemRaw
+    from jsondata.pointer import JSONPointer
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondc"

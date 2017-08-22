@@ -73,7 +73,7 @@ OPTIONS:
      Search path for JSON data file(s) to be inserted as additional branches,
      standard list for current platform.
      default:= ../dirname(__file__)/:dirname(__file__)/:/etc/:$HOME/
-  -s, --schemafile= <schemafile>
+  -s, --schema_file= <schema_file>
      Schema file - JSONschema.
      default: jsondatacheck.jsd
   -S, --print-schema
@@ -113,114 +113,107 @@ PYTHON OPTIONS:
   -O, -OO
    Eliminates '__debug__' code.
 """
+import getopt, sys, os
+from jsondata.serializer import JSONDataSerializer as ConfigData
+
 __author__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
 __version__ = '0.2.12'
-__uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
+__uuid__ = '63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 
-try:
-    from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
-    import sys
-    sys.exit(1)
-# name of application, used for several filenames as default
-_APPNAME = "jsondatacheck"
-
-#
-#--- fetch options
-#
-import getopt, sys, os
- 
 def usage():
     if __name__ == '__main__':
         import pydoc
-        #FIXME: literally displayed '__main__'
-        print pydoc.help(__name__)
+        # FIXME: literally displayed '__main__'
+        print(pydoc.help(__name__))
     else:
         help(str(os.path.basename(sys.argv[0]).split('.')[0]))
 
-_kargs={}
+
+_kargs = {}
 try:
     _longopts = [
-        "help","debug","verbose","version","Version",
-        "appname=", "configfile=","schemafile=","validator=","no-default-path",
-        "no-sub-data","pathlist=","plugins-pathlist=","print-schema","print-data",
+        "help", "debug", "verbose", "version", "Version",
+        "appname=", "configfile=", "schema_file=", "validator=",
+        "no-default-path",
+        "no-sub-data", "pathlist=", "plugins-pathlist=", "print-schema",
+        "print-data",
         "interactive", "filelist=",
         "selftest", "json="
     ]
-    _opts, _args = getopt.getopt(sys.argv[1:], "a:c:f:j:is:np:P:NDShdvV:", _longopts)
-except getopt.GetoptError, err:
-    print str(err)
+    _opts, _args = getopt.getopt(sys.argv[1:], "a:c:f:j:is:np:P:NDShdvV:",
+                                 _longopts)
+except getopt.GetoptError as err:
+    print(str(err))
     usage()
     sys.exit(2)
 
-_appname = _APPNAME
+_appname = 'jsondatacheck'
 
 _selftest = False
 _verbose = 0
 
-for _o,_a in _opts:
+for _o, _a in _opts:
     if _o == "--selftest":
         _selftest = True
-    elif _o in ("-a","--appname"):
+    elif _o in ("-a", "--appname"):
         _appname = _a
-    elif _o in ("-c","--configfile"):
+    elif _o in ("-c", "--configfile"):
         _kargs['configfile'] = _a
-    elif _o in ("-D","--print-data"):
+    elif _o in ("-D", "--print-data"):
         _kargs['printdata'] = True
-    elif _o in ("-f","--filelist"):
+    elif _o in ("-f", "--filelist"):
         _kargs['filelist'] = _a.split(":")
 
-    elif _o in ("-j","--json"):
+    elif _o in ("-j", "--json"):
         if _a == 'ujson':
             import ujson as myjson
-            #_myjson = 'ujson'
+            # _myjson = 'ujson'
         else:
             import json as myjson
-            #_myjson = 'json'
-        #import importlib
-        #i = importlib.import_module(_myjson)
+            # _myjson = 'json'
+            # import importlib
+            # i = importlib.import_module(_myjson)
 
-    elif _o in ("-n","--no-default-path"):
+    elif _o in ("-n", "--no-default-path"):
         _kargs['nodefaultpath'] = True
-    elif _o in ("-N","--no-sub-data"):
+    elif _o in ("-N", "--no-sub-data"):
         _kargs['nosubdata'] = True
-    elif _o in ("-p","--pathlist"):
+    elif _o in ("-p", "--pathlist"):
         _kargs['pathlist'] = _a
-    elif _o in ("-P","--plugins-pathlist"):
+    elif _o in ("-P", "--plugins-pathlist"):
         _kargs['pluginspathlist'] = _a
-    elif _o in ("-s","--schemafile"):
-        _kargs['schemafile'] = _a
-    elif _o in ("-S","--print-schema"):
+    elif _o in ("-s", "--schema_file"):
+        _kargs['schema_file'] = _a
+    elif _o in ("-S", "--print-schema"):
         _kargs['printschema'] = True
-    elif _o in ("-V","--validator"):
+    elif _o in ("-V", "--validator"):
         _kargs['validator'] = _a
 
     elif _o in ("-i", "--interactive"):
         _kargs['interactive'] = True
 
-    elif _o in ("-d","--debug"):
+    elif _o in ("-d", "--debug"):
         _kargs['debug'] = True
-    elif _o in ("-v","--verbose"):
+    elif _o in ("-v", "--verbose"):
         _verbose += 1
-        
-    elif _o in ("-h","--help"):
+
+    elif _o in ("-h", "--help"):
         usage()
         sys.exit()
 
     elif _o in ("--version"):
-        print str(__version__)
+        print(str(__version__))
         sys.exit()
     elif _o in ("--Version"):
-        print "app:      "+str(_APPNAME)
-        print "version:  "+str(__version__)
-        print "author:   "+str(__author__)
-        print "copyright:"+str(__copyright__)
-        print "license:  "+str(__license__)
-        print "file:     "+str(os.path.basename(__file__))
+        print("app:      " + str(_APPNAME))
+        print("version:  " + str(__version__))
+        print("author:   " + str(__author__))
+        print("copyright:" + str(__copyright__))
+        print("license:  " + str(__license__))
+        print("file:     " + str(os.path.basename(__file__)))
         sys.exit()
 
     else:
@@ -230,15 +223,15 @@ if _selftest:
     try:
         from jsondata.Selftest import runselftest
     except Exception as e:
-        print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+"\n"
-        print "\n#sys.path="+str(sys.path)+"\n#\n"
+        print("\n#\n#*** Set 'PYTHONPATH' (" + str(e) + "\n")
+        print("\n#sys.path=" + str(sys.path) + "\n#\n")
 
     # name of application, used for several filenames as default
     _appname = "selftest"
-    if _verbose>0:
-        _kargs['_verbose'] = _verbose 
-    stest = runselftest(_appname,**_kargs)
+    if _verbose > 0:
+        _kargs['_verbose'] = _verbose
+    stest = runselftest(_appname, **_kargs)
 else:
-    if _verbose>0:
-        _kargs['verbose'] = True 
-    configdata = ConfigData(_appname,**_kargs)
+    if _verbose > 0:
+        _kargs['verbose'] = True
+    configdata = ConfigData(_appname, **_kargs)

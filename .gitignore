@@ -179,3 +179,4 @@ ide/eclipse/.metadata/.plugins/org.eclipse.core.runtime/*
 !.gitignore
 
 
+/.python-version

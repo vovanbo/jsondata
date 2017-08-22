@@ -1,6 +1,6 @@
 """Append list element.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -15,7 +15,7 @@ else:
     import json as myjson
 import jsonschema
 
-from jsondata.JSONData import JSONData
+from jsondata.data import JSONData
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondatacheck"
@@ -36,7 +36,7 @@ class CallUnits(unittest.TestCase):
         """Equal."""
         n0 = { 'a': { 'b': { 'c': [2] }}}
         n1 = { 'a': { 'b': { 'c': [2] }}}
-        ret = JSONData.getTreeDiff(n0, n1)
+        ret = JSONData.get_tree_diff(n0, n1)
         assert ret == True
         pass
 
@@ -44,7 +44,7 @@ class CallUnits(unittest.TestCase):
         """Diff."""
         n0 = { 'a': { 'b': { 'c': [2] }}}
         n1 = { 'A': { 'b': { 'c': [2] }}}
-        ret = JSONData.getTreeDiff(n0, n1)
+        ret = JSONData.get_tree_diff(n0, n1)
         assert ret == False
         pass
  
@@ -52,7 +52,7 @@ class CallUnits(unittest.TestCase):
         """Diff."""
         n0 = { 'a': [{ 'b': { 'c': 2 }}]}
         n1 = { 'a': [{ 'B': { 'c': 2 }}]}
-        ret = JSONData.getTreeDiff(n0, n1)
+        ret = JSONData.get_tree_diff(n0, n1)
         assert ret == False
         pass
 
@@ -60,7 +60,7 @@ class CallUnits(unittest.TestCase):
         """Diff."""
         n0 = { 'a': { 'b': [{ 'c': 2 }]}}
         n1 = { 'a': { 'b': [{ 'C': 2 }]}}
-        ret = JSONData.getTreeDiff(n0, n1)
+        ret = JSONData.get_tree_diff(n0, n1)
         assert ret == False
         pass
  

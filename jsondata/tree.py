@@ -9,37 +9,17 @@ The provided features comprise:
 
 
 """
+try:
+    import ujson as myjson
+except ImportError:
+    import json as myjson
+
 __author__ = 'Arno-Can Uestuensoez'
 __maintainer__ = 'Arno-Can Uestuensoez'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez @Ingenieurbuero Arno-Can Uestuensoez"
 __version__ = '0.2.18'
-__uuid__='63b597d6-4ada-4880-9f99-f5e0961351fb'
-
-import sys
-
-version = '{0}.{1}'.format(*sys.version_info[:2])
-if not version in ('2.6','2.7',): # pragma: no cover
-    raise Exception("Requires Python-2.6.* or higher")
-# if version < '2.7': # pragma: no cover
-#     raise Exception("Requires Python-2.7.* or higher")
-
-#import re
-#import json, jsonschema
-
-if sys.modules.get('json'):
-    import json as myjson
-elif sys.modules.get('ujson'):
-    import ujson as myjson
-else:
-    import json as myjson
-
-# default
-_appname = "jsonpatch"
-"""Sets display for inetractive JSON/JSONschema design."""
-
-_interactive = False
-"""Activates interactive mode."""
+__uuid__ = '63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 DIFF_FIRST = 0
 """break display of diff after first"""
@@ -63,18 +43,12 @@ LINE_WRAP = 1
 """wrap line in order to fit to length"""
 
 
-class JSONTreeException(Exception):
-    """Error in JSONTree."""
-    pass
-
-
 class JSONTree(object):
-
-    def __init__(self,**kargs):
+    def __init__(self, **kwargs):
         """Create an object for the tree representation.
 
         Args:
-            **kargs: Parameter specific for the operation,
+            **kwargs: Parameter specific for the operation,
 
                 scope:
                 
@@ -124,14 +98,14 @@ class JSONTree(object):
         self.verbose = False
         self.debug = False
         self.difflist = []
-        
+
         self.scope = DIFF_ALL
         self.linefit = LINE_WRAP
         self.linewidth = 60
         self.charset = CHARS_RAW
         self.indent = 4
-        
-        for k,v in kargs.items():
+
+        for k, v in list(kwargs.items()):
             if k in ("scope"):
                 if v in ('all', DIFF_ALL):
                     self.scope = DIFF_ALL
@@ -139,7 +113,7 @@ class JSONTree(object):
                     self.scope = DIFF_FIRST
                 else:
                     self.scope = DIFF_FIRST
-        
+
             elif k in ("charset"):
                 if v in ('raw', CHARS_RAW):
                     self.charset = CHARS_RAW
@@ -168,10 +142,10 @@ class JSONTree(object):
 
             elif k in ("verbose"):
                 self.verbose = True
-            
+
             elif k in ("debug"):
                 self.debug = True
-    
+
     def printDiff(self):
         """Prints out the resulting list of differences.
 
@@ -185,39 +159,39 @@ class JSONTree(object):
             passed through exceptions:
 
         """
-        ret=""
-        _i=" "*self.indent
+        ret = ""
+        _i = " " * self.indent
         w = self.linewidth
-        
+
         for d in self.difflist:
             if w and self.linefit == LINE_CUT:
-                ret += "path="+str(d['p']) +"\n"
-                line = _i+"n0"+str(d['p'])+" = "+str(d['n0']) 
-                ret += line[:w]+"\n"
-                line  = _i+"n1"+str(d['p'])+" = "+str(d['n1'])
-                ret += line[:w]+"\n"
+                ret += "path=" + str(d['p']) + "\n"
+                line = _i + "n0" + str(d['p']) + " = " + str(d['n0'])
+                ret += line[:w] + "\n"
+                line = _i + "n1" + str(d['p']) + " = " + str(d['n1'])
+                ret += line[:w] + "\n"
             elif w and self.linefit == LINE_WRAP:
-                ret += "path="+str(d['p']) +"\n"
-                line = _i+"n0"+str(d['p'])+" = "+str(d['n0']) 
+                ret += "path=" + str(d['p']) + "\n"
+                line = _i + "n0" + str(d['p']) + " = " + str(d['n0'])
                 while line:
-                    ret += line[:w]+"\n"
+                    ret += line[:w] + "\n"
                     line = line[w:]
                     if line:
-                        ret += _i*2
-                line  = _i+"n1"+str(d['p'])+" = "+str(d['n1'])
+                        ret += _i * 2
+                line = _i + "n1" + str(d['p']) + " = " + str(d['n1'])
                 while line:
-                    ret += line[:w]+"\n"
+                    ret += line[:w] + "\n"
                     line = line[w:]
                     if line:
-                        ret += _i*2
+                        ret += _i * 2
             else:
-                ret += "path="+str(d['p']) +"\n"
-                ret += "  n0"+str(d['p'])+" = "+str(d['n0'])+"\n"
-                ret += "  n1"+str(d['p'])+" = "+str(d['n1'])+"\n"
-        
+                ret += "path=" + str(d['p']) + "\n"
+                ret += "  n0" + str(d['p']) + " = " + str(d['n0']) + "\n"
+                ret += "  n1" + str(d['p']) + " = " + str(d['n1']) + "\n"
+
         return ret
 
-    def fetchDiff(self,n0, n1, p=[], dl=0):
+    def fetchDiff(self, n0, n1, p=[], dl=0):
         """Recursive tree compare for Python trees as used for the package 'json'.
         
         Finds diff in native Python trees assembled by the standard package 'json'
@@ -287,76 +261,77 @@ class JSONTree(object):
         self.delta = False
         self.pathonly = False
 
-
         # assure JSON strings
         if type(n0) is str:
-            n0 = unicode(n0)
+            n0 = str(n0)
         if type(n1) is str:
-            n1 = unicode(n1)
-        
-        dl +=1
-        
-        if type(n0) != type(n1): # non equal types are different
+            n1 = str(n1)
+
+        dl += 1
+
+        if type(n0) != type(n1):  # non equal types are different
             if self.verbose:
-                print 'type:'+str(type(n0))+' != '+str(type(n1))
-            self.difflist.append({'n0':n0,'n1':n1,'dl':dl,'p':p[:]})
+                print('type:' + str(type(n0)) + ' != ' + str(type(n1)))
+            self.difflist.append({'n0': n0, 'n1': n1, 'dl': dl, 'p': p[:]})
             ret &= False
-    
-        elif type(n0) is list: # equal types, both list
+
+        elif type(n0) is list:  # equal types, both list
             if len(n0) != len(n1):
                 if self.verbose:
-                    print 'len:'+str(len(n0))+' != '+str(len(n1))
-                self.difflist.append({'n0':n0,'n1':n1,'dl':dl,'p':p[:]})
+                    print('len:' + str(len(n0)) + ' != ' + str(len(n1)))
+                self.difflist.append({'n0': n0, 'n1': n1, 'dl': dl, 'p': p[:]})
                 ret &= False
             else:
-                for ni in range(0,len(n0)):
+                for ni in range(0, len(n0)):
                     if not p:
-                        pni=[ni]
+                        pni = [ni]
                     else:
-                        pni=p[:]
+                        pni = p[:]
                         pni.append(ni)
-                    ret &= self.fetchDiff(n0[ni],n1[ni],pni,dl)
+                    ret &= self.fetchDiff(n0[ni], n1[ni], pni, dl)
 
                     if self.scope == DIFF_FIRST:
                         if not ret:
                             break
-    
+
         elif type(n0) is dict:
-            
-            if len(n0.keys()) != len(n1.keys()):
+
+            if len(list(n0.keys())) != len(list(n1.keys())):
                 if self.verbose:
-                    print 'len:'+str(len(n0.keys()))+' != '+str(len(n1.keys()))
-                self.difflist.append({'n0':n0,'n1':n1,'dl':dl,'p':p[:]})
+                    print('len:' + str(len(list(n0.keys()))) + ' != ' + str(
+                        len(list(n1.keys()))))
+                self.difflist.append({'n0': n0, 'n1': n1, 'dl': dl, 'p': p[:]})
                 ret &= False
-            
+
             else:
-                for ni,v in n0.items():
+                for ni, v in list(n0.items()):
                     if not p:
-                        pni=[ni]
+                        pni = [ni]
                     else:
-                        pni=p[:]
+                        pni = p[:]
                         pni.append(ni)
                     if n1.get(ni) and v != n1[ni]:
                         if self.verbose:
-                            print 'item('+str(ni)+'):'+str(v)+' != '+str(n1[ni])
-                        if type(v) in (list,dict):
-                            ret &= self.fetchDiff(v,n1[ni],pni,dl)
+                            print('item(' + str(ni) + '):' + str(
+                                v) + ' != ' + str(n1[ni]))
+                        if type(v) in (list, dict):
+                            ret &= self.fetchDiff(v, n1[ni], pni, dl)
                         else:
-                            self.difflist.append({'ni':ni, 'n0':n0[ni],'n1':n1[ni],'dl':dl,'p':p[:]})
+                            self.difflist.append(
+                                {'ni': ni, 'n0': n0[ni], 'n1': n1[ni], 'dl': dl,
+                                 'p': p[:]})
                             ret &= False
 
                         if self.scope == DIFF_FIRST:
                             if not ret:
                                 break
 
-                    elif type(v) in (list,dict):
-                        ret &= self.fetchDiff(v,n1[ni],pni,dl)
-    
-        else: # invalid types may have been eliminated already
+                    elif type(v) in (list, dict):
+                        ret &= self.fetchDiff(v, n1[ni], pni, dl)
+
+        else:  # invalid types may have been eliminated already
             if n0 != n1:
-                self.difflist.append({'n0':n0,'n1':n1,'dl':dl,'p':p[:]})
+                self.difflist.append({'n0': n0, 'n1': n1, 'dl': dl, 'p': p[:]})
                 ret &= False
-        
+
         return ret
-
-

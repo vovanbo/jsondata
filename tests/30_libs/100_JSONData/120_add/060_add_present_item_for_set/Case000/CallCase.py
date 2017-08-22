@@ -1,6 +1,6 @@
 """Import of branches by jsondata.JSONDataSerializer.branch_replace_set().
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -16,8 +16,8 @@ import jsonschema
 
 jval = None
 
-from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_DRAFT4
+from jsondata.serializer import JSONDataSerializer as ConfigData
+from jsondata.serializer import MODE_SCHEMA_DRAFT4
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondatacheck"
@@ -47,7 +47,7 @@ class CallUnits(unittest.TestCase):
 
         kargs = {}
         kargs['datafile'] = datafile
-        kargs['schemafile'] = schemafile
+        kargs['schema_file'] = schemafile
         kargs['nodefaultpath'] = True
         kargs['nosubdata'] = True
         kargs['pathlist'] = os.path.dirname(__file__)

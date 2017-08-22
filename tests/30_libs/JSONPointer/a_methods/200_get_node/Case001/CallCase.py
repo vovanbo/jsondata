@@ -2,7 +2,7 @@
 """Standards tests from RFC6902 for compliance of patch syntax.
 
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os
@@ -15,10 +15,10 @@ else:
     import json as myjson
 
 try:
-    from jsondata.JSONPointer import JSONPointer
-    from jsondata.JSONData import JSONData
+    from jsondata.pointer import JSONPointer
+    from jsondata.data import JSONData
 except Exception as e:
-    print "\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n"
+    print("\n#\n#*** Set 'PYTHONPATH' ("+str(e)+")\n#\n")
 
 #
 #######################

@@ -1,10 +1,10 @@
 """Pretty print data read from 'source'.
 """
-from __future__ import absolute_import
+
 
 import unittest
 import os, sys
-from StringIO import StringIO
+from io import StringIO
 
 #
 if 'ujson' in sys.argv:
@@ -14,8 +14,8 @@ else:
 #import jsonschema
 jval = None
 
-from jsondata.JSONDataSerializer import JSONDataSerializer as ConfigData
-from jsondata.JSONDataSerializer import MODE_SCHEMA_OFF
+from jsondata.serializer import JSONDataSerializer as ConfigData
+from jsondata.serializer import MODE_SCHEMA_OFF
 
 # name of application, used for several filenames as MODE_SCHEMA_DRAFT4
 _APPNAME = "jsondatacheck"
@@ -100,7 +100,7 @@ class CallUnits(unittest.TestCase):
         source = open(os.path.dirname(__file__)+os.sep+"testdata.json").read()
         source = myjson.loads(source)
         kargs = {'source':source}
-        configdata.printData(**kargs)
+        configdata.print_data(**kargs)
         sout = sys.stdout.getvalue()
         sys.stdout = oout
         conf_out = """{
