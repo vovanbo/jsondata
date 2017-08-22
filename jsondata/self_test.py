@@ -211,7 +211,7 @@ def verify_data_schema(appname):
     logger.debug("self.schema_file=  " + str(data_file))
     logger.debug("self.schema_file=  " + str(schema_file))
 
-    serializer = JSONDataSerializer(
+    JSONDataSerializer(
         appname, schema_file=schema_file, data_file=data_file,
         validator=SchemaMode.DRAFT3, path_list=[cwd]
     )
@@ -234,7 +234,7 @@ def verify_appname_schema(appname):
     logger.debug("self.schema_file=  " + str(data_file))
     logger.debug("self.schema_file=  " + str(schema_file))
 
-    serializer = JSONDataSerializer(
+    JSONDataSerializer(
         appname, schema_file=schema_file, data_file=data_file,
         validator=SchemaMode.DRAFT3, path_list=[cwd]
     )
@@ -336,19 +336,19 @@ def jsonpointer_selftest_data(appname):
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")
     jsonptrdata = jsonptr.get_node_or_value(serializer.data)
-    assert jsonptrdata == True
+    assert jsonptrdata is True
 
     jsonptr = JSONPointer('/phoneNumber/0/private')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")
     jsonptrdata = jsonptr.get_node_or_value(serializer.data)
-    assert jsonptrdata == False
+    assert jsonptrdata is False
 
     jsonptr = JSONPointer('/phoneNumber/0/addons')
     if not jsonptr:
         raise BaseException("Failed to create JSONPointer")
     jsonptrdata = jsonptr.get_node_or_value(serializer.data)
-    assert jsonptrdata == None
+    assert jsonptrdata is None
 
     jsonptr = JSONPointer('/phoneNumber/0/index')
     if not jsonptr:

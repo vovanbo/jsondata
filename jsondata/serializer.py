@@ -229,7 +229,7 @@ class JSONDataSerializer(JSONData):
         self.requires = requires
 
         # Either provided explicitly, or for search.
-        self.data_file = Path(data_file)
+        self.data_file = Path(data_file) if data_file is not None else None
 
         file_ = Path(__file__).resolve()
 
@@ -261,6 +261,8 @@ class JSONDataSerializer(JSONData):
 
         if isinstance(self.path_list, str):
             self.path_list = self.path_list.split(os.pathsep)
+        elif isinstance(self.path_list, Path):
+            self.path_list = [self.path_list,]
 
         # a list of single-paths
         if not self.no_default_path:
@@ -278,10 +280,14 @@ class JSONDataSerializer(JSONData):
             for p in self.path_list
         ]
 
-        if not self.data_file.exists():  # No explicit given
-            self.file_path_list = [f.resolve() for f in self.file_list]
+        if self.data_file is None or not self.data_file.exists():
+            # No explicit given
+            self.file_path_list = []
+            for path in self.path_list:
+                self.file_path_list.extend((path / f).resolve()
+                                           for f in self.file_list)
             self.file_list = []
-        elif not self.data_file.is_file():
+        elif self.data_file and not self.data_file.is_file():
             # a provided data_file has to exist
             raise JSONDataSourceFile("open", "data_file", str(self.data_file))
 

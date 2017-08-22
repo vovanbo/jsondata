@@ -1,2 +1,0 @@
-"""Test PyUnit environment.
-"""
