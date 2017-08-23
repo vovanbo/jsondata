@@ -5,6 +5,7 @@ import pytest
 from pathlib import Path
 
 from jsondata.data import SchemaMode
+from jsondata.exceptions import JSONDataKeyError, JSONDataNodeType
 from jsondata.serializer import JSONDataSerializer
 
 
@@ -167,3 +168,106 @@ def test_json_export(json_data_serializer):
         validator=SchemaMode.DRAFT4
     )
     assert serializer.data == temp_serializer.data
+
+
+@pytest.mark.parametrize('json_data_serializer',
+                         [SchemaMode.DRAFT4],
+                         indirect=['json_data_serializer'])
+def test_add_new(json_data_serializer, fixture_folder):
+    serializer = json_data_serializer
+    schema = {
+        "$schema": "http://json-schema.org/draft-03/schema",
+        'phoneNumber': serializer.schema['properties']['phoneNumber']
+    }
+    data_file = fixture_folder / 'basics' / 'branch1.json'
+    target = serializer.data['phoneNumber']
+    assert serializer.json_import(target, '-', data_file, schema=schema)
+    assert serializer.data == {
+        'address': {
+            'city': 'New York',
+            'streetAddress': '21 2nd Street',
+            'houseNumber': 12
+        },
+        'phoneNumber': [
+            {'type': 'home', 'number': '212 555-1234'},
+            {'type': 'office', 'number': '313 444-555'},
+            {'type': 'mobile', 'number': '777 666-555'},
+            {'type': 'home1', 'number': '111 222-333'},
+        ],
+    }
+
+    data_file = fixture_folder / 'basics' / 'branch2.json'
+    assert serializer.json_import(target, 0, data_file, schema=schema)
+    result = {
+        'address': {
+            'city': 'New York',
+            'streetAddress': '21 2nd Street',
+            'houseNumber': 12
+        },
+        'phoneNumber': [
+            {'type': 'home2', 'number': '222 222-333'},
+            {'type': 'office', 'number': '313 444-555'},
+            {'type': 'mobile', 'number': '777 666-555'},
+            {'type': 'home1', 'number': '111 222-333'},
+        ],
+    }
+    assert serializer.data == result
+
+
+@pytest.mark.parametrize('json_data_serializer',
+                         [SchemaMode.DRAFT4],
+                         indirect=['json_data_serializer'])
+def test_json_import_errors(json_data_serializer, fixture_folder, json_basic):
+    serializer = json_data_serializer
+    target = serializer.data['phoneNumber']
+    data_file = fixture_folder / 'basics' / 'branch2.json'
+    schema = {
+        "$schema": "http://json-schema.org/draft-03/schema",
+        'phoneNumber': serializer.schema['properties']['phoneNumber']
+    }
+
+    with pytest.raises(JSONDataKeyError):
+        assert serializer.json_import(target, 'phoneNumber', data_file,
+                                      schema=schema)
+    assert serializer.data == json_basic
+
+    with pytest.raises(JSONDataNodeType):
+        assert serializer.json_import(target, None, data_file,
+                                      schema=schema)
+    assert serializer.data == json_basic
+
+
+@pytest.mark.parametrize('json_data_serializer',
+                         [SchemaMode.DRAFT4],
+                         indirect=['json_data_serializer'])
+def test_add_present_item(json_data_serializer, fixture_folder):
+    serializer = json_data_serializer
+    schema = {
+        'phoneNumber': serializer.schema['properties']['phoneNumber']
+    }
+    data_file = fixture_folder / 'basics' / 'branch1.json'
+    target = serializer.data
+    assert serializer.json_import(target, None, data_file, schema=schema)
+    assert serializer.data == {'type': 'home1', 'number': '111 222-333'}
+
+
+@pytest.mark.parametrize('json_data_serializer',
+                         [SchemaMode.DRAFT4],
+                         indirect=['json_data_serializer'])
+def test_load_and_import_with_validation(json_data_serializer, fixture_folder):
+    serializer = json_data_serializer
+    schema = {
+        'phoneNumber': serializer.schema['properties']['phoneNumber']
+    }
+    data_file = fixture_folder / 'basics' / 'branch1.json'
+    target = serializer.data
+    assert serializer.json_import(target, 'phoneNumber', data_file,
+                                  schema=schema)
+    assert serializer.data == {
+        'address': {
+            'city': 'New York',
+            'streetAddress': '21 2nd Street',
+            'houseNumber': 12
+        },
+        'phoneNumber': {'type': 'home1', 'number': '111 222-333'},
+    }

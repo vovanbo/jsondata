@@ -581,7 +581,7 @@ class JSONData:
         elif isinstance(target_node, list):
             if key == '-':
                 target_node.append(copy.deepcopy(source_node))
-            elif 0 <= key < len(target_node):
+            elif isinstance(key, int) and 0 <= key < len(target_node):
                 target_node[key] = copy.deepcopy(source_node)
             elif key is None:  # 0 is valid
                 if not isinstance(source_node, list):
