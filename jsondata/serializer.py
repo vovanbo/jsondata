@@ -389,7 +389,8 @@ class JSONDataSerializer(JSONData):
                                  self.schema_file, **import_kwargs)
 
     def json_export(self, source_node, filename, **kwargs):
-        """ Exports current data for later import.
+        """
+        Exports current data for later import.
 
         The exported data is a snapshot of current state.
 
@@ -422,7 +423,8 @@ class JSONDataSerializer(JSONData):
 
     def json_import(self, target_node, key, data_file, schema_file=None,
                     validator=None, schema=None, match_condition=(), **kwargs):
-        """ Imports and validates JSON based data.
+        """
+        Imports and validates JSON based data.
 
         The contained data in 'data_file' could be either the initial data
         tree, or a new branch defined by a fresh tree structure. The
@@ -511,7 +513,6 @@ class JSONDataSerializer(JSONData):
                 self.data = json_data
             ret = json_data is not None
         else:  # data history present, so decide how to handle
-
             # Checks that the branch fits into the target container
             if not self.is_applicable(target_node, key, json_data,
                                       match_condition):

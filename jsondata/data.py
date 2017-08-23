@@ -504,7 +504,8 @@ class JSONData:
         return not self.__eq__(x)
 
     def branch_add(self, target_node, key, source_node):
-        """Add a complete branch into a target structure of type object.
+        """
+        Add a complete branch into a target structure of type object.
 
         Present previous branches are replaced, non-existent branches are 
         added. The added branch is created by a deep copy, thus is completely 
@@ -602,7 +603,8 @@ class JSONData:
                                        type(source_node)))
 
     def branch_copy(self, target_node, key, source_node, force=True):
-        """Copies the source branch to the target node.
+        """
+        Copies the source branch to the target node.
 
         The copy is internally mapped onto the 'branch_add' call, 
         thus shares basically the same parameters and behaviour.
@@ -1032,7 +1034,8 @@ class JSONData:
 
     @classmethod
     def branch_test(cls, target_node, value):
-        """Tests match in accordance to RFC6902.
+        """
+        Tests match in accordance to RFC6902.
 
         Args:
             target_node := a valid node
@@ -1174,7 +1177,8 @@ class JSONData:
 
     @classmethod
     def get_pointer_path(cls, node, base, restype=FIRST):
-        """Converts a node address into the corresponding pointer path.
+        """
+        Converts a node address into the corresponding pointer path.
         
         The current implementation is search based, thus may have 
         performance issues when frequently applied.
@@ -1206,9 +1210,6 @@ class JSONData:
 
         spath = []
         res = []
-
-        kl = 0
-        kd = None
 
         if isinstance(base, list):  # first layer - list of elements
             kl = 0
@@ -1365,7 +1366,6 @@ class JSONData:
             JSONDataValue:
 
         """
-
         if match_condition is None:
             match_condition = (Match.INSERT,)
 
@@ -1503,7 +1503,9 @@ class JSONData:
         return ok
 
     def pop(self, key):
-        """Transparently passes the 'pop()' call to 'self.data'."""
+        """
+        Transparently passes the 'pop()' call to 'self.data'.
+        """
         return self.data.pop(key)
 
     def print_data(self, pretty=True, source=None, source_file=None):
@@ -1512,11 +1514,11 @@ class JSONData:
         Args:
             pretty: Activates pretty printer for treeview, else flat.
 
-            sourcefile: Loads data from 'sourcefile' into 'source'.
-                
+            source_file: Loads data from 'source_file' into 'source'.
+
                 default:=None
             source: Prints data within 'source'.
-                
+
                 default:=self.data
 
         Returns:
@@ -1585,9 +1587,10 @@ class JSONData:
 
     def set_schema(self, schema_file=None, target_node=None, data_file=None,
                    persistent=False, schema=None, validator=None):
-        """Sets schema or inserts a new branch into the current assigned schema.
+        """
+        Sets schema or inserts a new branch into the current assigned schema.
 
-        The main schema(targetnode==None) is the schema related to the current
+        The main schema(target_node==None) is the schema related to the current
         instance. Additional branches could be added by importing the specific
         schema definitions into the main schema. These could either kept
         volatile as a temporary runtime extension, or stored into a new schema
@@ -1599,17 +1602,17 @@ class JSONData:
                 See also **kwargs['schema'].
             target_node:
                 Target container hook for the inclusion of the loaded branch.
-            schema:
-                In-memory JSON-Schema as an alternative to schema_file.
-                When provided the 'schema_file' is ignored.
-
-                default:=None
             validator: [default, draft3, off, ]
                 Sets schema validator for the data file.
                 The values are: default=validate, draft3=Draft3Validator,
                 off=None.
 
-                default:= validate
+                default:= None
+            schema:
+                In-memory JSON-Schema as an alternative to schema_file.
+                When provided the 'schema_file' is ignored.
+
+                default:=None
             persistent:
                 Stores the 'schema' persistently into 'schema_file' after
                 completion of update including addition of branches.
@@ -1754,8 +1757,6 @@ class JSONData:
             jsonschema.Draft3Validator(data, schema)
         elif validator is not SchemaMode.OFF:
             raise JSONDataValue("unknown", "validator", str(validator))
-
-        pass
 
 
 from .pointer import JSONPointer
