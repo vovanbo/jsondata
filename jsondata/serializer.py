@@ -11,9 +11,10 @@ try:
 except ImportError:
     import json as myjson
 
-from .data import JSONData, SchemaMode, Match
+from .data import JSONData, SchemaMode
+from .helpers import is_collection
 from .exceptions import (
-    JSONDataException, JSONDataValue, JSONDataSourceFile, JSONDataTargetFile,
+    JSONDataException, JSONDataSourceFile, JSONDataTargetFile,
     JSONDataAmbiguity
 )
 
@@ -226,15 +227,12 @@ class JSONDataSerializer(JSONData):
 
         self.no_default_path = no_default_path
         self.no_sub_data = no_sub_data
-        self.requires = requires
 
         # Either provided explicitly, or for search.
         self.data_file = Path(data_file) if data_file is not None else None
 
-        file_ = Path(__file__).resolve()
-
         # The internal object schema for the framework -
-        # a fixed set of files as final MODE_SCHEMA_DRAFT4.
+        # a fixed set of files as final SchemaMode.DRAFT4.
         self.schema_file = schema_file
         if self.schema and self.schema_file:
             # When a schema/schema file is provided, it is the only and one
@@ -244,34 +242,28 @@ class JSONDataSerializer(JSONData):
                                     "schema=" + str(self.schema)
                                     )
 
-        self.path_list = path_list
         self.file_list = [Path(f) for f in file_list] \
-            if file_list \
+            if is_collection(file_list) \
             else [Path('%s.json' % appname)]
         self.file_path_list = file_path_list or []
         self.file_priority = file_priority
-        self.indent_str = indent_str
-        self.load_cached = load_cached
         self.validator = validator
 
-        logger.debug("self.path_list=%s", self.path_list)
-        logger.debug("self.file_list=%s", self.file_list)
-        logger.debug("self.file_path_list=%s", self.file_path_list)
-        logger.debug("self.schema_file=%s", self.schema_file)
+        if isinstance(path_list, str):
+            path_list = path_list.split(os.pathsep)
 
-        if isinstance(self.path_list, str):
-            self.path_list = self.path_list.split(os.pathsep)
-        elif isinstance(self.path_list, Path):
-            self.path_list = [self.path_list,]
+        self.path_list = path_list if is_collection(path_list) else [path_list]
+
+        cwd = Path.cwd()
 
         # a list of single-paths
         if not self.no_default_path:
             # Fixed set of data files as final default.
             self.path_list.extend([
-                file_.parent / 'etc' / appname,
+                cwd / 'etc' / appname,
                 Path('/etc/'),
                 Path('$HOME/etc/'),
-                file_.parent
+                cwd
             ])
 
         # expand all
@@ -301,7 +293,7 @@ class JSONDataSerializer(JSONData):
         # If so, do a last trial for plausible construction.
         if not self.schema and self.validator is not SchemaMode.OFF:
             # require schema for validation, no schema provided, now-than...
-            if not self.schema_file:  # do we have a file
+            if self.schema_file is None:  # do we have a file
                 if self.data_file:
                     # co-allocated pair: data_file + schema_file
                     if self.data_file.with_suffix('.jsd').exists():
@@ -318,25 +310,23 @@ class JSONDataSerializer(JSONData):
                         "value", "datasource",
                         '%s:%s' % (self.file_list, self.path_list)
                     )
-
-            # when defined => has to be present
-            if self.schema_file:
+            else:
                 if not self.schema_file.is_file():
-                    raise JSONDataSourceFile("open", "schema_file",
-                                             str(self.schema_file))
-
+                    raise JSONDataSourceFile(
+                        "open", "schema_file", str(self.schema_file)
+                    )
                 self.set_schema(schema_file=self.schema_file)
 
-        logger.debug("self.path_list=%s", self.path_list)
-        logger.debug("self.file_list=%s", self.file_list)
-        logger.debug("self.file_path_list=%s", self.file_path_list)
-        logger.debug("self.schema_file=%s", self.schema_file)
+        logger.debug('JSONDataSerializer: path_list=%s, '
+                     'file_list=%s, file_path_list=%s, schema_file=%s',
+                     self.path_list, self.file_list, self.file_path_list,
+                     self.schema_file)
 
         #
         # load data, therefore search data files within path_list
         #
         configuration_ok = False
-        onenok = False
+        one_of_files_is_wrong = False
         import_kwargs = {}
 
         if not self.data_file:  # No explicit given
@@ -346,7 +336,7 @@ class JSONDataSerializer(JSONData):
                                         **import_kwargs):
                         configuration_ok = True
                     else:
-                        onenok = True
+                        one_of_files_is_wrong = True
 
                 if not configuration_ok:  # base loaded only
                     if not self.requires:  # there is a rule
@@ -366,7 +356,7 @@ class JSONDataSerializer(JSONData):
                         # there is a rule
                         if self.requires == 'all':
                             # no exeception allowed
-                            if onenok:
+                            if one_of_files_is_wrong:
                                 # one has failed
                                 raise JSONDataSourceFile(
                                     "value", "datasource",
