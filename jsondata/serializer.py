@@ -233,7 +233,9 @@ class JSONDataSerializer(JSONData):
 
         # The internal object schema for the framework -
         # a fixed set of files as final SchemaMode.DRAFT4.
-        self.schema_file = schema_file
+        self.schema_file = Path(schema_file).resolve() \
+            if schema_file is not None \
+            else None
         if self.schema and self.schema_file:
             # When a schema/schema file is provided, it is the only and one
             # for the top-level,

@@ -198,7 +198,7 @@ class JSONPointer(list):
             # list of entries in accordance to RFC6901, and JSONPointer
             def presolv(p0):
                 if isinstance(p0, JSONPointer):  # copy constructor
-                    return p0.ptr
+                    return p0
                 elif p0 in ('', '/'):
                     return p0
                 elif isinstance(p0, str):
@@ -303,7 +303,8 @@ class JSONPointer(list):
         return self.get_node_or_value(x)
 
     def __eq__(self, x):
-        """Compares this pointer with x.
+        """
+        Compares this pointer with x.
 
         Args:
             x: A valid Pointer.
@@ -314,12 +315,11 @@ class JSONPointer(list):
         Raises:
             JSONPointerException
         """
-        s = '/%s' % '/'.join(map(str, self))
+        s = '/%s' % '/'.join(str(i) for i in self)
 
         if isinstance(x, JSONPointer):
             return s == x.get_pointer()
         elif isinstance(x, list):
-            # return s == unicode("/"+'/'.join(x))
             return s == JSONPointer(x).get_pointer()
         elif isinstance(x, str):
             return s == str(x)
@@ -327,10 +327,8 @@ class JSONPointer(list):
             return s == '/' + str(x)
         elif x is None:
             return False
-
         else:
             raise JSONPointerException()
-        return False
 
     def __ge__(self, x):
         """Checks containment(>=) of another pointer within this.
@@ -351,12 +349,12 @@ class JSONPointer(list):
             JSONPointerException:
 
         """
-        s = '/%s' % '/'.join(map(str, self))
+        s = '/%s' % '/'.join(str(i) for i in self)
 
         if isinstance(x, JSONPointer):
             px = x.get_pointer()
         elif isinstance(x, list):
-            px = "/%s" % '/'.join(map(str, x))
+            px = '/%s' % '/'.join(str(i) for i in x)
         elif isinstance(x, str):
             px = str(x)
         elif isinstance(x, int):
@@ -560,13 +558,13 @@ class JSONPointer(list):
             JSONPointerException:
         """
         if x == '':  # whole document, RFC6901
-            return '/%s' % '/'.join(map(str, self))
+            return '/%s' % '/'.join(str(i) for i in self)
         elif x == '/':  # empty tag
-            return '%s/%s' % (x, '/'.join(map(str, self)))
+            return '%s/%s' % (x, '/'.join(str(i) for i in self))
         elif isinstance(x, int):
-            return '/%s/%s' % (x, '/'.join(map(str, self)))
+            return '/%s/%s' % (x, '/'.join(str(i) for i in self))
         elif isinstance(x, str):
-            return '%s/%s' % (x, '/'.join(map(str, self)))
+            return '%s/%s' % (x, '/'.join(str(i) for i in self))
         elif isinstance(x, list):
             return x.extend(self)
         else:
@@ -616,12 +614,12 @@ class JSONPointer(list):
                 "Invalid nodetype parameter:" + str(type(jsondata)))
 
         if parent:
-            for x in self.ptr[:-1]:
+            for x in self[:-1]:
                 jsondata = jsondata.get(x, False)
                 if not jsondata:
                     return False
         else:
-            for x in self.ptr:
+            for x in self:
                 jsondata = jsondata.get(x, False)
                 if not jsondata:
                     return False
@@ -879,10 +877,11 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        if not self:  # == [] : special RFC6901, whole document
+        if not self:
+            # == [] : special RFC6901, whole document
             return jsondata
-        if len(self) == 1 and self[
-            0] == '':  # special RFC6901, '/' empty top-tag
+        if len(self) == 1 and self[0] == '':
+            # special RFC6901, '/' empty top-tag
             return jsondata['']
 
         if not isinstance(jsondata, VALID_NODE_TYPE):
@@ -898,7 +897,7 @@ class JSONPointer(list):
             else:
                 for x in self:
                     jsondata = jsondata[x]  # want the exception
-        except Exception as e:
+        except KeyError as e:
             raise JSONPointerException(
                 "Node(%s): %s of %s:%s" % (self.index(x), x, self, e)
             )
@@ -961,7 +960,7 @@ class JSONPointer(list):
         if self == ['']:  # special RFC6901, '/' empty top-tag
             return jsondata['']
 
-        if isinstance(jsondata, (dict, list)):
+        if not isinstance(jsondata, (dict, list)):
             # concrete info for debugging for type mismatch
             raise JSONPointerException(
                 "Invalid nodetype parameter: %s" % type(jsondata)
@@ -980,12 +979,12 @@ class JSONPointer(list):
                     # want the exception, the keys within the process
                     # has to match
                     jsondata = jsondata[x]
-        except Exception:
+        except (KeyError, TypeError):
             if parent:
                 remaining = self[self.index(remaining):-1]
             else:
                 remaining = self[self.index(remaining):]
-        if isinstance(jsondata, (dict, list)):
+        if not isinstance(jsondata, (dict, list)):
             # concrete info for debugging for type mismatch
             raise JSONPointerException(
                 "Invalid path nodetype: %s" % type(jsondata)
@@ -1094,9 +1093,9 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        if not self.ptr:  # special RFC6901, whole document
+        if not self:  # special RFC6901, whole document
             yield ''
-        elif self.ptr == ['']:  # special RFC6901, '/' empty top-tag
+        elif self == ['']:  # special RFC6901, '/' empty top-tag
             yield '/'
         else:
             if jsondata and not isinstance(jsondata, (dict, list)):
@@ -1107,14 +1106,14 @@ class JSONPointer(list):
 
             if rev:  # reverse
                 if parent:  # for parent
-                    ptrpath = self.ptr[:-1:-1]
+                    ptrpath = self[:-1:-1]
                 else:  # full path
-                    ptrpath = self.ptr[::-1]
+                    ptrpath = self[::-1]
             else:
                 if parent:  # for parent
-                    ptrpath = self.ptr[:-1]
+                    ptrpath = self[:-1]
                 else:  # full path
-                    ptrpath = self.ptr
+                    ptrpath = self
 
             try:
                 x = ptrpath[0]
@@ -1129,7 +1128,7 @@ class JSONPointer(list):
                     yield x
             except Exception as e:
                 raise JSONPointerException(
-                    "Node(%s): %s of %s:%s" % (self.index(x), x, self.ptr, e)
+                    "Node(%s): %s of %s:%s" % (self.index(x), x, self, e)
                 )
             self.node = jsondata  # cache for reuse
 
@@ -1149,9 +1148,9 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        if not self.ptr:  # special RFC6901, whole document
+        if not self:  # special RFC6901, whole document
             yield jsondata
-        elif self.ptr == ['']:  # special RFC6901, '/' empty top-tag
+        elif self == ['']:  # special RFC6901, '/' empty top-tag
             yield jsondata['']
         else:
             if not isinstance(jsondata, (dict, list)):
@@ -1162,14 +1161,14 @@ class JSONPointer(list):
 
             if rev:  # reverse
                 if parent:  # for parent
-                    ptrpath = self.ptr[:-1:-1]
+                    ptrpath = self[:-1:-1]
                 else:  # full path
-                    ptrpath = self.ptr[::-1]
+                    ptrpath = self[::-1]
             else:
                 if parent:  # for parent
-                    ptrpath = self.ptr[:-1]
+                    ptrpath = self[:-1]
                 else:  # full path
-                    ptrpath = self.ptr
+                    ptrpath = self
 
             try:
                 x = ptrpath[0]
@@ -1185,6 +1184,6 @@ class JSONPointer(list):
                     yield jsondata
             except Exception as e:
                 raise JSONPointerException(
-                    "Node(%s): %s of %s:%s" % (ptrpath.index(x), x, self.ptr, e)
+                    "Node(%s): %s of %s:%s" % (ptrpath.index(x), x, self, e)
                 )
             self.node = jsondata  # cache for reuse

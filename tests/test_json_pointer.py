@@ -235,10 +235,319 @@ def test_equality_basics():
 
 def test_equality_advanced():
     jp = JSONPointer('/address/streetAddress/')
-    assert '/address/streetAddress' == jp
-    assert jp == '/address/streetAddress'
+    assert jp == '/address/streetAddress/'
+
+    jp = JSONPointer('address/streetAddress/')
+    assert jp == '/address/streetAddress/'
 
     jp = JSONPointer('address/streetAddress')
-    assert '/address/streetAddress' == jp
     assert jp == '/address/streetAddress'
 
+
+def test_ge():
+    jp = JSONPointer('/address')
+    jp = jp + 'streetAddress'
+    assert jp >= '/address/streetAddress'
+
+    jp = JSONPointer('/address') + 'streetAddress'
+    assert jp >= '/address/streetAddress'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'type'
+    assert jp >= '/phoneNumber/0/type'
+
+    jp = JSONPointer('/phoneNumber') + 0
+    jp = jp + 'type'
+    assert jp >= '/phoneNumber/0/type'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'number'
+    assert jp >= '/phoneNumber/0/number'
+
+    jp = JSONPointer('/address/streetAddress')
+    assert jp >= '/address/streetAddress/'
+
+    jp = JSONPointer('/address/streetAddress')
+    assert jp >= '/address/streetAddress'
+
+    jp = JSONPointer('address/streetAddress')
+    assert jp >= '/address/streetAddress'
+
+    jp = JSONPointer('/address')
+    jp = jp + 'streetAddress'
+    assert not jp >= '/address'
+
+    jp = JSONPointer('/address') + 'streetAddress'
+    assert '/address/streetAddress' <= jp
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'type'
+    assert '/phoneNumber/0/type' <= jp
+
+    jp = JSONPointer('/phoneNumber') + 0
+    jp = jp + 'type'
+    assert '/phoneNumber/0/type' <= jp
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'number'
+    assert '/phoneNumber/0/number' <= jp
+
+
+def test_gt():
+    jp = JSONPointer('/address')
+    assert jp > '/address/streetAddress'
+
+    jp = JSONPointer('/address') + 'streetAddress'
+    assert not jp > '/address/streetAddress'
+
+    jp = JSONPointer('/phoneNumber') + 0
+    assert jp > '/phoneNumber/0/type'
+
+    jp = JSONPointer('/phoneNumber') + 0
+    jp = jp + 'type'
+    assert not jp > '/phoneNumber/0/type'
+
+    jp = JSONPointer('/phoneNumber') + 1 + 'number'
+    assert not jp > '/phoneNumber/0/number'
+
+    jp = JSONPointer('/address/streetAddress')
+    assert jp > '/address/streetAddress/'
+
+    jp = JSONPointer('address')
+    assert jp > '/address/streetAddress'
+
+    jp = JSONPointer('address/streetAddress')
+    assert not jp > '/address/streetAddress'
+
+
+def test_le():
+    jp = JSONPointer('/address')
+    jp = jp + 'streetAddress'
+    assert not jp < '/address/streetAddress'
+
+    jp = JSONPointer('/address') + 'streetAddress'
+    assert not jp < '/address/streetAddress'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'type'
+    assert not jp < '/phoneNumber/0/type'
+
+    jp = JSONPointer('/phoneNumber') + 0
+    jp = jp + 'type'
+    assert not jp < '/phoneNumber/0/type'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'number'
+    assert not jp < '/phoneNumber/0/number'
+
+    jp = JSONPointer('/address')
+    jp = jp + 'streetAddress'
+    assert jp < '/address'
+
+    jp = JSONPointer('/address')
+    jp = jp + 'streetAddress'
+    assert jp <= '/address/streetAddress'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'type'
+    assert jp < '/phoneNumber/0'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'type'
+    assert jp <= '/phoneNumber/0/type'
+
+
+def test_lt():
+    jp = JSONPointer('/address')
+    jp = jp + 'streetAddress'
+    assert not jp < '/address/streetAddress'
+
+    jp = JSONPointer('/address') + 'streetAddress'
+    assert not jp < '/address/streetAddress'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'type'
+    assert not jp < '/phoneNumber/0/type'
+
+    jp = JSONPointer('/phoneNumber') + 0
+    jp = jp + 'type'
+    assert not jp < '/phoneNumber/0/type'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'number'
+    assert not jp < '/phoneNumber/0/number'
+
+    jp = JSONPointer('/address')
+    jp = jp + 'streetAddress'
+    assert jp < '/address'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'type'
+    assert jp < '/phoneNumber/0'
+
+
+def test_ne():
+    jp = JSONPointer('/address')
+    jp = jp + 'streetAddress/'
+    assert jp != '/address/streetAddress'
+
+    jp = JSONPointer('/address') + 'streetAddress'
+    # now in one line
+    assert not jp != '/address/streetAddress'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'type'
+    assert jp != '/phoneNumber/0'
+
+    jp = JSONPointer('/phoneNumber') + 0
+    assert jp != '/phoneNumber/0/type'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'number'
+    assert jp != '/phoneNumber/0'
+
+    jp = JSONPointer('/address')
+    jp = jp + 'streetAddress'
+    assert jp != '/address'
+
+    jp = JSONPointer('/phoneNumber') + 0 + 'type'
+    assert jp != '/phoneNumber/1/type'
+
+
+def test_radd(fixture_folder, json_pointer_data):
+    serializer = JSONDataSerializer(
+        'test', path_list=fixture_folder, no_default_path=True,
+        no_sub_data=True, file_list=['data_for_pointer.json'],
+        validator=SchemaMode.OFF
+    )
+
+    jp = JSONPointer('/streetAddress')
+    jp = '/address' + jp
+    jp = JSONPointer(jp)
+
+    # now in one line
+    assert serializer.data["address"]["streetAddress"] == \
+           jp.get_node_or_value(serializer.data)
+
+    jp = '/address' + JSONPointer('/streetAddress')
+    jp = JSONPointer(jp)
+
+    # now in one line
+    assert serializer.data["address"]["streetAddress"] == \
+           jp.get_node_or_value(serializer.data)
+
+    jp = JSONPointer('/address' + JSONPointer('/streetAddress'))
+
+    # now in one line
+    assert serializer.data["address"]["streetAddress"] == \
+           jp.get_node_or_value(serializer.data)
+
+    jp = '/phoneNumber' + JSONPointer(0) + '/type'
+    assert serializer.data["phoneNumber"][0]["type"] == \
+           JSONPointer(jp).get_node_or_value(serializer.data)
+
+    jp = JSONPointer('/phoneNumber/' + str(0) + JSONPointer('type'))
+    assert serializer.data["phoneNumber"][0]["type"] == \
+           jp.get_node_or_value(serializer.data)
+
+    jp = 0 + JSONPointer('type')
+    jp = '/phoneNumber' + jp
+    assert serializer.data["phoneNumber"][0]["type"] == \
+           JSONPointer(jp).get_node_or_value(serializer.data)
+
+    for l in ('domestic', 'abroad'):
+        for n in (0, 1):
+            cdata = serializer.data["customers"][l][n]["name"]
+            jdata = json_pointer_data["customers"][l][n]["name"]
+            assert cdata == jdata
+
+            jp = JSONPointer('/customers/%s/%s' % (l, n) + JSONPointer('name'))
+            assert cdata == jp.get_node_or_value(serializer.data)
+
+            jp = JSONPointer('/customers/%s/%s' % (l, n)) + JSONPointer('name')
+            assert cdata == jp.get_node_or_value(serializer.data)
+
+
+def test_repr():
+    jp = JSONPointer('/streetAddress/address')
+    assert repr(jp) == """['streetAddress', 'address']"""
+
+    jp = JSONPointer('/streetAddress/address')
+    assert str(jp) == """/streetAddress/address"""
+
+
+@pytest.mark.parametrize('json_data_serializer',
+                         [SchemaMode.DRAFT4],
+                         indirect=['json_data_serializer'])
+def test_get_node_exist(json_data_serializer, fixture_folder):
+    # partial schema for branch, use here a subtree of main schema
+    serializer = json_data_serializer
+    schema = {
+        'phoneNumber': serializer.schema['properties']['phoneNumber']
+    }
+    target, remaining = \
+        JSONPointer("/phoneNumber/-").get_node_exist(serializer.data)
+
+    data_file = fixture_folder / 'basics/branch0.json'
+    assert serializer.json_import(target, remaining[0], data_file,
+                                  schema=schema)
+
+    assert serializer.data == {
+        'address': {
+            'city': 'New York',
+            'streetAddress': '21 2nd Street',
+            'houseNumber': 12
+        },
+        'phoneNumber': [
+            {'type': 'home', 'number': '212 555-1234'},
+            {'type': 'office', 'number': '313 444-555'},
+            {'type': 'mobile', 'number': '777 666-555'},
+            {'type': 'home0', 'number': '000 222-333'}
+        ],
+    }
+
+
+@pytest.mark.parametrize('json_data_serializer',
+                         [SchemaMode.DRAFT4],
+                         indirect=['json_data_serializer'])
+def test_get_node(json_data_serializer, fixture_folder):
+    serializer = json_data_serializer
+    schema = {
+        '$schema': 'http://json-schema.org/draft-03/schema',
+        'phoneNumber': serializer.schema['properties']['phoneNumber']
+    }
+    target = JSONPointer("/phoneNumber/0").get_node(serializer.data)
+
+    data_file = fixture_folder / 'basics/branch1.json'
+    assert serializer.json_import(target, None, data_file, schema=schema)
+
+    assert serializer.data == {
+        'address': {
+            'city': 'New York',
+            'streetAddress': '21 2nd Street',
+            'houseNumber': 12
+        },
+        'phoneNumber': [
+            {'type': 'home1', 'number': '111 222-333'},
+            {'type': 'office', 'number': '313 444-555'},
+            {'type': 'mobile', 'number': '777 666-555'},
+        ],
+    }
+
+
+@pytest.mark.parametrize('json_data_serializer',
+                         [SchemaMode.DRAFT4],
+                         indirect=['json_data_serializer'])
+def test_get_node_again(json_data_serializer, fixture_folder):
+    serializer = json_data_serializer
+    schema = {
+        '$schema': 'http://json-schema.org/draft-03/schema',
+        'phoneNumber': serializer.schema['properties']['phoneNumber']
+    }
+
+    data_file = fixture_folder / 'basics/branch2.json'
+    target = JSONPointer("/phoneNumber/1").get_node(serializer.data)
+    assert serializer.json_import(target, None, data_file, schema=schema)
+
+    target = JSONPointer("/phoneNumber/2").get_node(serializer.data)
+    assert serializer.json_import(target, None, data_file, schema=schema)
+
+    assert serializer.data == {
+        'address': {
+            'city': 'New York',
+            'streetAddress': '21 2nd Street',
+            'houseNumber': 12
+        },
+        'phoneNumber': [
+            {'type': 'home', 'number': '212 555-1234'},
+            {'type': 'home2', 'number': '222 222-333'},
+            {'type': 'home2', 'number': '222 222-333'},
+        ],
+    }
