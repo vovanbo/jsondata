@@ -1,5 +1,7 @@
 # -*- coding:utf-8   -*-
-"""The JSONPatch module provides for the alteration of JSON data compliant to RFC6902.
+"""
+The JSONPatch module provides for the alteration of JSON data compliant
+to RFC6902.
 
 The emphasis of the design combines low resource requirement with features
 designed for the application of large filters onto large JSON based data 
@@ -20,7 +22,8 @@ The module contains the following classes:
     Representation of one patch entry in accordance to RFC6902.
 
 * **JSONPatchItemRaw**:
-    Representation of one patch entry read as a raw entry in accordance to RFC6902.
+    Representation of one patch entry read as a raw entry in accordance
+    to RFC6902.
 
 * **JSONPatchFilter**:
     Selection filter for the application on the current patch list
@@ -225,7 +228,8 @@ class JSONPatchItem(object):
         return not self.__eq__(x)
 
     def __repr__(self):
-        """Prints the patch string in accordance to RFC6901.
+        """
+        Prints the patch string in accordance to RFC6901.
         """
         ret = "{'op': '%s', 'path': '%s'" % (self.op.value, self.target)
         if self.op in (Op.ADD, Op.REPLACE, Op.TEST):
@@ -245,7 +249,8 @@ class JSONPatchItem(object):
         return ret
 
     def __str__(self):
-        """Prints the patch string in accordance to RFC6901.
+        """
+        Prints the patch string in accordance to RFC6901.
         """
         ret = "{'op': '%s', 'target': '%s'" % (self.op.value, self.target)
         if self.op in (Op.ADD, Op.REPLACE, Op.TEST):
