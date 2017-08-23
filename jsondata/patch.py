@@ -567,7 +567,7 @@ class JSONPatch(object):
         Raises:
             JSONPatchException:
         """
-        if type(x) is int:
+        if isinstance(x, int):
             self.patch.pop(x)
         else:
             self.patch.remove(x)
