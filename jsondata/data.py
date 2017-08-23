@@ -568,7 +568,7 @@ class JSONData:
             if key:
                 target_node[key] = copy.deepcopy(source_node)
             else:
-                if type(source_node) != dict:
+                if not isinstance(source_node, dict):
                     raise JSONDataNodeType(
                         "type", "target_node/source_node",
                         '{}/{}'.format(type(target_node), type(source_node))
@@ -1062,11 +1062,11 @@ class JSONData:
         standard package 'json' and compatible, e.g. 'ujson'.
         """
         # assure JSON strings
-        if type(n0) is str:
+        if isinstance(n0, str):
             n0 = str(n0)
-        if type(n1) is str:
+        if isinstance(n1, str):
             n1 = str(n1)
-        if type(n0) != type(n1):
+        if type(n0) is not type(n1):
             if diff_list is not None:
                 diff_list.append({
                     'n0' + path: n0,
@@ -1075,7 +1075,7 @@ class JSONData:
                 })
             return False
 
-        if type(n0) is list:
+        if isinstance(n0, list):
             if len(n0) != len(n1):
                 if diff_list is not None:
                     diff_list.append({
@@ -1103,7 +1103,7 @@ class JSONData:
                     if not all_diffs:
                         return False
 
-        elif type(n0) is dict:
+        elif isinstance(n0, dict):
             if len(list(n0.keys())) != len(list(n1.keys())):
                 if diff_list is not None:
                     diff_list.append({
@@ -1367,7 +1367,7 @@ class JSONData:
 
         # The first mandatory requirement definition if the type compatibility
         # of the plug and the plugin-element.
-        if key is None and type(target_node) != type(branch):
+        if key is None and type(target_node) is not type(branch):
             raise JSONDataException("type", "target_node",
                                     str(type(target_node)))
 
@@ -1379,7 +1379,8 @@ class JSONData:
             ok = True
 
         for m in match_condition:
-            if m is Match.NO:  # handles multiple, does not need alist.branch_remove()
+            if m is Match.NO:
+                # handles multiple, does not need alist.branch_remove()
                 continue
             elif m is Match.INSERT:
                 if not isinstance(target_node, (dict, list)):

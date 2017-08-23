@@ -362,7 +362,7 @@ class JSONDataSerializer(JSONData):
                             )
 
                 else:  # at least one application configuration loaded
-                    if self.requires is not False:
+                    if self.requires:
                         # there is a rule
                         if self.requires == 'all':
                             # no exeception allowed
