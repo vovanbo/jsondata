@@ -195,7 +195,7 @@ class JSONData:
     """
 
     def __init__(self, data, *, schema=None, indent_str=4, load_cached=False,
-                 requires=None, validator=SchemaMode.DRAFT4, **kwargs):
+                 requires=None, validator=SchemaMode.OFF, **kwargs):
         """
         Loads and validates a JSON definition with the corresponding
         schema file.
@@ -242,7 +242,7 @@ class JSONData:
         self.data = data
         self.indent = 4
         self.sort_keys = False
-        self.validator = SchemaMode.OFF  # default validator
+        self.validator = validator
 
         # The internal object schema for the framework -
         # a fixed set of files as final SchemaMode.DRAFT4
@@ -250,7 +250,6 @@ class JSONData:
         self.indent_str = indent_str
         self.load_cached = load_cached
         self.requires = requires
-        self.validator = validator
 
         logger.debug("JSON=%s / %s", myjson.__name__, myjson.__version__)
         logger.debug("self.data=#[%s]#", self.data)
