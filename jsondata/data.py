@@ -974,25 +974,14 @@ class JSONData:
             JSONDataException:
 
         """
-        ret = False
-
-        if isinstance(target_node, dict):
-            if not key:
+        try:
+            if key:
+                target_node.pop(key)
+            else:
                 target_node.clear()
-            else:
-                target_node.pop(key)
-            ret = True
-        elif isinstance(target_node, list):
-            if key is None:
-                [target_node.pop() for l in range(0, len(target_node))]
-            else:
-                target_node.pop(key)
-            ret = True
-
-        if not ret:
+            return True
+        except (AttributeError, KeyError, IndexError):
             raise JSONDataException("type", "target_node", str(target_node))
-
-        return ret
 
     def branch_replace(self, target_node, key, source_node):
         """Replaces the value of the target node by the copy of the source branch.
