@@ -9,6 +9,7 @@ from jsondata.serializer import JSONDataSerializer
 cwd = Path.cwd()
 json_basic_file = cwd / 'fixtures' / 'basics' / 'basic.json'
 schema_draft3_file = cwd / 'fixtures' / 'basics' / 'draft3.jsd'
+json_pointer_data_file = cwd / 'fixtures' / 'data_for_pointer.json'
 
 
 @pytest.fixture
@@ -19,6 +20,12 @@ def fixture_folder():
 @pytest.fixture
 def json_basic():
     with open(json_basic_file) as fp:
+        return json.load(fp)
+
+
+@pytest.fixture
+def json_pointer_data():
+    with open(json_pointer_data_file) as fp:
         return json.load(fp)
 
 
