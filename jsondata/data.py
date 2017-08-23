@@ -25,6 +25,8 @@ import logging
 import os
 from enum import Enum, IntEnum, unique, auto
 
+from pathlib import Path
+
 from jsondata.exceptions import JSONDataAmbiguity
 
 try:
@@ -921,8 +923,10 @@ class JSONData:
 
                     elif key == '-':
                         target_node.append(source_node[source_key])
-                    else:  # force_extend is not applicable on explicit given keys
-                        raise JSONDataKeyError("value", "source_key", str(source_key))
+                    else:
+                        # force_extend is not applicable on explicit given keys
+                        raise JSONDataKeyError("value", "source_key",
+                                               str(source_key))
                 source_node.pop(source_key)
 
             ret = True
@@ -1522,32 +1526,29 @@ class JSONData:
         """
         if source_file and source:
             raise JSONDataAmbiguity('source_file/source',
-                                    "source_file=" + str(source_file),
-                                    "source=" + str(source))
+                                    "source_file=%s" % source_file,
+                                    "source=%s" % source)
         if source_file:
-            source = open(source_file)
-            source = myjson.load(source)
+            with open(source_file) as f:
+                source = myjson.load(f)
         elif not source:
             source = self.data  # yes, almost the same...
 
-        if pretty:
-            print(myjson.dumps(source, indent=self.indent))
-        else:
-            print(myjson.dumps(source))
+        indent = self.indent if pretty else None
+        print(myjson.dumps(source, indent=indent))
 
-    def print_schema(self, pretty=True, source=None, source_file=None):
+    def print_schema(self, pretty=True, source_file=None, source=None):
         """Prints structured schema.
 
         Args:
-            pretty: Activates pretty printer for tree view, else flat.
+            pretty: Activates pretty printer for treeview, else flat.
 
+            source_file: Loads schema from 'source_file' into 'source'.
+
+                default:=None
             source: Prints schema within 'source'.
 
                 default:=self.schema
-
-            source_file: Loads schema from 'sourcefile' into 'source'.
-
-                default:=None
 
         Returns:
             When successful returns 'True', else returns either 'False', or
@@ -1561,18 +1562,16 @@ class JSONData:
         """
         if source_file and source:
             raise JSONDataAmbiguity('source_file/source',
-                                    "source_file=" + str(source_file),
-                                    "source=" + str(source))
+                                    "source_file=%s" % source_file,
+                                    "source=%s" % source)
         if source_file:
-            source = open(source_file)
-            source = myjson.load(source)
+            with open(source_file) as f:
+                source = myjson.load(f)
         elif not source:
             source = self.schema  # yes, almost the same...
 
-        if pretty:
-            print(myjson.dumps(source, indent=self.indent))
-        else:
-            print(myjson.dumps(source))
+        indent = self.indent if pretty else None
+        print(myjson.dumps(source, indent=indent))
 
     def set_schema(self, schema_file=None, target_node=None, data_file=None,
                    persistent=False, schema=None, validator=None):
@@ -1622,22 +1621,18 @@ class JSONData:
             JSONDataValue:
 
         """
-        logger.debug("set_schema:schema_file=%s", schema_file)
+        logger.debug("set_schema:schema_file=%s" % schema_file)
 
-        #
-        # *** Fetch parameters
-        #
+        data_file = Path(data_file).resolve() if data_file else None
         validator = validator or self.validator
-        if schema_file is not None:
-            # change filename
-            self.schema_file = schema_file
-        elif self.schema_file is not None:
-            # use present
+
+        if schema_file is not None:  # change filename
+            self.schema_file = Path(schema_file).resolve()
+        elif self.schema_file is not None:  # use present
             schema_file = self.schema_file
-        elif data_file is not None:
-            # derive co-allocated from config
-            schema_file = os.path.splitext(data_file)[0] + '.jsd'
-            if not os.path.isfile(schema_file):
+        elif data_file is not None:  # derive co-allocated from config
+            schema_file = data_file.with_suffix('.jsd').resolve()
+            if not schema_file.is_file():
                 schema_file = None
             else:
                 self.schema_file = schema_file
@@ -1648,39 +1643,33 @@ class JSONData:
                                      schema_file)
 
         # schema for validation
-        if schema:  # use loaded
-            pass
-
-        elif schema_file:  # load from file
-            schema_file = os.path.abspath(schema_file)
+        if not schema and schema_file:
             self.schema_file = schema_file
-            if not os.path.isfile(schema_file):
-                raise JSONDataSourceFile("open", "schema_file", str(schema_file))
-            with open(schema_file) as schema_file:
-                schema = myjson.load(schema_file)
+            if not schema_file.is_file():
+                raise JSONDataSourceFile("open", "schema_file",
+                                         str(schema_file))
+            with open(schema_file) as fp:
+                schema = myjson.load(fp)
             if schema is None:
-                raise JSONDataSourceFile("read", "schema_file", str(schema_file))
-
+                raise JSONDataSourceFile("read", "schema_file",
+                                         str(schema_file))
         else:  # missing at all
             raise JSONDataSourceFile("open", "schema_file", str(schema_file))
-            pass
 
         #
         # manage new branch data
         #
-        if not target_node:
-            self.schema = schema
-
-        else:  # data history present, so decide how to handle
-
+        if target_node:
+            # data history present, so decide how to handle
             # the container hook has to match for insertion-
             if type(target_node) is not type(schema):
                 raise JSONDataException(
                     "type", "target!=branch",
-                    '{}!={}'.format(type(target_node), type(schema))
+                    '%s!=%s' % (type(target_node), type(schema))
                 )
-
             self.branch_add(target_node, schema)
+        else:
+            self.schema = schema
 
         return schema is not None
 
