@@ -22,12 +22,9 @@ the standard package 'jsonschema' for the optional validation.
 """
 import copy
 import logging
-import os
 from enum import Enum, IntEnum, unique, auto
 
 from pathlib import Path
-
-from jsondata.exceptions import JSONDataAmbiguity
 
 try:
     import ujson as myjson
@@ -36,9 +33,10 @@ except ImportError:
 
 import jsonschema
 
+from .helpers import first
 from .exceptions import (
     JSONDataParameter, JSONDataException, JSONDataValue, JSONDataKeyError,
-    JSONDataSourceFile, JSONDataTargetFile, JSONDataNodeType
+    JSONDataSourceFile, JSONDataTargetFile, JSONDataNodeType, JSONDataAmbiguity
 )
 
 logger = logging.getLogger(__name__)
@@ -86,7 +84,8 @@ class JSONpl(list):
 
 
 class JSONData:
-    """ Representation of a JSON based object data tree.
+    """
+    Representation of a JSON based object data tree.
     
     This class provides for the handling of the in-memory data
     by the main hooks 'data', and 'schema'. This includes generic 
@@ -195,6 +194,8 @@ class JSONData:
     for keys.  
 
     """
+    FIRST = 1  # First match only
+    ALL = 3    # All matches
 
     def __init__(self, data, *, schema=None, indent_str=4, load_cached=False,
                  requires=None, validator=SchemaMode.OFF, **kwargs):
@@ -253,9 +254,7 @@ class JSONData:
         self.load_cached = load_cached
         self.requires = requires
 
-        logger.debug("JSON=%s / %s", myjson.__name__, myjson.__version__)
-        logger.debug("self.data=#[%s]#", self.data)
-        logger.debug("self.schema=#[%s]#", self.schema)
+        logger.debug('JSONData:\ndata=%s\nschema=%s', self.data, self.schema)
 
         # Check data.
         if self.data is None:
@@ -576,7 +575,7 @@ class JSONData:
                         '{}/{}'.format(type(target_node), type(source_node))
                     )
                 target_node.clear()
-                for k, v in list(source_node.items()):
+                for k, v in source_node.items():
                     target_node[k] = copy.deepcopy(v)
             return True
         elif isinstance(target_node, list):
@@ -597,7 +596,6 @@ class JSONData:
                                        'key-type', type(key), 'node-type',
                                        type(target_node))
             return True
-
         else:
             raise JSONDataNodeType("type", "target_node/source_node",
                                    str(type(target_node)) + "/" + str(
@@ -1161,14 +1159,8 @@ class JSONData:
             return len(diff_list) == 0
         return True
 
-    FIRST = 1
-    """First match only."""
-
-    ALL = 3
-    """All matches."""
-
     @classmethod
-    def get_pointer_path(cls, node, base, restype=FIRST):
+    def get_pointer_path(cls, node, base, search=FIRST):
         """
         Converts a node address into the corresponding pointer path.
         
@@ -1180,7 +1172,7 @@ class JSONData:
             
             base: A tree top nodes to search for node.
             
-            restype: Type of search.
+            search: Type of search.
                 
                 first: The first match only. 
                 
@@ -1200,52 +1192,52 @@ class JSONData:
         if not node or not base:
             return []
 
-        spath = []
-        res = []
+        source_path = []
+        result = []
 
         if isinstance(base, list):  # first layer - list of elements
             kl = 0
             if node is base:  # top node
-                res.append([kl])
+                result.append([kl])
             else:
                 for sx in base:
                     if node is sx:
-                        s = spath[:]
+                        s = source_path[:]
                         s.append(kl)
-                        res.append(s)
+                        result.append(s)
                     elif isinstance(sx, (dict, list)):
-                        sublst = cls.get_pointer_path(node, sx, restype)
-                        if sublst:
-                            for slx in sublst:
-                                s = spath[:]
+                        sub_list = cls.get_pointer_path(node, sx, search)
+                        if sub_list:
+                            for slx in sub_list:
+                                s = source_path[:]
                                 s.append(kl)
                                 s.extend(slx)
-                                res.append(s)
+                                result.append(s)
                     kl += 1
 
         elif isinstance(base, dict):  # first layer - dict of elements
             if node is base:  # top node
-                res.append([''])
+                result.append([''])
             else:
                 for k, v in list(base.items()):
                     if node is v:
-                        spath.append(k)
-                        res.append(spath)
+                        source_path.append(k)
+                        result.append(source_path)
                         continue
                     elif isinstance(v, (list, dict)):
-                        sublst = cls.get_pointer_path(node, v, restype)
-                        if sublst:
-                            for slx in sublst:
+                        sub_list = cls.get_pointer_path(node, v, search)
+                        if sub_list:
+                            for slx in sub_list:
                                 if slx:
-                                    s = spath[:]
+                                    s = source_path[:]
                                     s.append(k)
                                     s.extend(slx)
-                                    res.append(s)
+                                    result.append(s)
 
         # FIXME: for performance
-        if res and restype == JSONData.FIRST:
-            return [res[0]]
-        return res
+        if result and search is JSONData.FIRST:
+            return first(result)
+        return result
 
     def get_canonical(self, value):
         """Fetches the canonical value.
