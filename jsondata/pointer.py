@@ -1,5 +1,6 @@
 # -*- coding:utf-8   -*-
-"""Provides classes for the JSONPointer definition in accordance to RFC6901.
+"""
+Provides classes for the JSONPointer definition in accordance to RFC6901.
 
 The provided class JSONPointer internally stores and applies pointer data
 as a list of keys and indexes with the additional cooperative caching of
@@ -30,8 +31,8 @@ __uuid__ = '63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 logger = logging.getLogger(__name__)
 
-VALID_NODE_TYPE = (dict, list, str, str, int, float, bool, type(None),)
-"""Valid types of in-memory JSON node types."""
+# Valid types of in-memory JSON node types
+VALID_NODE_TYPE = (dict, list, str, int, float, bool, type(None),)
 
 
 class JSONPointer(list):
@@ -124,7 +125,8 @@ class JSONPointer(list):
     """Regular expression for valid numerical index."""
 
     def __init__(self, ptr, replace=True, **kwargs):
-        """ Converts and stores a JSONPointer as a list.
+        """
+        Converts and stores a JSONPointer as a list.
 
         Processes the ABNF of a JSON Pointer from RFC6901.
     
@@ -143,7 +145,6 @@ class JSONPointer(list):
                     just a link to the data structure. Flat data types
                     are copied by value in any case.
                 node: Force to set the pointed node in the internal cache. 
-                debug: Enable debugging.
 
         Returns:
             When successful returns 'True', else returns either 'False', or
@@ -155,10 +156,9 @@ class JSONPointer(list):
             JSONPointerException:
 
         """
-        self.debug = kwargs.get('debug', False)
         self.node = kwargs.get('node', None)  # cache for reuse
         self.deep = deep = kwargs.get('deep', False)
-        if ptr and type(ptr) in (str, str) and ptr[0] is '#':
+        if ptr and isinstance(ptr, str) and ptr[0] is '#':
             # pointer are unicode only
             ptr = ptr[1:]
 
@@ -221,12 +221,14 @@ class JSONPointer(list):
             raise JSONPointerException("Pointer type not supported:", type(ptr))
 
         if replace:
-            x = [
-                isinstance(p, str) and unquote(p).replace('~1', '/').replace('~0', '~') or p
+            unquoted_values = [
+                # 6901-escaped, generic chars-quote
+                unquote(p).replace('~1', '/').replace('~0', '~')
+                if isinstance(p, str) else p
                 for p in self
-            ]  # 6901-escaped, generic chars-quote
-            del self[:]
-            self.extend(x)
+            ]
+            self.clear()
+            self.extend(unquoted_values)
 
         # FIXME: check wheter the assumption is viable
         # SPECIAL: assumes digit only as array index
@@ -571,12 +573,14 @@ class JSONPointer(list):
             raise JSONPointerException()
 
     def __repr__(self):
-        """Returns the attribute self.raw, which is the raw input JSONPointer.
+        """
+        Returns the attribute self.raw, which is the raw input JSONPointer.
         """
         return str(super(JSONPointer, self).__repr__())
 
     def __str__(self):
-        """Returns the string for the processed path.
+        """
+        Returns the string for the processed path.
         """
         ret = self.get_pointer()
         if ret == '':
@@ -601,7 +605,7 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        if self == []:  # special RFC6901, whole document
+        if not self:  # special RFC6901, whole document
             return jsondata
         if self == ['']:  # special RFC6901, '/' empty top-tag
             return jsondata['']
@@ -712,7 +716,7 @@ class JSONPointer(list):
                     # want the exception, the keys within the process
                     # has to match
                     jsondata = jsondata[x]
-        except Exception as e:
+        except KeyError as e:
             raise JSONPointerException(
                 "Requires existing Node(%s): "
                 "%s of %s:%s" % (self.index(x), x, self, e)
@@ -922,7 +926,8 @@ class JSONPointer(list):
         return jsondata
 
     def get_node_exist(self, jsondata, parent=False):
-        """Returns the node for valid part of the pointer, and the remaining part.
+        """
+        Returns the node for valid part of the pointer, and the remaining part.
         
         This method works similar to the 'get_node' method, whereas it
         handles partial valid path pointers, which may also include 
@@ -1006,7 +1011,9 @@ class JSONPointer(list):
         return list(self)
 
     def get_path_list_and_key(self):
-        """Gets for the corresponding path list of the object pointer for in-memory access on the data of the 'json' package.
+        """
+        Gets for the corresponding path list of the object pointer
+        for in-memory access on the data of the 'json' package.
 
         Args:
             none
@@ -1024,11 +1031,12 @@ class JSONPointer(list):
         elif len(self) == 0:
             return [], None
 
-    def get_pointer(self, forcenotation=None, parent=False):
-        """Gets the objects pointer in compliance to RFC6901.
+    def get_pointer(self, force_notation=None, parent=False):
+        """
+        Gets the objects pointer in compliance to RFC6901.
 
         Args:
-            forcenotation: Force the output notation to:
+            force_notation: Force the output notation to:
                 None := NOTATION_JSON,
                 NOTATION_JSON = 0,
                 NOTATION_HTTP_FRAGMENT = 1
@@ -1067,7 +1075,8 @@ class JSONPointer(list):
         return self.raw
 
     def iter_path(self, jsondata=None, parent=False, rev=False):
-        """Iterator for the elements of the path pointer itself.
+        """
+        Iterator for the elements of the path pointer itself.
 
         Args:
             jsondata: If provided a valid JSON data node, the
@@ -1125,7 +1134,8 @@ class JSONPointer(list):
             self.node = jsondata  # cache for reuse
 
     def iter_path_nodes(self, jsondata, parent=False, rev=False):
-        """Iterator for the elements the path pointer points to.
+        """
+        Iterator for the elements the path pointer points to.
 
         Args:
             jsondata: A valid JSON data node.
