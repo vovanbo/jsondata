@@ -180,3 +180,5 @@ ide/eclipse/.metadata/.plugins/org.eclipse.core.runtime/*
 
 
 /.python-version
+/.cache/
+/.eggs/
