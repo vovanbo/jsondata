@@ -9,11 +9,11 @@ def test_access_some_entries(json_basic):
     assert json_basic["phoneNumber"][0]["number"] == "212 555-1234"
 
 
-def test_validate_by_standard_api(json_basic, schema_draft3):
+def test_validate_by_standard_api(json_basic, schema_draft4):
     """
     Validate by standard API: jsonschema.validate
     """
-    jsonschema.validate(json_basic, schema_draft3)
+    jsonschema.validate(json_basic, schema_draft4)
 
 
 def test_validate_draft3_api(json_basic, schema_draft3):

@@ -43,24 +43,27 @@ logger = logging.getLogger(__name__)
 
 
 class JSONMode(Enum):
-    RFC4927 = 0
-    RFC7951 = 2
-    ECMA264 = 10
+    RFC4927 = 'RFC4927'
+    RFC7951 = 'RFC7951'
+    ECMA264 = 'ECMA264'
 
 
 class PointerMode(Enum):
-    RFC6901 = 20
+    RFC6901 = 'RFC6901'
 
 
 class PatchMode(Enum):
-    RFC6902 = 30
+    RFC6902 = 'RFC6902'
 
 
-class SchemaMode(Enum):
-    OFF = 40
-    DRAFT3 = 43
-    DRAFT4 = 44
-    ON = 44
+class Mode(str, Enum):
+    """
+    Validator mode.
+    """
+    OFF = 'off'
+    DRAFT3 = 'draft3'
+    DRAFT4 = 'draft4'
+    ON = 'on'
 
 
 @unique
@@ -73,14 +76,6 @@ class Match(IntEnum):
     MEM = auto()
     NEW = auto()
     PRESENT = auto()
-
-
-class JSONpl(list):
-    """A wrapper for a 'list' representing a path pointer
-    at the method interfaces. Required due to possible 
-    ambiguity with the other type of in-memory node.  
-    """
-    pass
 
 
 class JSONData:
@@ -198,27 +193,27 @@ class JSONData:
     ALL = 3    # All matches
 
     def __init__(self, data, *, schema=None, indent_str=4, load_cached=False,
-                 requires=None, validator=SchemaMode.OFF, **kwargs):
+                 requires=None, validator=Mode.OFF, **kwargs):
         """
         Loads and validates a JSON definition with the corresponding
         schema file.
 
         Args:
-                data: JSON data within memory.
+            data: JSON data within memory.
 
         Kwargs:
-                schema: A valid in-memory JSON schema.
+            schema: A valid in-memory JSON schema.
 
-                    default:= None
-                indent_str: Defied the indentation of 'str'.
+                default:= None
+            indent_str: Defied the indentation of 'str'.
 
-                    default:= 4
-                validator: [default, draft3, draft4, on, off, ]
-                    Sets schema validator for the data file.
-                    The values are: default=validate, draft3=Draft3Validator,
-                    off=None
-                    
-                    default:= off
+                default:= 4
+            validator: [default, draft3, draft4, on, off, ]
+                Sets schema validator for the data file.
+                The values are: default=validate, draft3=Draft3Validator,
+                off=None
+
+                default:= off
 
         Returns:
             Results in an initialized object.
@@ -233,14 +228,6 @@ class JSONData:
             jsonschema.SchemaError:
 
         """
-        # static final defaults
-
-        # JSON-Syntax modes
-        self.mode_json = JSONMode.RFC7951
-        self.mode_schema = SchemaMode.DRAFT4
-        self.mode_pointer = PointerMode.RFC6901
-        self.mode_patch = PatchMode.RFC6902
-
         self.branch = None
         self.data = data
         self.indent = 4
@@ -248,7 +235,7 @@ class JSONData:
         self.validator = validator
 
         # The internal object schema for the framework -
-        # a fixed set of files as final SchemaMode.DRAFT4
+        # a fixed set of files as final Mode.DRAFT4
         self.schema = schema
         self.indent_str = indent_str
         self.load_cached = load_cached
@@ -261,11 +248,11 @@ class JSONData:
             raise JSONDataParameter("value", "data", str(self.data))
 
         # Validate.
-        if not self.schema and self.validator is not SchemaMode.OFF:
+        if not self.schema and self.validator is not Mode.OFF:
             raise JSONDataParameter("value", "schema", str(self.schema))
 
         # INPUT-BRANCH: validate data
-        if self.validator is not SchemaMode.OFF:
+        if self.validator is not Mode.OFF:
             self.validate(self.data, self.schema, self.validator)
 
     def __add__(self, x):
@@ -986,7 +973,8 @@ class JSONData:
             raise JSONDataException("type", "target_node", str(target_node))
 
     def branch_replace(self, target_node, key, source_node):
-        """Replaces the value of the target node by the copy of the source branch.
+        """
+        Replaces the value of the target node by the copy of the source branch.
 
         Requires in order to RFC6902, all items to be replaced has to be
         present. Thus fails if at least one is missing.
@@ -1248,11 +1236,10 @@ class JSONData:
         Args:
             value: Value pointer to be evaluated to the actual value.
                 Valid input types are:
-                    int,str,unicode: Integer, kept as an atomic integer 
+                    int,float,str: Integer, kept as an atomic integer
                         value.
                     dict,list: Assumed to be a valid node for 'json' 
                         package, used by reference.
-
                     JSONPointer: A JSON pointer in accordance to 
                         RFC6901.
 
@@ -1264,15 +1251,9 @@ class JSONData:
             JSONData:
 
         """
-        if isinstance(value, (dict, list)):
-            # assumes a 'json' package type node
+        if isinstance(value, (dict, list, int, float, str)):
+            # assumes a 'json' package type node, RFC7159 int, float or string
             return value
-        elif isinstance(value, (int, float)):
-            # assume a 'JSON' RFC7159 int, float
-            return value
-        elif isinstance(value, str):
-            # assume a 'JSON' RFC7159 string
-            return str(value)
         elif isinstance(value, JSONPointer):
             # assume the pointed value
             return value.get_node_or_value(self.data)
@@ -1300,7 +1281,7 @@ class JSONData:
                 is treated as a child-branch.
             match_condition:
                 Defines the criteria for comparison of present child nodes
-                in the target container. The value is a list of critarias
+                in the target container. The value is a list of criteria
                 combined by logical AND. The criteria may vary due to
                 the requirement and the type of applied container:
                 - common: Common provided criteria are:
@@ -1320,14 +1301,15 @@ class JSONData:
                     default:=['key',]
                 - list: The provided criteria are:
                     - index: The positions of source and target have to match.
-                    - child_attr_list: A list of child attributes to be matched,
-                        thus e.g. the 'key' of dictionaries could be emulated
-                        by an arbitrary attribute like 'mykey'.
-                        This may assure e.g. compatibility by a user defined ID,
-                        and or a UUID.
-                    - mem: Checks whether the in-memory element is already present.
-                        Even though this is a quite weak criteria, it is probably
-                        the only and one common generic criteria for lists.
+                    - child_attr_list: A list of child attributes
+                        to be matched, thus e.g. the 'key' of dictionaries
+                        could be emulated by an arbitrary attribute
+                        like 'mykey'. This may assure e.g. compatibility
+                        by a user defined ID, and or a UUID.
+                    - mem: Checks whether the in-memory element is already
+                        present. Even though this is a quite weak criteria,
+                        it is probably the only and one common generic criteria
+                        for lists.
                     
                     default:= mem # ATTENTION: almost any call adds a branch!
             child_attr_list: A list of user defined child attributes which
@@ -1386,7 +1368,7 @@ class JSONData:
                 if not isinstance(target_node, dict):
                     raise JSONDataException("type", "target_node",
                                             str(type(target_node)))
-                for k in list(branch.keys()):
+                for k in branch.keys():
                     if not target_node.get(k):
                         return failed
             elif m is Match.CHLDATTR:
@@ -1476,7 +1458,7 @@ class JSONData:
                     if type(target_node) is type(branch):
                         raise JSONDataException("type", "target_node",
                                                 str(type(target_node)))
-                    for k, v in list(branch.items()):
+                    for k, v in branch.items():
                         if id(v) != id(target_node.get(k)):
                             return failed
                 else:
@@ -1615,15 +1597,15 @@ class JSONData:
         """
         logger.debug("set_schema:schema_file=%s" % schema_file)
 
-        data_file = Path(data_file).resolve() if data_file else None
+        data_file = Path(data_file) if data_file else None
         validator = validator or self.validator
 
         if schema_file is not None:  # change filename
-            self.schema_file = Path(schema_file).resolve()
+            self.schema_file = Path(schema_file)
         elif self.schema_file is not None:  # use present
             schema_file = self.schema_file
         elif data_file is not None:  # derive co-allocated from config
-            schema_file = data_file.with_suffix('.jsd').resolve()
+            schema_file = data_file.with_suffix('.jsd')
             if not schema_file.is_file():
                 schema_file = None
             else:
@@ -1705,27 +1687,15 @@ class JSONData:
             JSONDataValue:
 
         """
-        if not validator:
-            validator = self.mode_schema
+        validator = validator or self.validator
 
-        if validator is SchemaMode.DRAFT4:
+        if validator is Mode.DRAFT4:
             logger.debug("Validate: draft4")
-            try:
-                jsonschema.validate(data, schema)
-
-            # FIXME:
-
-            except jsonschema.ValidationError as e:
-                logger.exception('ValidationError')
-                raise
-            except jsonschema.SchemaError as e:
-                logger.exception('SchemaError', e.path, e.schema_path)
-                raise
-
-        elif validator is SchemaMode.DRAFT3:
+            jsonschema.validate(data, schema)
+        elif validator is Mode.DRAFT3:
             logger.debug("Validate: draft3")
             jsonschema.Draft3Validator(data, schema)
-        elif validator is not SchemaMode.OFF:
+        elif validator is not Mode.OFF:
             raise JSONDataValue("unknown", "validator", str(validator))
 
 

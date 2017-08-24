@@ -3,12 +3,13 @@ import json
 import pytest
 from pathlib import Path
 
-from jsondata.data import SchemaMode
+from jsondata.data import Mode, JSONData
 from jsondata.serializer import JSONDataSerializer
 
 cwd = Path.cwd()
 json_basic_file = cwd / 'fixtures' / 'basic.json'
 schema_draft3_file = cwd / 'fixtures' / 'draft3.jsd'
+schema_draft4_file = cwd / 'fixtures' / 'draft4.jsd'
 json_pointer_data_file = cwd / 'fixtures' / 'data_for_pointer.json'
 
 
@@ -36,11 +37,19 @@ def schema_draft3():
 
 
 @pytest.fixture
+def schema_draft4():
+    with open(schema_draft4_file) as fp:
+        return json.load(fp)
+
+
+@pytest.fixture
 def json_data_serializer(request):
-    if request.param is SchemaMode.OFF:
+    if request.param is Mode.OFF:
         schema_file = None
-    else:
+    elif request.param is Mode.DRAFT3:
         schema_file = schema_draft3_file
+    else:
+        schema_file = schema_draft4_file
 
     return JSONDataSerializer(
         'json_data_serializer_fixture', data_file=json_basic_file,

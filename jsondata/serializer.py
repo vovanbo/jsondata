@@ -11,7 +11,7 @@ try:
 except ImportError:
     import json as myjson
 
-from .data import JSONData, SchemaMode
+from .data import JSONData, Mode
 from .helpers import is_collection
 from .exceptions import (
     JSONDataException, JSONDataSourceFile, JSONDataTargetFile,
@@ -136,7 +136,7 @@ class JSONDataSerializer(JSONData):
                  file_path_list=None, file_priority=None, indent_str=4,
                  load_cached=False, no_default_path=False, no_sub_data=False,
                  path_list=None, requires=None, schema=None, schema_file=None,
-                 validator=SchemaMode.OFF):
+                 validator=Mode.OFF):
         """
         Loads and validates a JSON definition with the corresponding
         schema file.
@@ -222,7 +222,7 @@ class JSONDataSerializer(JSONData):
         # Init basic data, control actions not to be repeated
         super(JSONDataSerializer, self).__init__(
             [], schema=schema, indent_str=indent_str, load_cached=load_cached,
-            requires=requires, validator=SchemaMode.OFF
+            requires=requires, validator=Mode.OFF
         )
 
         self.no_default_path = no_default_path
@@ -232,8 +232,8 @@ class JSONDataSerializer(JSONData):
         self.data_file = Path(data_file) if data_file is not None else None
 
         # The internal object schema for the framework -
-        # a fixed set of files as final SchemaMode.DRAFT4.
-        self.schema_file = Path(schema_file).resolve() \
+        # a fixed set of files as final Mode.DRAFT4.
+        self.schema_file = Path(schema_file) \
             if schema_file is not None \
             else None
         if self.schema and self.schema_file:
@@ -262,10 +262,10 @@ class JSONDataSerializer(JSONData):
         if not self.no_default_path:
             # Fixed set of data files as final default.
             self.path_list.extend([
+                cwd,
                 cwd / 'etc' / appname,
                 Path('/etc/'),
                 Path('$HOME/etc/'),
-                cwd
             ])
 
         # expand all
@@ -278,7 +278,7 @@ class JSONDataSerializer(JSONData):
             # No explicit given
             self.file_path_list = []
             for path in self.path_list:
-                self.file_path_list.extend((path / f).resolve()
+                self.file_path_list.extend((path / f)
                                            for f in self.file_list)
             self.file_list = []
         elif self.data_file and not self.data_file.is_file():
@@ -293,7 +293,7 @@ class JSONDataSerializer(JSONData):
 
         # Check whether validation is requested.
         # If so, do a last trial for plausible construction.
-        if not self.schema and self.validator is not SchemaMode.OFF:
+        if not self.schema and self.validator is not Mode.OFF:
             # require schema for validation, no schema provided, now-than...
             if self.schema_file is None:  # do we have a file
                 if self.data_file:
@@ -334,8 +334,9 @@ class JSONDataSerializer(JSONData):
         if not self.data_file:  # No explicit given
             if self.file_path_list:
                 for f in self.file_path_list:
-                    if self.json_import(self.branch, None, f, self.schema_file,
-                                        **import_kwargs):
+                    if f.is_file() and \
+                            self.json_import(self.branch, None, f,
+                                             self.schema_file, **import_kwargs):
                         configuration_ok = True
                     else:
                         one_of_files_is_wrong = True
@@ -465,14 +466,14 @@ class JSONDataSerializer(JSONData):
 
         validator = validator or self.validator
 
-        if validator is not SchemaMode.OFF:
+        if validator is not Mode.OFF:
             # validation requested, requires schema
             if not schema_file:  # no new import, use present data
                 if not self.schema:  # no schema data present
                     raise JSONDataException("value", "schema", self.schema)
             else:
-                schema_file = Path(schema_file).resolve()
-                if not schema_file.is_file():
+                schema_file = Path(schema_file)
+                if not schema_file.resolve().is_file():
                     raise JSONDataSourceFile("open", "schema_file",
                                              str(schema_file))
                 with open(schema_file) as schema_file:
@@ -482,8 +483,8 @@ class JSONDataSerializer(JSONData):
                                              str(schema_file))
 
         # INPUT-BRANCH: data
-        data_file = Path(data_file).resolve()
-        if not data_file.is_file():
+        data_file = Path(data_file)
+        if not data_file.resolve().is_file():
             raise JSONDataSourceFile("open", "data_file", str(data_file))
         try:
             with open(data_file) as data_file:  # load data

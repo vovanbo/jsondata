@@ -1,6 +1,6 @@
 import pytest
 
-from jsondata.data import JSONData, SchemaMode
+from jsondata.data import JSONData, Mode
 from jsondata.pointer import JSONPointer
 from jsondata.serializer import JSONDataSerializer
 
@@ -42,7 +42,7 @@ def test_get_node_or_value_static(fixture_folder):
     serializer = JSONDataSerializer(
         'test', path_list=fixture_folder, no_default_path=True,
         no_sub_data=True, file_list=['data_for_pointer.json'],
-        validator=SchemaMode.OFF
+        validator=Mode.OFF
     )
 
     assert serializer.data["address"]["streetAddress"] == "21 2nd Street"
@@ -74,7 +74,7 @@ def test_get_node_or_value_dynamic(fixture_folder, json_pointer_data):
     serializer = JSONDataSerializer(
         'test', path_list=fixture_folder, no_default_path=True,
         no_sub_data=True, file_list=['data_for_pointer.json'],
-        validator=SchemaMode.OFF
+        validator=Mode.OFF
     )
     for l in ('domestic', 'abroad'):
         for n in (0, 1):
@@ -132,7 +132,7 @@ def test_add_basic(fixture_folder):
     serializer = JSONDataSerializer(
         'test', path_list=fixture_folder, no_default_path=True,
         no_sub_data=True, file_list=['data_for_pointer.json'],
-        validator=SchemaMode.OFF
+        validator=Mode.OFF
     )
     jp = JSONPointer('/address')
     jp = jp + 'streetAddress'
@@ -162,7 +162,7 @@ def test_add_advanced(fixture_folder, json_pointer_data):
     serializer = JSONDataSerializer(
         'test', path_list=fixture_folder, no_default_path=True,
         no_sub_data=True, file_list=['data_for_pointer.json'],
-        validator=SchemaMode.OFF
+        validator=Mode.OFF
     )
     for l in ('domestic', 'abroad'):
         for n in (0, 1):
@@ -405,7 +405,7 @@ def test_radd(fixture_folder, json_pointer_data):
     serializer = JSONDataSerializer(
         'test', path_list=fixture_folder, no_default_path=True,
         no_sub_data=True, file_list=['data_for_pointer.json'],
-        validator=SchemaMode.OFF
+        validator=Mode.OFF
     )
 
     jp = JSONPointer('/streetAddress')
@@ -464,7 +464,7 @@ def test_repr():
 
 
 @pytest.mark.parametrize('json_data_serializer',
-                         [SchemaMode.DRAFT4],
+                         [Mode.DRAFT4],
                          indirect=['json_data_serializer'])
 def test_get_node_exist(json_data_serializer, fixture_folder):
     # partial schema for branch, use here a subtree of main schema
@@ -486,7 +486,15 @@ def test_get_node_exist(json_data_serializer, fixture_folder):
             'houseNumber': 12
         },
         'phoneNumber': [
-            {'type': 'home', 'number': '212 555-1234'},
+            {
+                'type': 'home', 'number': '212 555-1234',
+                'active': True,
+                'private': False,
+                'addons': None,
+                'index': 0,
+                'testnumber': 1.5
+
+            },
             {'type': 'office', 'number': '313 444-555'},
             {'type': 'mobile', 'number': '777 666-555'},
             {'type': 'home0', 'number': '000 222-333'}
@@ -495,7 +503,7 @@ def test_get_node_exist(json_data_serializer, fixture_folder):
 
 
 @pytest.mark.parametrize('json_data_serializer',
-                         [SchemaMode.DRAFT4],
+                         [Mode.DRAFT4],
                          indirect=['json_data_serializer'])
 def test_get_node(json_data_serializer, fixture_folder):
     serializer = json_data_serializer
@@ -523,7 +531,7 @@ def test_get_node(json_data_serializer, fixture_folder):
 
 
 @pytest.mark.parametrize('json_data_serializer',
-                         [SchemaMode.DRAFT4],
+                         [Mode.DRAFT4],
                          indirect=['json_data_serializer'])
 def test_get_node_again(json_data_serializer, fixture_folder):
     serializer = json_data_serializer
@@ -546,7 +554,15 @@ def test_get_node_again(json_data_serializer, fixture_folder):
             'houseNumber': 12
         },
         'phoneNumber': [
-            {'type': 'home', 'number': '212 555-1234'},
+            {
+                'type': 'home', 'number': '212 555-1234',
+                'active': True,
+                'private': False,
+                'addons': None,
+                'index': 0,
+                'testnumber': 1.5
+
+            },
             {'type': 'home2', 'number': '222 222-333'},
             {'type': 'home2', 'number': '222 222-333'},
         ],

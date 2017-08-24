@@ -46,7 +46,7 @@ except ImportError:
 from .exceptions import JSONPatchException, JSONPatchItemException
 from .pointer import JSONPointer
 from .serializer import JSONDataSerializer
-from .data import SchemaMode
+from .data import Mode
 
 __author__ = 'Arno-Can Uestuensoez'
 __maintainer__ = 'Arno-Can Uestuensoez'
@@ -727,8 +727,8 @@ class JSONPatch(object):
         return True
 
     def patch_import(self, patch_file, schema_file=None, appname='jsonpatch',
-                     validator=SchemaMode.OFF, no_default_path=True,
-                     path_list=None,):
+                     validator=Mode.OFF, no_default_path=True,
+                     path_list=None, ):
         """
         Imports a task list.
 

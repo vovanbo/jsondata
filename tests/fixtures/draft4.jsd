@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "This is a comment to be dropped by the initial scan:object(0)",
+  "description": "This is a doc string to be inserted when the language supports it.:object(0)",
+  "description": "Concatenated for the same instance.:object(0)",
+  "type": "object",
+  "properties": {
+    "address": {
+      "description": "This is a comment(0):address",
+      "type": "object",
+      "required": ["city", "streetAddress"],
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "houseNumber": {
+          "type": "number"
+        },
+        "streetAddress": {
+          "type": "string"
+        }
+      }
+    },
+    "phoneNumber": {
+      "description": "This is a comment(1):array",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["number", "type"],
+        "properties": {
+          "number": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "activate": {
+            "type": "boolean"
+          },
+          "private": {
+            "type": "boolean"
+          },
+          "addons": {
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "index": {
+            "type": "integer"
+          },
+          "testnumber": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}
