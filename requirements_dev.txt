@@ -1,5 +1,6 @@
 -e .
 coverage==4.4.1
+faker==0.7.18
 flake8==3.4.1
 flake8_docstrings==1.1.0
 invoke==0.20.4
