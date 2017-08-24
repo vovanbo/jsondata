@@ -10,12 +10,13 @@ The provided features comprise:
 
 """
 import logging
+from collections import Mapping, namedtuple
 from enum import Enum
+import itertools
+import pprint
+import textwrap
 
-try:
-    import ujson as myjson
-except ImportError:
-    import json as myjson
+from .helpers import is_collection, is_iterable_but_not_string
 
 __author__ = 'Arno-Can Uestuensoez'
 __author_email__ = 'acue_sf2@sourceforge.net'
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 class Diff(Enum):
     FIRST = 'first'  # break display of diff after first
-    ALL = 'all'      # list all diffs
+    ALL = 'all'  # list all diffs
 
 
 class Charset(Enum):
@@ -42,14 +43,28 @@ class Charset(Enum):
 
 
 class LineFit(Enum):
-    CUT = 'cut'     # force line fit
-    WRAP = 'wrap'   # wrap line in order to fit to length
+    CUT = 'cut'  # force line fit
+    WRAP = 'wrap'  # wrap line in order to fit to length
+    LINE = 'line'  # one-line
 
 
-class JSONTree(object):
+def ensure_enum(enum, value):
+    if isinstance(value, enum):
+        return value
+    elif isinstance(value, str):
+        return enum(value)
+    else:
+        raise ValueError(value)
+
+
+JSONTreeDiff = namedtuple('JSONTreeDiff', 'first second level path key_path')
+
+
+class JSONTree:
     def __init__(self, scope=Diff.ALL, line_fit=LineFit.WRAP, line_width=60,
                  charset=Charset.RAW, indent=4):
-        """Create an object for the tree representation.
+        """
+        Create an object for the tree representation.
 
         Args:
             scope:
@@ -94,18 +109,23 @@ class JSONTree(object):
             
         """
         self.diff_list = []
+        self.scope = ensure_enum(Diff, scope)
+        self.charset = ensure_enum(Charset, charset)
+        self.line_fit = ensure_enum(LineFit, line_fit)
 
-        assert isinstance(scope, Diff), \
+        assert isinstance(self.scope, Diff), \
             'Enumeration of Diff is required.'
-        assert isinstance(charset, Charset), \
+        assert isinstance(self.charset, Charset), \
             'Enumeration of Charset is required.'
-        assert isinstance(line_fit, LineFit), \
+        assert isinstance(self.line_fit, LineFit), \
             'Enumeration of LineFit is required.'
 
-        self.scope = scope
-        self.line_fit = line_fit
         self.line_width = line_width
-        self.charset = charset
+
+        if self.line_fit in (LineFit.CUT, LineFit.WRAP) and not self.line_width:
+            raise ValueError('Line width is required for line fit '
+                             '"{}"'.format(self.line_fit.value))
+
         self.indent = indent
 
         self.level_top = None
@@ -113,58 +133,62 @@ class JSONTree(object):
         self.delta = None
         self.path_only = None
 
+    def _format_diff_line(self, path, key, value):
+        indent = ' ' * self.indent
+        fmt = '{key}{path} = {value}'
+
+        if self.line_fit is LineFit.CUT:
+            return textwrap.indent(
+                textwrap.shorten(
+                    fmt.format(key=key, path=path, value=value),
+                    width=self.line_width, placeholder='...'
+                ),
+                indent
+            )
+        elif self.line_fit is LineFit.WRAP:
+            return textwrap.indent(
+                fmt.format(
+                    key=key, path=path,
+                    value=pprint.pformat(value, self.indent, self.line_width)
+                ),
+                indent
+            )
+        elif self.line_fit is LineFit.LINE:
+            return textwrap.indent(
+                fmt.format(key=key, path=path, value=value),
+                indent
+            )
+
+    def _formatted_lines(self, lines):
+        for path, diffs in itertools.groupby(lines, key=lambda i: i[0]):
+            yield 'path: {}'.format(path)
+            for _, key, value in diffs:
+                yield self._format_diff_line(path, key, value)
+
     def print_diff(self):
         """
         Prints out the resulting list of differences.
 
-        Args:
-             ffs.
-
         Returns:
-            When successful returns tree represantation.
-
-        Raises:
-            passed through exceptions:
-
+            When successful returns tree representation.
         """
-        ret = ""
-        _i = " " * self.indent
-        w = self.line_width
+        lines = (
+            (d.key_path or d.path, k, getattr(d, k))
+            for d, k in itertools.product(self.diff_list, ('first', 'second'))
+        )
+        return '\n'.join(self._formatted_lines(lines))
 
-        for d in self.diff_list:
-            if w and self.line_fit is LineFit.CUT:
-                ret += "path=%s\n" % d['p']
-                line = "%sn0%s = %s" % (_i, d['p'], d['n0'])
-                ret += '%s\n' % line[:w]
-                line = "%sn1%s = %s" % (_i, d['p'], d['n1'])
-                ret += '%s\n' % line[:w]
-            elif w and self.line_fit is LineFit.WRAP:
-                ret += "path=%s\n" % d['p']
-                line = "%sn0%s = %s" % (_i, d['p'], d['n0'])
-                while line:
-                    ret += '%s\n' % line[:w]
-                    line = line[w:]
-                    if line:
-                        ret += _i * 2
-                line = "%sn1%s = %s" % (_i, d['p'], d['n1'])
-                while line:
-                    ret += '%s\n' % line[:w]
-                    line = line[w:]
-                    if line:
-                        ret += _i * 2
-            else:
-                ret += "path=%s\n" % d['p']
-                ret += "  n0%s = %s\n" % (d['p'], d['n0'])
-                ret += "  n1%s = %s\n" % (d['p'], d['n1'])
+    def _populate_diff(self, first, second, level, path, key_path=None):
+        self.diff_list.append(
+            JSONTreeDiff(first, second, level, path.copy(), key_path)
+        )
 
-        return ret
-
-    def fetch_diff(self, n0, n1, p=None, dl=0):
-        """Recursive tree compare for Python trees as used for the package 'json'.
+    def fetch_diff(self, first, second, path=None, level=0):
+        """
+        Recursive tree compare for Python trees as used for the package 'json'.
         
-        Finds diff in native Python trees assembled by the standard package 'json'
-        and compatible, e.g. 'ujson'.
-        
+        Finds diff in native Python trees assembled by the standard
+        package 'json' and compatible, e.g. 'ujson'.
         
         * level_top
         * level_bottom
@@ -176,147 +200,127 @@ class JSONTree(object):
         
         Args:
 
-            n0:
+            first: JSON string of type 'str'
+            second: JSON string of type 'str'
+            path=[]: Result entries for each difference:
+                ::
 
-                JSON string of type 'str', or 'unicode'
+                    {
+                        'first': first,
+                        'second': second,
+                        'level': level,
+                        'path': path[:]
+                    }
 
-            n1:
-
-                JSON string of type 'str', or 'unicode'
-
-            p=[]:
-
-
-                Result entries for each difference:
-                    ::
-
-                        {'n0':n0,'n1':n1,'dl':dl,'p':p[:]}
-
-                    #. first JSON data
-                    #. second JSON data
-                    #. diff count increment value
-                    #. current diff including path
+                #. first JSON data
+                #. second JSON data
+                #. diff count increment value
+                #. current diff including path
 
                 List of differences as of:
                 
-                #. non equal types are different: type(n0) != type(n1)
-                #. equal types, both list: type(n0) is list
+                #. non equal types are different:
+                    type(first) != type(second)
+                #. equal types, both list:
+                    type(first) is list
 
-                    #. length is different: len(n0.keys()) != len(n1.keys())
-                    #. at leats one item is different: n1.get(ni) and v != n1[ni]
+                #. length is different:
+                    len(first.keys()) != len(second.keys())
+                #. at leats one item is different:
+                    second.get(ni) and v != second[ni]
 
-                #. equal types, both dict: type(n0) is dict and type(n1) is dict 
+                #. equal types, both dict:
+                    type(first) is dict and type(second) is dict
 
-                    #. length is different: len(n0.keys()) != len(n1.keys())
-                    #. at leats one item is different: n1.get(ni) and v != n1[ni]
+                #. length is different:
+                    len(first.keys()) != len(second.keys())
+                #. at leats one item is different:
+                    second.get(ni) and v != second[ni]
 
                 default:=0
 
         Returns:
             When no diffs returns True, else False or raises an exception.
             The resulting differences are contained in the provided 
-            list parameter 'p'. When not provided the resulting list 
+            list parameter 'path'. When not provided the resulting list
             is suppressed. 
 
         Raises:
             passed through exceptions:
             
         """
-        ret = True
+        result = True
 
         self.level_top = -1
         self.level_bottom = -1
         self.delta = False
         self.path_only = False
 
-        # assure JSON strings
-        if isinstance(n0, str):
-            n0 = str(n0)
-        if isinstance(n1, str):
-            n1 = str(n1)
+        level += 1
+        path = path if path is not None else []
 
-        dl += 1
-        p = p if p is not None else []
+        if type(first) is not type(second):  # non equal types are different
+            logger.debug('type: %s != %s', type(first), type(second))
+            self._populate_diff(first, second, level, path)
+            result &= False
 
-        if type(n0) is not type(n1):  # non equal types are different
-            logger.debug('type: %s != %s', type(n0), type(n1))
-            self.diff_list.append({
-                'n0': n0,
-                'n1': n1,
-                'dl': dl,
-                'p': p[:]
-            })
-            ret &= False
-
-        elif isinstance(n0, list):  # equal types, both list
-            if len(n0) != len(n1):
-                logger.debug('len: %s != %s', len(n0), len(n1))
-                self.diff_list.append({
-                    'n0': n0,
-                    'n1': n1,
-                    'dl': dl,
-                    'p': p[:]
-                })
-                ret &= False
+        elif is_collection(first):  # equal types, both list
+            if len(first) != len(second):
+                logger.debug('len: %s != %s', len(first), len(second))
+                self._populate_diff(first, second, level, path)
+                result &= False
             else:
-                for ni in range(0, len(n0)):
-                    if not p:
-                        pni = [ni]
+                for key, first_value in enumerate(first):
+                    if not path:
+                        key_path = [key]
                     else:
-                        pni = p[:]
-                        pni.append(ni)
-                    ret &= self.fetch_diff(n0[ni], n1[ni], pni, dl)
+                        key_path = path.copy()
+                        key_path.append(key)
+                    result &= self.fetch_diff(
+                        first_value, second[key], key_path, level
+                    )
 
-                    if self.scope is Diff.FIRST:
-                        if not ret:
-                            break
+                    if self.scope is Diff.FIRST and not result:
+                        break
 
-        elif isinstance(n0, dict):
-            if len(list(n0.keys())) != len(list(n1.keys())):
-                logger.debug('len: %s != %s', len(n0.keys()), len(n1.keys()))
-                self.diff_list.append({
-                    'n0': n0,
-                    'n1': n1,
-                    'dl': dl,
-                    'p': p[:]
-                })
-                ret &= False
-
+        elif isinstance(first, Mapping):
+            if len(first.keys()) != len(second.keys()):
+                logger.debug('len: %s != %s',
+                             len(first.keys()), len(second.keys()))
+                self._populate_diff(first, second, level, path)
+                result &= False
             else:
-                for ni, v in list(n0.items()):
-                    if not p:
-                        pni = [ni]
+                for key, first_value in first.items():
+                    if not path:
+                        key_path = [key]
                     else:
-                        pni = p[:]
-                        pni.append(ni)
-                    if n1.get(ni) and v != n1[ni]:
-                        logger.debug('item(%s): %s != %s', ni, v, n1[ni])
-                        if isinstance(v, (list, dict)):
-                            ret &= self.fetch_diff(v, n1[ni], pni, dl)
+                        key_path = path.copy()
+                        key_path.append(key)
+
+                    second_value = second.get(key)
+                    if second_value and first_value != second_value:
+                        logger.debug('item(%s): %s != %s',
+                                     key, first_value, second_value)
+                        if is_iterable_but_not_string(first_value):
+                            result &= self.fetch_diff(
+                                first_value, second_value, key_path, level
+                            )
                         else:
-                            self.diff_list.append({
-                                'ni': ni,
-                                'n0': n0[ni],
-                                'n1': n1[ni],
-                                'dl': dl,
-                                'p': p[:]
-                            })
-                            ret &= False
+                            self._populate_diff(first_value, second_value,
+                                                level, path, key_path=key_path)
+                            result &= False
 
-                        if self.scope is Diff.FIRST and not ret:
+                        if self.scope is Diff.FIRST and not result:
                             break
 
-                    elif isinstance(v, (list, dict)):
-                        ret &= self.fetch_diff(v, n1[ni], pni, dl)
+                    elif is_iterable_but_not_string(first_value):
+                        result &= self.fetch_diff(
+                            first_value, second_value, key_path, level
+                        )
 
         else:  # invalid types may have been eliminated already
-            if n0 != n1:
-                self.diff_list.append({
-                    'n0': n0,
-                    'n1': n1,
-                    'dl': dl,
-                    'p': p[:]
-                })
-                ret &= False
+            if first != second:
+                self._populate_diff(first, second, level, path)
+                result &= False
 
-        return ret
+        return result
