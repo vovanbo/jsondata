@@ -18,7 +18,9 @@ except ImportError:
     import json as myjson
 
 __author__ = 'Arno-Can Uestuensoez'
-__maintainer__ = 'Arno-Can Uestuensoez'
+__author_email__ = 'acue_sf2@sourceforge.net'
+__maintainer__ = 'Vladimir Bolshakov'
+__maintainer_email__ = 'vovanbo@gmail.com'
 __license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
 __copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez " \
                 "@Ingenieurbuero Arno-Can Uestuensoez"

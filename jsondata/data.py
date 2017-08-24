@@ -1,5 +1,6 @@
 # -*- coding:utf-8   -*-
-"""Core features for the processing of structured JSON based in-memory data.
+"""
+Core features for the processing of structured JSON based in-memory data.
 This comprises the load of a master model from a JSON file, and the 
 incremental addition and removal of branches by loading additional
 JSON modules into the master model.
@@ -38,6 +39,16 @@ from .exceptions import (
     JSONDataParameter, JSONDataException, JSONDataValue, JSONDataKeyError,
     JSONDataSourceFile, JSONDataTargetFile, JSONDataNodeType, JSONDataAmbiguity
 )
+
+__author__ = 'Arno-Can Uestuensoez'
+__author_email__ = 'acue_sf2@sourceforge.net'
+__maintainer__ = 'Vladimir Bolshakov'
+__maintainer_email__ = 'vovanbo@gmail.com'
+__license__ = "Artistic-License-2.0 + Forced-Fairplay-Constraints"
+__copyright__ = "Copyright (C) 2015-2016 Arno-Can Uestuensoez " \
+                "@Ingenieurbuero Arno-Can Uestuensoez"
+__version__ = '0.2.18'
+__uuid__ = '63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 logger = logging.getLogger(__name__)
 

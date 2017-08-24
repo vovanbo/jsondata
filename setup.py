@@ -1,7 +1,7 @@
 from setuptools import setup
 
-__vers__ = (0, 2, 18)
-__version__ = "%02d.%02d.%03d" % (__vers__[0], __vers__[1], __vers__[2],)
+VERSION = (0, 2, 18)
+__version__ = "%02d.%02d.%03d" % VERSION
 
 
 url = 'https://github.com/vovanbo/jsondata'
@@ -44,9 +44,7 @@ setup(
     packages=['jsondata'],
     package_data={
         'jsondata': [
-            'README.rst', 'ArtisticLicense20.html', 'licenses-amendments.txt',
-            'data.json', 'schema.jsd', 'datacheck.json', 'datacheck.jsd',
-            'selftest.json', 'selftest.jsd', 'rfc6902.jsonp'
+            'README.rst', 'LICENSE.txt', 'licenses-amendments.txt'
         ],
     },
     scripts=('bin/jsondc.py',),
