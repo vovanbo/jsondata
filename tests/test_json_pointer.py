@@ -475,7 +475,7 @@ def test_get_node_exist(json_data_serializer, fixture_folder):
     target, remaining = \
         JSONPointer("/phoneNumber/-").get_node_exist(serializer.data)
 
-    data_file = fixture_folder / 'basics/branch0.json'
+    data_file = fixture_folder / 'branch0.json'
     assert serializer.json_import(target, remaining[0], data_file,
                                   schema=schema)
 
@@ -505,7 +505,7 @@ def test_get_node(json_data_serializer, fixture_folder):
     }
     target = JSONPointer("/phoneNumber/0").get_node(serializer.data)
 
-    data_file = fixture_folder / 'basics/branch1.json'
+    data_file = fixture_folder / 'branch1.json'
     assert serializer.json_import(target, None, data_file, schema=schema)
 
     assert serializer.data == {
@@ -532,7 +532,7 @@ def test_get_node_again(json_data_serializer, fixture_folder):
         'phoneNumber': serializer.schema['properties']['phoneNumber']
     }
 
-    data_file = fixture_folder / 'basics/branch2.json'
+    data_file = fixture_folder / 'branch2.json'
     target = JSONPointer("/phoneNumber/1").get_node(serializer.data)
     assert serializer.json_import(target, None, data_file, schema=schema)
 

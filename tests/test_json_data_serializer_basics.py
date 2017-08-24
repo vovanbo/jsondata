@@ -1,4 +1,3 @@
-import json
 import tempfile
 
 import pytest
@@ -125,7 +124,7 @@ def test_verify_loaded_schema(json_data_serializer):
 def test_advanced_create_and_check(fixture_folder, json_basic, validator):
     serializer = JSONDataSerializer(
         'test', path_list=fixture_folder, no_default_path=True,
-        no_sub_data=True, file_list=['basics/basic.json'],
+        no_sub_data=True, file_list=['basic.json'],
         validator=validator
     )
     assert serializer.data["address"]["streetAddress"] == "21 2nd Street"
@@ -179,7 +178,7 @@ def test_add_new(json_data_serializer, fixture_folder):
         "$schema": "http://json-schema.org/draft-03/schema",
         'phoneNumber': serializer.schema['properties']['phoneNumber']
     }
-    data_file = fixture_folder / 'basics' / 'branch1.json'
+    data_file = fixture_folder / 'branch1.json'
     target = serializer.data['phoneNumber']
     assert serializer.json_import(target, '-', data_file, schema=schema)
     assert serializer.data == {
@@ -196,7 +195,7 @@ def test_add_new(json_data_serializer, fixture_folder):
         ],
     }
 
-    data_file = fixture_folder / 'basics' / 'branch2.json'
+    data_file = fixture_folder / 'branch2.json'
     assert serializer.json_import(target, 0, data_file, schema=schema)
     result = {
         'address': {
@@ -220,7 +219,7 @@ def test_add_new(json_data_serializer, fixture_folder):
 def test_json_import_errors(json_data_serializer, fixture_folder, json_basic):
     serializer = json_data_serializer
     target = serializer.data['phoneNumber']
-    data_file = fixture_folder / 'basics' / 'branch2.json'
+    data_file = fixture_folder / 'branch2.json'
     schema = {
         "$schema": "http://json-schema.org/draft-03/schema",
         'phoneNumber': serializer.schema['properties']['phoneNumber']
@@ -245,7 +244,7 @@ def test_add_present_item(json_data_serializer, fixture_folder):
     schema = {
         'phoneNumber': serializer.schema['properties']['phoneNumber']
     }
-    data_file = fixture_folder / 'basics' / 'branch1.json'
+    data_file = fixture_folder / 'branch1.json'
     target = serializer.data
     assert serializer.json_import(target, None, data_file, schema=schema)
     assert serializer.data == {'type': 'home1', 'number': '111 222-333'}
@@ -259,7 +258,7 @@ def test_load_and_import_with_validation(json_data_serializer, fixture_folder):
     schema = {
         'phoneNumber': serializer.schema['properties']['phoneNumber']
     }
-    data_file = fixture_folder / 'basics' / 'branch1.json'
+    data_file = fixture_folder / 'branch1.json'
     target = serializer.data
     assert serializer.json_import(target, 'phoneNumber', data_file,
                                   schema=schema)

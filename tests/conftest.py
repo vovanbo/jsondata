@@ -7,8 +7,8 @@ from jsondata.data import SchemaMode
 from jsondata.serializer import JSONDataSerializer
 
 cwd = Path.cwd()
-json_basic_file = cwd / 'fixtures' / 'basics' / 'basic.json'
-schema_draft3_file = cwd / 'fixtures' / 'basics' / 'draft3.jsd'
+json_basic_file = cwd / 'fixtures' / 'basic.json'
+schema_draft3_file = cwd / 'fixtures' / 'draft3.jsd'
 json_pointer_data_file = cwd / 'fixtures' / 'data_for_pointer.json'
 
 
