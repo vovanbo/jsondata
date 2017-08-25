@@ -17,8 +17,13 @@ the hook where the value has to be inserted.
 """
 import logging
 import re
+from collections import UserList, Mapping, Sequence
+from typing import List, Any, Union
 from urllib.parse import unquote
 
+from decimal import Decimal
+
+from .helpers import ensure_text_type, is_collection, MISSING, first
 from .exceptions import JSONPointerException
 
 __author__ = 'Arno-Can Uestuensoez'
@@ -34,10 +39,63 @@ __uuid__ = '63b597d6-4ada-4880-9f99-f5e0961351fb'
 logger = logging.getLogger(__name__)
 
 # Valid types of in-memory JSON node types
-VALID_NODE_TYPE = (dict, list, str, int, float, bool, type(None),)
+VALID_NODE_TYPE = (
+    str, Mapping, Sequence, int, float, Decimal, bool, type(None)
+)
 
 
-class JSONPointer(list):
+def to_int_if_possible(value):
+    return int(value) if value.isdigit() else value
+
+
+def normalize_part(value):
+    """
+    6901-escaped, generic chars-quote
+    """
+    if isinstance(value, str):
+        return to_int_if_possible(
+            unquote(value).replace('~1', '/').replace('~0', '~')
+        )
+    else:
+        return value
+
+
+def get_comparable_string(value) -> str:
+    if isinstance(value, JSONPointer):
+        return value.rfc6901
+    elif isinstance(value, list):
+        return '/{}'.format('/'.join(str(i) for i in value))
+    elif isinstance(value, str):
+        return value
+    elif isinstance(value, int):
+        return '/%s' % value
+    else:
+        raise ValueError('Value is not comparable.')
+
+
+def get_value_for_keys(keys, obj, default, path=None):
+    if path is None:
+        path = []
+    path.append(keys[0])
+    if len(keys) == 1:
+        return path, get_value_for_key(keys[0], obj, default)
+    else:
+        inherit = get_value_for_key(keys[0], obj, default)
+        return get_value_for_keys(keys[1:], inherit, default, path)
+
+
+def get_value_for_key(key, obj, default):
+    try:
+        return obj[key]
+    except (KeyError, AttributeError, IndexError, TypeError):
+        try:
+            attr = getattr(obj, key)
+            return attr() if callable(attr) else attr
+        except AttributeError:
+            return default
+
+
+class JSONPointer(UserList):
     """
     Represents exactly one JSONPointer in compliance with IETF RFC6901.
     This pointer could be processed by extension, reduction,
@@ -126,7 +184,7 @@ class JSONPointer(list):
     VALID_INDEX = re.compile('0|[1-9][0-9]*$')
     """Regular expression for valid numerical index."""
 
-    def __init__(self, ptr, replace=True, **kwargs):
+    def __init__(self, pointer=None):
         """
         Converts and stores a JSONPointer as a list.
 
@@ -158,96 +216,84 @@ class JSONPointer(list):
             JSONPointerException:
 
         """
-        self.node = kwargs.get('node', None)  # cache for reuse
-        self.deep = deep = kwargs.get('deep', False)
-        if ptr and isinstance(ptr, str) and ptr[0] is '#':
-            # pointer are unicode only
-            ptr = ptr[1:]
+        initlist = None
 
-        if isinstance(ptr, (int, float)):  # pointer are unicode only
-            ptr = '/%s' % ptr
+        if pointer and isinstance(pointer, str) and pointer[0] == '#':
+            pointer = pointer[1:]
 
-        if ptr == '':  # shortcut for whole document, see RFC6901
-            self.raw = ''
-            self = []
-            return None
-        elif ptr == '/':  # shortcut for empty tag at top-level, see RFC6901
-            self.raw = ptr
-            self.append('')
-            return None
-        elif isinstance(ptr, str):
+        if isinstance(pointer, (int, float)):
+            pointer = '/' + ensure_text_type(pointer)
+
+        if pointer == '':
+            # shortcut for whole document, see RFC6901
+            self._raw = ''
+            initlist = []
+        elif pointer == '/':
+            # shortcut for empty tag at top-level, see RFC6901
+            self._raw = pointer
+            initlist = ['']
+        elif isinstance(pointer, str):
             # string in accordance to RFC6901
-            if ptr[0] == '/':
-                self.extend(ptr[1:].split('/'))
+            if pointer[0] == '/':
+                initlist = pointer[1:].split('/')
             else:
-                self.extend(ptr.split('/'))
-                # any pointer is absolute due to RFC6901,
-                # force it silently for smart loops
-                ptr = '/' + ptr
-            if deep:
-                self.raw = ptr[:]
-            else:
-                self.raw = ptr
-        elif isinstance(ptr, JSONPointer):
+                initlist = pointer.split('/')
+            self._raw = '/' + pointer
+        elif isinstance(pointer, JSONPointer):
             # copy a pointer, source has to be valid
-            if deep:
-                self.raw = ptr.raw[:]
-                self.extend(ptr.copy_path())
-            else:
-                self.raw = ptr.raw
-                self.extend(ptr)
-        elif isinstance(ptr, list):
+            self._raw = pointer.raw
+            initlist = pointer.data
+        elif is_collection(pointer):
             # list of entries in accordance to RFC6901, and JSONPointer
-            def presolv(p0):
-                if isinstance(p0, JSONPointer):  # copy constructor
-                    return p0
-                elif p0 in ('', '/'):
-                    return p0
-                elif isinstance(p0, str):
-                    return p0
-                elif isinstance(p0, (int, float)):
-                    return str(p0)
+            def normalize_items(p):
+                if p in ('', '/') or isinstance(p, (JSONPointer, str)):
+                    return p
+                elif isinstance(p, (int, float)):
+                    return ensure_text_type(p)
                 else:
-                    raise JSONPointerException("Invalid nodepart:" + str(p0))
-                return p0
+                    raise ValueError("Invalid node part: %s" % p)
 
-            if deep:
-                self.extend([s[:] for s in ptr])
-            else:
-                self.extend(list(map(presolv, ptr)))
-            self.raw = '/%s' % '/'.join(self)
+            initlist = [normalize_items(p) for p in pointer]
+            self._raw = '/%s' % '/'.join(initlist)
         else:
-            if not ptr:
-                self.raw = None
-                return None
-            raise JSONPointerException("Pointer type not supported:", type(ptr))
+            if pointer is None:
+                self._raw = None
+            else:
+                raise ValueError(
+                    "Pointer type not supported: %s" % type(pointer)
+                )
 
-        if replace:
-            unquoted_values = [
-                # 6901-escaped, generic chars-quote
-                unquote(p).replace('~1', '/').replace('~0', '~')
-                if isinstance(p, str) else p
-                for p in self
-            ]
-            self.clear()
-            self.extend(unquoted_values)
+        super(JSONPointer, self).__init__(normalize_part(p) for p in initlist)
 
-        # FIXME: check wheter the assumption is viable
-        # SPECIAL: assumes digit only as array index
-        def checkint(ix):
-            if isinstance(ix, str) and ix.isdigit():
-                return int(ix)
-            return ix
+    @property
+    def path(self):
+        return self.data
 
-        x = list(map(checkint, self))
-        del self[:]
-        self.extend(x)
+    @property
+    def raw(self) -> str:
+        return self._raw
 
-    def __add__(self, x):
-        """Appends a Pointer to self.
+    @property
+    def rfc6901(self) -> str:
+        """
+        Gets the objects pointer in compliance to RFC6901.
+
+        Returns:
+            The pointer in accordance to RFC6901.
+        """
+        if not self.data:  # ==[] : special RFC6901, whole document
+            return ''
+        if len(self.data) == 1 and self.data[0] == '':
+            # special RFC6901, '/' empty top-tag
+            return '/'
+        return '/{}'.format('/'.join(str(i) for i in self.data))
+
+    def __add__(self, pointer):
+        """
+        Appends a Pointer to self.
 
         Args:
-            x: A valid JSONPointer fragment.
+            pointer: A valid JSONPointer fragment.
 
         Returns:
             A new object of JSONPointer
@@ -256,45 +302,46 @@ class JSONPointer(list):
             JSONPointerException:
 
         """
-        ret = JSONPointer(self)
-        if isinstance(x, str) and x[0] is '#':
+        result = JSONPointer(self.data)
+        if isinstance(pointer, str) and pointer[0] is '#':
             # pointer are unicode only, RFC6901/RFC3829
-            x = x[1:]
+            pointer = pointer[1:]
 
-        if x == '':  # whole document, RFC6901
-            raise JSONPointerException("Cannot add the whole document")
-        elif x == '/':  # empty tag
-            ret.raw += x
-            ret.append('')
-
-        elif isinstance(x, JSONPointer):
-            ret.raw += x.raw
-            ret.extend(x)
-        elif isinstance(x, list):
-            ret.raw += '/' + '/'.join(x)
-            ret.extend(x)
-        elif isinstance(x, str):
-            if x[0] == '/':
-                ret.extend(x[1:].split('/'))
-                ret.raw += x
+        if pointer == '':
+            # whole document, RFC6901
+            raise JSONPointerException('Cannot add the whole document')
+        elif pointer == '/':
+            # empty tag
+            result._raw += pointer
+            result.data.append('')
+        elif isinstance(pointer, JSONPointer):
+            result._raw += pointer.raw
+            result.data.extend(pointer.data)
+        elif isinstance(pointer, list):
+            result._raw += '/' + '/'.join(pointer)
+            result.data.extend(pointer)
+        elif isinstance(pointer, str):
+            if pointer[0] == '/':
+                result.data.extend(pointer[1:].split('/'))
+                result._raw += pointer
             else:
-                ret.extend(x.split('/'))
-                ret.raw += '/' + x
-        elif isinstance(x, int):
-            ret.append(x)
-            ret.raw += '/%s' % x
-        elif x is None:
-            return ret
-
+                result.data.extend(pointer.split('/'))
+                result._raw += '/' + pointer
+        elif isinstance(pointer, int):
+            result.data.append(pointer)
+            result._raw += '/%s' % pointer
+        elif pointer is None:
+            return result
         else:
             raise JSONPointerException()
-        return ret
+        return result
 
-    def __call__(self, x):
-        """Evaluates the pointed value from the document.
+    def __call__(self, data):
+        """
+        Evaluates the pointed value from the document.
 
         Args:
-            x: A valid JSON document.
+            data: A valid JSON document.
 
         Returns:
             The pointed value, or None.
@@ -302,14 +349,14 @@ class JSONPointer(list):
         Raises:
             JSONPointerException
         """
-        return self.get_node_or_value(x)
+        return self.get_node_or_value(data)
 
-    def __eq__(self, x):
+    def __eq__(self, other):
         """
-        Compares this pointer with x.
+        Compares pointer with other.
 
         Args:
-            x: A valid Pointer.
+            other: A valid Pointer.
 
         Returns:
             True or False
@@ -317,23 +364,14 @@ class JSONPointer(list):
         Raises:
             JSONPointerException
         """
-        s = '/%s' % '/'.join(str(i) for i in self)
-
-        if isinstance(x, JSONPointer):
-            return s == x.get_pointer()
-        elif isinstance(x, list):
-            return s == JSONPointer(x).get_pointer()
-        elif isinstance(x, str):
-            return s == str(x)
-        elif isinstance(x, int):
-            return s == '/' + str(x)
-        elif x is None:
+        if other is None:
             return False
         else:
-            raise JSONPointerException()
+            return self.rfc6901 == get_comparable_string(other)
 
-    def __ge__(self, x):
-        """Checks containment(>=) of another pointer within this.
+    def __ge__(self, other):
+        """
+        Checks containment(>=) of another pointer within this.
 
         The weight of contained entries is the criteria, though
         the shorter is the bigger. This is true only in case of
@@ -342,7 +380,7 @@ class JSONPointer(list):
         The number of equal path pointer items is compared.
 
         Args:
-            x: A valid Pointer.
+            other: A valid Pointer.
 
         Returns:
             True or False
@@ -351,36 +389,29 @@ class JSONPointer(list):
             JSONPointerException:
 
         """
-        s = '/%s' % '/'.join(str(i) for i in self)
-
-        if isinstance(x, JSONPointer):
-            px = x.get_pointer()
-        elif isinstance(x, list):
-            px = '/%s' % '/'.join(str(i) for i in x)
-        elif isinstance(x, str):
-            px = str(x)
-        elif isinstance(x, int):
-            px = '/%s' % x
-        elif x is None:
+        if other is None:
             return True
-
         else:
-            raise JSONPointerException()
+            other_rfc6901 = get_comparable_string(other)
 
-        if s > px:  # the shorter is the bigger
+        if self.rfc6901 > other_rfc6901:
+            # the shorter is the bigger
             return False
-        if str(px).startswith(str(s)):  # matching part has to be literal
+
+        if other_rfc6901.startswith(self.rfc6901):
+            # matching part has to be literal
             return True
         else:
             return False
 
-    def __gt__(self, x):
-        """Checks containment(>) of another pointer or object within this.
+    def __gt__(self, other):
+        """
+        Checks containment(>) of another pointer or object within this.
 
         The number of equal items is compared.
 
         Args:
-            x: A valid Pointer.
+            other: A valid Pointer.
 
         Returns:
             True or False
@@ -388,34 +419,26 @@ class JSONPointer(list):
         Raises:
             JSONPointerException:
         """
-        s = '/%s' % '/'.join(map(str, self))
-
-        if isinstance(x, JSONPointer):
-            px = x.get_pointer()
-        elif isinstance(x, list):
-            px = "/%s" % '/'.join(map(str, x))
-        elif isinstance(x, str):
-            px = str(x)
-        elif isinstance(x, int):
-            px = '/%s' % x
-        elif x is None:
+        if other is None:
             return True
-
         else:
-            raise JSONPointerException()
+            other_rfc6901 = get_comparable_string(other)
 
-        if s >= px:  # the shorter is the bigger, so false in any case
+        if self.rfc6901 >= other_rfc6901:
+            # the shorter is the bigger, so false in any case
             return False
-        if str(px).startswith(str(s)):  # matching part has to be literal
+        if other_rfc6901.startswith(self.rfc6901):
+            # matching part has to be literal
             return True
         else:
             return False
 
-    def __iadd__(self, x):
-        """Add in place x to self, appends a path.
+    def __iadd__(self, other):
+        """
+        Add in place x to self, appends a path.
 
         Args:
-            x: A valid Pointer.
+            other: A valid Pointer.
 
         Returns:
             'self' with updated pointer attributes
@@ -423,44 +446,46 @@ class JSONPointer(list):
         Raises:
             JSONPointerException:
         """
-        if isinstance(x, list):
-            self.raw += str('/' + '/'.join(x))
-            self.extend(x)
-        elif isinstance(x, JSONPointer):
-            if x.raw[0] != '/':
-                self.raw += '/' + x.raw
+        if isinstance(other, list):
+            self._raw += '/{}'.format('/'.join(other))
+            self.data.extend(other)
+        elif isinstance(other, JSONPointer):
+            if other.raw[0] == '/':
+                self._raw = other.raw
             else:
-                self.raw = x.raw
-            self.extend(x)
-        elif isinstance(x, int):
-            self.append(str(x))
-            self.raw += '/' + str(x)
-        elif x == '':  # whole document, RFC6901
-            raise JSONPointerException("Cannot add the whole document")
-        elif x == '/':  # empty tag
-            self.raw += x
-            self.append('')
-        elif isinstance(x, str):
-            if x[0] == '/':
-                self.extend(x[1:].split('/'))
-                self.raw += x
+                self._raw = '{}/{}'.format(self.raw, other.raw)
+            self.data.extend(other.data)
+        elif isinstance(other, int):
+            self.data.append(ensure_text_type(other))
+            self._raw = '{}/{}'.format(self.raw, other)
+        elif other == '':
+            # whole document, RFC6901
+            raise JSONPointerException('Cannot add the whole document')
+        elif other == '/':
+            # empty tag
+            self._raw += other
+            self.data.append('')
+        elif isinstance(other, str):
+            if other[0] == '/':
+                self.data.extend(other[1:].split('/'))
+                self._raw += other
             else:
-                self.extend(x.split('/'))
-                self.raw += '/' + x
-        elif x is None:
+                self.data.extend(other.split('/'))
+                self._raw += '/' + other
+        elif other is None:
             return self
-
         else:
             raise JSONPointerException()
         return self
 
-    def __le__(self, x):
-        """Checks containment(<=) of this pointer within another.
+    def __le__(self, other):
+        """
+        Checks containment(<=) of this pointer within another.
 
         The number of equal items is compared.
 
         Args:
-            x: A valid Pointer.
+            other: A valid Pointer.
 
         Returns:
             True or False
@@ -468,34 +493,25 @@ class JSONPointer(list):
         Raises:
             JSONPointerException:
         """
-        s = '/' + '/'.join(map(str, self))
-
-        if isinstance(x, JSONPointer):
-            px = x.get_pointer()
-        elif isinstance(x, list):
-            px = "/%s" % '/'.join(map(str, x))
-        elif isinstance(x, str):
-            px = str(x)
-        elif isinstance(x, int):
-            px = '/%s' % x
-        elif x is None:
+        if other is None:
             return False
-
         else:
-            raise JSONPointerException()
+            other_rfc6901 = get_comparable_string(other)
 
-        if s < px:  # the shorter is the bigger
+        if self.rfc6901 < other_rfc6901:
+            # the shorter is the bigger
             return False
-        if str(s).startswith(str(px)):  # matching part has to be literal
-            return True
 
-    def __lt__(self, x):
-        """Checks containment(<) of this pointer within another.
+        return self.rfc6901.startswith(other_rfc6901)
+
+    def __lt__(self, other):
+        """
+        Checks containment(<) of this pointer within another.
 
         The number of equal items is compared.
 
         Args:
-            x: A valid Pointer.
+            other: A valid Pointer.
 
         Returns:
             True or False
@@ -503,32 +519,22 @@ class JSONPointer(list):
         Raises:
             JSONPointerException:
         """
-        s = '/%s' % '/'.join(map(str, self))
-
-        if isinstance(x, JSONPointer):
-            px = x.get_pointer()
-        elif isinstance(x, list):
-            px = "/" + '/'.join(map(str, x))
-        elif isinstance(x, str):
-            px = str(x)
-        elif isinstance(x, int):
-            px = '/%s' % x
-        elif x is None:
+        if other is None:
             return False
-
         else:
-            raise JSONPointerException()
+            other_rfc6901 = get_comparable_string(other)
 
-        if s <= px:  # the shorter is the bigger
+        if self.rfc6901 <= other_rfc6901:  # the shorter is the bigger
             return False
-        if str(s).startswith(str(px)):  # matching part has to be literal
-            return True
 
-    def __ne__(self, x):
-        """Compares this pointer with x.
+        return self.rfc6901.startswith(other_rfc6901)
+
+    def __ne__(self, other):
+        """
+        Compares this pointer with x.
 
         Args:
-            x: A valid Pointer.
+            other: A valid Pointer.
 
         Returns:
             True or False
@@ -536,10 +542,11 @@ class JSONPointer(list):
         Raises:
             JSONPointerException
         """
-        return not self.__eq__(x)
+        return not self.__eq__(other)
 
-    def __radd__(self, x):
-        """Adds itself as the right-side-argument to the left.
+    def __radd__(self, other):
+        """
+        Adds itself as the right-side-argument to the left.
         
         This method appends 'self' to a path fragment on the left.
         Therefore it adds the path separator on it's left side only.
@@ -551,7 +558,7 @@ class JSONPointer(list):
         handled by the resulting other element.
          
         Args:
-            x: A valid Pointer.
+            other: A valid Pointer.
 
         Returns:
             The updated input of type 'x' as 'x+S(x)'
@@ -559,43 +566,34 @@ class JSONPointer(list):
         Raises:
             JSONPointerException:
         """
-        if x == '':  # whole document, RFC6901
-            return '/%s' % '/'.join(str(i) for i in self)
-        elif x == '/':  # empty tag
-            return '%s/%s' % (x, '/'.join(str(i) for i in self))
-        elif isinstance(x, int):
-            return '/%s/%s' % (x, '/'.join(str(i) for i in self))
-        elif isinstance(x, str):
-            return '%s/%s' % (x, '/'.join(str(i) for i in self))
-        elif isinstance(x, list):
-            return x.extend(self)
+        if other == '':
+            # whole document, RFC6901
+            return self.rfc6901
+        elif other == '/':
+            # empty tag
+            return '{}{}'.format(other, self.rfc6901)
+        elif isinstance(other, int):
+            return '/{}{}'.format(other, self.rfc6901)
+        elif isinstance(other, str):
+            return '{}{}'.format(other, self.rfc6901)
+        elif isinstance(other, list):
+            return other.extend(self.data)
         else:
             raise JSONPointerException()
-
-    def __repr__(self):
-        """
-        Returns the attribute self.raw, which is the raw input JSONPointer.
-        """
-        return str(super(JSONPointer, self).__repr__())
 
     def __str__(self):
         """
         Returns the string for the processed path.
         """
-        ret = self.get_pointer()
-        if ret == '':
-            return "''"
-        return ret
+        result = self.rfc6901
+        return result if result else "''"
 
-    #
-    # ---
-    #
-
-    def check_node_or_value(self, jsondata, parent=False):
-        """Checks the existance of the corresponding node within the JSON document.
+    def check_node_or_value(self, json_data, parent=False):
+        """
+        Checks the existence of the corresponding node within the JSON document.
 
         Args:
-            jsondata: A valid JSON data node.
+            json_data: A valid JSON data node.
             parent: Return the parent node of the pointed value.
 
         Returns:
@@ -605,58 +603,49 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        if not self:  # special RFC6901, whole document
-            return jsondata
-        if self == ['']:  # special RFC6901, '/' empty top-tag
-            return jsondata['']
+        if not self.data:  # special RFC6901, whole document
+            return json_data
+        if len(self.data) == 1 and self.data[0] == '':
+            # special RFC6901, '/' empty top-tag
+            return json_data[0]
 
-        if not isinstance(jsondata, VALID_NODE_TYPE):
+        if not isinstance(json_data, VALID_NODE_TYPE):
             # concrete info for debugging for type mismatch
             raise JSONPointerException(
-                "Invalid nodetype parameter:" + str(type(jsondata)))
+                "Invalid node type parameter: %s" % type(json_data)
+            )
 
-        if parent:
-            for x in self[:-1]:
-                jsondata = jsondata.get(x, False)
-                if not jsondata:
-                    return False
-        else:
-            for x in self:
-                jsondata = jsondata.get(x, False)
-                if not jsondata:
-                    return False
+        keys = self.data[:-1] if parent else self.data
+        _, node = get_value_for_keys(keys, json_data, MISSING)
+        if node is MISSING:
+            return False
 
-        if not isinstance(jsondata, VALID_NODE_TYPE):
+        if not isinstance(node, VALID_NODE_TYPE):
             # concrete info for debugging for type mismatch
             raise JSONPointerException(
-                "Invalid path nodetype:" + str(type(jsondata)))
-        self.node = jsondata  # cache for reuse
+                "Invalid path node type: %s" % type(json_data)
+            )
+
         return True
 
-    def copy_path_list(self, parent=False):
-        """Returns a deep copy of the objects pointer path list.
+    @staticmethod
+    def resolve_path(path: List[Any], data: Union[Sequence, Mapping],
+                     default=MISSING):
+        if is_collection(data) or isinstance(data, Mapping):
+            if not path:
+                # special RFC6901, whole document
+                return path, data
+            if len(path) == 1 and path[0] == '':
+                # special RFC6901, '/' empty top-tag
+                return path, (first(data) if is_collection(data) else data[''])
 
-        Args:
-            parent: The parent node of the pointer path.
-
-        Returns:
-            A copy of the path list.
-            
-        Raises:
-            none
-        """
-        if not self:  # special RFC6901, whole document
-            return []
-        if self == ['']:  # special RFC6901, '/' empty top-tag
-            return ['']
-
-        if parent:
-            return [s[:] for s in self[:-1]]
+            return get_value_for_keys(path, data, default)
         else:
-            return [s[:] for s in self[:]]
+            raise ValueError('Invalid data type for resolving.')
 
-    def get_node(self, jsondata, parent=False):
-        """Gets the corresponding node reference for a JSON container type.
+    def get_node(self, json_data, parent=False):
+        """
+        Gets the corresponding node reference for a JSON container type.
         
         This method gets nodes of container types. Container 
         types of JSON are 'array' a.k.a. in Python 'list', 
@@ -676,13 +665,13 @@ class JSONPointer(list):
             get_node_and_child: For Python access to a child node 
                 within a container by the container itself, and the
                 item key.
-            get_node_exist: For the application of partial valid 
+            get_existing_node: For the application of partial valid
                 pointer paths of new branches.
             get_node_or_value: For any type of pointed item, either 
                 a node, or a value. 
         
         Args:
-            jsondata: A valid JSON data node.
+            json_data: A valid JSON data node.
             parent: Return the parent node of the pointed value.
                 When parent is selected, the pointed child node
                 is not verified. 
@@ -694,46 +683,29 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        if not self:  # special RFC6901, whole document
-            return jsondata
-        if len(self) == 1 and self[0] == '':
-            # special RFC6901, '/' empty top-tag
-            return jsondata[0]
+        path = self.data[:-1] if parent else self.data
+        node_path, node = self.resolve_path(path, json_data)
 
-        if not isinstance(jsondata, (dict, list)):
+        if node is MISSING:
+            raise JSONPointerException(
+                'Requires existing Node(%s): '
+                '%s of %s' % (node_path, node, self.data)
+            )
+
+        if not isinstance(node, (Mapping, Sequence)):
             # concrete info for debugging for type mismatch
             raise JSONPointerException(
-                "Invalid nodetype parameter:" + str(type(jsondata)))
-
-        try:
-            if parent:
-                for x in self[:-1]:
-                    # want the exception, the keys within the process
-                    # has to match
-                    jsondata = jsondata[x]
-            else:
-                for x in self:
-                    # want the exception, the keys within the process
-                    # has to match
-                    jsondata = jsondata[x]
-        except KeyError as e:
-            raise JSONPointerException(
-                "Requires existing Node(%s): "
-                "%s of %s:%s" % (self.index(x), x, self, e)
+                "Invalid path node type: %s" % type(node)
             )
-        if not isinstance(jsondata, (dict, list)):
-            # concrete info for debugging for type mismatch
-            raise JSONPointerException(
-                "Invalid path nodetype: %s" % type(jsondata)
-            )
-        self.node = jsondata  # cache for reuse
-        return jsondata
 
-    def get_node_and_child(self, jsondata):
-        """Returns a tuple containing the parent node and the child.
+        return node
+
+    def get_node_and_child(self, json_data):
+        """
+        Returns a tuple containing the parent node and the child.
 
         Args:
-            jsondata: A valid JSON data node.
+            json_data: A valid JSON data node.
 
         Returns:
             The the tuple:
@@ -744,10 +716,9 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        n = self.get_node(jsondata, True)
-        return n, self[-1]
+        return self.get_node(json_data, parent=True), self.data[-1]
 
-    def get_node_or_value(self, jsondata, valtype=None, parent=False):
+    def get_node_or_value(self, json_data, value_type=None, parent=False):
         """Gets the corresponding node reference or the JSON value of a leaf.
 
         Relies on the standard package 'json' by 'Bob Ippolito <bob@redivi.com>'.
@@ -868,8 +839,8 @@ class JSONPointer(list):
             False - native Python NoneType
 
         Args:
-            jsondata: A valid JSON data node.
-            valtype: Type of requested value.
+            json_data: A valid JSON data node.
+            value_type: Type of requested value.
             parent: Return the parent node of the pointed value.
 
         Returns:
@@ -879,54 +850,35 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        if not self:
-            # == [] : special RFC6901, whole document
-            return jsondata
-        if len(self) == 1 and self[0] == '':
-            # special RFC6901, '/' empty top-tag
-            return jsondata['']
-
-        if not isinstance(jsondata, VALID_NODE_TYPE):
-            # requires an object or an array as input
-            # concrete info for debugging for type mismatch
+        path = self.data[:-1] if parent else self.data
+        node_path, node = self.resolve_path(path, json_data)
+        if node is MISSING:
             raise JSONPointerException(
-                "Invalid nodetype parameter:" + str(type(jsondata)))
-
-        try:
-            if parent:  # request for container
-                for x in self[:-1]:
-                    jsondata = jsondata[x]  # want the exception
-            else:
-                for x in self:
-                    jsondata = jsondata[x]  # want the exception
-        except KeyError as e:
-            raise JSONPointerException(
-                "Node(%s): %s of %s:%s" % (self.index(x), x, self, e)
+                "Node(%s): %s of %s" % (node_path, node, self.data)
             )
-        if valtype:  # requested value type
-            # fix type ambiguity for numeric
-            if valtype in (int, float):
-                if jsondata.isdigit():
-                    jsondata = int(jsondata)
-            elif valtype in (int, float):
-                # FIXME:
-                if jsondata.isdigit():
-                    jsondata = float(jsondata)
 
-            if not isinstance(jsondata, valtype):
+        if value_type:  # requested value type
+            # fix type ambiguity for numeric
+            if value_type in (int, float, Decimal) and isinstance(node, str):
+                try:
+                    node = value_type(node)
+                except ValueError:
+                    pass
+
+            if not isinstance(node, value_type):
                 raise JSONPointerException(
                     "Invalid path value type: "
-                    "%s != %s" % (valtype, type(jsondata))
+                    "%s != %s" % (value_type, type(node))
                 )
-        else:  # in general valid value types - RFC4729,RFC7951
-            if not isinstance(jsondata, VALID_NODE_TYPE):
+        else:  # in general valid value types - RFC4729, RFC7951
+            if not isinstance(node, VALID_NODE_TYPE):
                 raise JSONPointerException(
-                    "Invalid path nodetype: %s" % type(jsondata)
+                    "Invalid path node type: %s" % type(node)
                 )
-        self.node = jsondata  # cache for reuse
-        return jsondata
 
-    def get_node_exist(self, jsondata, parent=False):
+        return node
+
+    def get_existing_node(self, json_data, parent=False):
         """
         Returns the node for valid part of the pointer, and the remaining part.
         
@@ -946,7 +898,7 @@ class JSONPointer(list):
         
         
         Args:
-            jsondata: A valid JSON data node.
+            json_data: A valid JSON data node.
             parent: Return the parent node of the pointed value.
 
         Returns:
@@ -957,135 +909,52 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        if not self:  # special RFC6901, whole document
-            return jsondata
-        if self == ['']:  # special RFC6901, '/' empty top-tag
-            return jsondata['']
+        path = self.path[:-1] if parent else self.path
 
-        if not isinstance(jsondata, (dict, list)):
+        for sub_path in self.path_reducer(path):
+            existing_node_path, existing_node = self.resolve_path(sub_path,
+                                                                  json_data)
+            if existing_node is not MISSING:
+                break
+
+        if not isinstance(existing_node, (Mapping, Sequence)):
             # concrete info for debugging for type mismatch
             raise JSONPointerException(
-                "Invalid nodetype parameter: %s" % type(jsondata)
+                "Invalid path node type: %s" % type(existing_node)
             )
-        remaining = None
-        try:
-            if parent:
-                for x in self[:-1]:
-                    remaining = x
-                    # want the exception, the keys within the process
-                    # has to match
-                    jsondata = jsondata[x]
+
+        path_set = frozenset((i, v) for i, v in enumerate(path))
+        node_path_set = frozenset(
+            (i, v) for i, v in enumerate(existing_node_path)
+        )
+        remaining_set = sorted(path_set - node_path_set, key=lambda i: i[0])
+
+        return existing_node, [v[1] for v in remaining_set]
+
+    @staticmethod
+    def path_producer(path):
+        for i in range(0, len(path)):
+            yield path[:i + 1]
+
+    @staticmethod
+    def path_reducer(path):
+        for i in range(0, len(path)):
+            if i == 0:
+                yield path
             else:
-                for x in self:
-                    remaining = x
-                    # want the exception, the keys within the process
-                    # has to match
-                    jsondata = jsondata[x]
-        except (KeyError, TypeError):
-            if parent:
-                remaining = self[self.index(remaining):-1]
-            else:
-                remaining = self[self.index(remaining):]
-        if not isinstance(jsondata, (dict, list)):
-            # concrete info for debugging for type mismatch
-            raise JSONPointerException(
-                "Invalid path nodetype: %s" % type(jsondata)
-            )
-        self.node = jsondata  # cache for reuse
-        return [jsondata, remaining]
+                yield path[:-i]
 
-    def get_path_list(self):
-        """
-        Gets for the corresponding path list of the object pointer
-        for in-memory access on the data of the 'json' package.
-
-        Args:
-            none
-
-        Returns:
-            The path list.
-            
-        Raises:
-            none
-        """
-        logger.debug(repr(self))
-        return list(self)
-
-    def get_path_list_and_key(self):
-        """
-        Gets for the corresponding path list of the object pointer
-        for in-memory access on the data of the 'json' package.
-
-        Args:
-            none
-
-        Returns:
-            The path list.
-            
-        Raises:
-            none
-        """
-        if len(self) > 2:
-            return self[:-1], self[-1]
-        elif len(self) == 1:
-            return [], self[-1]
-        elif len(self) == 0:
-            return [], None
-
-    def get_pointer(self, force_notation=None, parent=False):
-        """
-        Gets the objects pointer in compliance to RFC6901.
-
-        Args:
-            force_notation: Force the output notation to:
-                None := NOTATION_JSON,
-                NOTATION_JSON = 0,
-                NOTATION_HTTP_FRAGMENT = 1
-                
-            parent: Get parent of selected node.
-
-        Returns:
-            The pointer in accordance to RFC6901.
-            
-        Raises:
-            none
-        """
-        if not self:  # ==[] : special RFC6901, whole document
-            return ''
-        if len(self) == 1 and self[0] == '':
-            # special RFC6901, '/' empty top-tag
-            return '/'
-
-        if parent:
-            return '/%s' % '/'.join(map(str, self[:-1]))
-        else:
-            return '/%s' % '/'.join(map(str, self))
-
-    def get_raw(self):
-        """Gets the objects raw 6901-pointer.
-
-        Args:
-            none
-
-        Returns:
-            The raw path.
-            
-        Raises:
-            none
-        """
-        return self.raw
-
-    def iter_path(self, jsondata=None, parent=False, rev=False):
+    def iter_path(self, json_data=None, parent=False, reverse=False):
         """
         Iterator for the elements of the path pointer itself.
 
         Args:
-            jsondata: If provided a valid JSON data node, the
+            json_data: If provided a valid JSON data node, the
                 path components are successively verified on
                 the provided document. If None the path pointer
                 components are just iterated.
             parent: Uses the path pointer to parent node.
-            rev: Reverse the order, start with last.
+            reverse: Reverse the order, start with last.
 
         Returns:
             Yields the iterator for the current path pointer
@@ -1095,53 +964,36 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        if not self:  # special RFC6901, whole document
+        if not self.path:
+            # special RFC6901, whole document
             yield ''
-        elif self == ['']:  # special RFC6901, '/' empty top-tag
+        elif len(self.path) == 1 and self.path[0] == '':
+            # special RFC6901, '/' empty top-tag
             yield '/'
         else:
-            if jsondata and not isinstance(jsondata, (dict, list)):
-                # concrete info for debugging for type mismatch
-                raise JSONPointerException(
-                    "Invalid nodetype parameter: %s" % type(jsondata)
-                )
-
-            if rev:  # reverse
-                if parent:  # for parent
-                    ptrpath = self[:-1:-1]
-                else:  # full path
-                    ptrpath = self[::-1]
+            if reverse:
+                path = self.path[:-1:-1] if parent else self.path[::-1]
             else:
-                if parent:  # for parent
-                    ptrpath = self[:-1]
-                else:  # full path
-                    ptrpath = self
+                path = self.path[:-1] if parent else self.path
 
-            try:
-                x = ptrpath[0]
-                for x in ptrpath:
-                    if jsondata:
-                        jsondata = jsondata[
-                            x]  # want the exception, the keys within the process has to match
-                        if type(jsondata) not in (dict, list):
-                            # concrete info for debugging for type mismatch
-                            raise JSONPointerException(
-                                "Invalid path nodetype:" + str(type(jsondata)))
-                    yield x
-            except Exception as e:
-                raise JSONPointerException(
-                    "Node(%s): %s of %s:%s" % (self.index(x), x, self, e)
-                )
-            self.node = jsondata  # cache for reuse
+            for sub_path in self.path_producer(path):
+                if json_data is not None:
+                    node = self.resolve_path(sub_path, json_data)
+                    if node is MISSING or not isinstance(node,
+                                                         (Mapping, Sequence)):
+                        raise ValueError(
+                            'Invalid path node type "%s"' % type(node)
+                        )
+                yield sub_path[-1]
 
-    def iter_path_nodes(self, jsondata, parent=False, rev=False):
+    def iter_path_nodes(self, json_data, parent=False, reverse=False):
         """
         Iterator for the elements the path pointer points to.
 
         Args:
-            jsondata: A valid JSON data node.
+            json_data: A valid JSON data node.
             parent: Uses the path pointer to parent node.
-            rev: Reverse the order, start with last.
+            reverse: Reverse the order, start with last.
 
         Returns:
             Yields the iterator of the current node reference.
@@ -1150,42 +1002,23 @@ class JSONPointer(list):
             JSONPointerException:
             forwarded from json
         """
-        if not self:  # special RFC6901, whole document
-            yield jsondata
-        elif self == ['']:  # special RFC6901, '/' empty top-tag
-            yield jsondata['']
+        if not self.path:
+            # special RFC6901, whole document
+            yield json_data
+        elif len(self.path) == 1 and self.path[0] == '':
+            # special RFC6901, '/' empty top-tag
+            yield json_data[0] if is_collection(json_data) else json_data['']
         else:
-            if not isinstance(jsondata, (dict, list)):
-                # concrete info for debugging for type mismatch
-                raise JSONPointerException(
-                    "Invalid nodetype parameter: %s" % type(jsondata)
-                )
-
-            if rev:  # reverse
-                if parent:  # for parent
-                    ptrpath = self[:-1:-1]
-                else:  # full path
-                    ptrpath = self[::-1]
+            if reverse:
+                path = self.path[:-1:-1] if parent else self.path[::-1]
             else:
-                if parent:  # for parent
-                    ptrpath = self[:-1]
-                else:  # full path
-                    ptrpath = self
+                path = self.path[:-1] if parent else self.path
 
-            try:
-                x = ptrpath[0]
-                for x in ptrpath:
-                    # want the exception, the keys within the process
-                    # has to match
-                    jsondata = jsondata[x]
-                    if not isinstance(jsondata, (dict, list)):
-                        # concrete info for debugging for type mismatch
-                        raise JSONPointerException(
-                            "Invalid path nodetype: %s" % type(jsondata)
-                        )
-                    yield jsondata
-            except Exception as e:
-                raise JSONPointerException(
-                    "Node(%s): %s of %s:%s" % (ptrpath.index(x), x, self, e)
-                )
-            self.node = jsondata  # cache for reuse
+            for sub_path in self.path_producer(path):
+                node = self.resolve_path(sub_path, json_data)
+                if node is MISSING or not isinstance(node,
+                                                     (Mapping, Sequence)):
+                    raise ValueError(
+                        'Invalid path node type "%s"' % type(node)
+                    )
+                yield node

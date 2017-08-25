@@ -10,7 +10,7 @@ try:
 except ImportError:
     import json as myjson
 
-from jsondata.data import SchemaMode
+from jsondata.data import Mode
 from jsondata.serializer import JSONDataSerializer as ConfigData
 
 jval = None
@@ -37,7 +37,7 @@ class CallUnits(unittest.TestCase):
         kwargs['no_default_path'] = True
         kwargs['nosubdata'] = True
         kwargs['path_list'] = os.path.dirname(__file__)
-        kwargs['validator'] = SchemaMode.OFF
+        kwargs['validator'] = Mode.OFF
         configdata = ConfigData(appname,**kwargs)
 
 

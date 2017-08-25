@@ -5,7 +5,7 @@ from jsondata.patch import JSONPatch, JSONPatchItem
 
 
 def test_create_patch_task_list():
-    json_data = JSONData({"foo": "bar"}, validator=Mode.OFF)
+    json_data = JSONData({'foo': 'bar'}, validator=Mode.OFF)
 
     json_patch_list = JSONPatch()
     for i in range(10):

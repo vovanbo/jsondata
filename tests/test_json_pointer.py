@@ -473,7 +473,7 @@ def test_get_node_exist(json_data_serializer, fixture_folder):
         'phoneNumber': serializer.schema['properties']['phoneNumber']
     }
     target, remaining = \
-        JSONPointer("/phoneNumber/-").get_node_exist(serializer.data)
+        JSONPointer('/phoneNumber/-').get_existing_node(serializer.data)
 
     data_file = fixture_folder / 'branch0.json'
     assert serializer.json_import(target, remaining[0], data_file,

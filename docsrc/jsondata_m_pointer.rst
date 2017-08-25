@@ -55,10 +55,10 @@ get_node_and_child
 
 .. automethod:: JSONPointer.get_node_and_child
 
-get_node_exist
+get_existing_node
 ^^^^^^^^^^^^^^
 
-.. automethod:: JSONPointer.get_node_exist
+.. automethod:: JSONPointer.get_existing_node
 
 get_node_or_value
 ^^^^^^^^^^^^^^^^^

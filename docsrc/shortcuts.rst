@@ -622,7 +622,7 @@ Methods
   +---------------------------------+----------------------------------------------------+--------------------+
   | `get_node_or_value`_            | `JSONPointer.get_node_or_value`_                   |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
-  | `get_node_exist`_               | `JSONPointer.get_node_exist`_                      |                    |
+  | `get_existing_node`_               | `JSONPointer.get_existing_node`_                      |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
   | `get_path_list`_                | `JSONPointer.get_path_list`_                       |                    |
   +---------------------------------+----------------------------------------------------+--------------------+
@@ -724,8 +724,8 @@ Iterators
 .. _JSONPointer.get_node_or_value: _modules/jsondata/JSONPointer.html#JSONPointer.get_node_or_value
 .. _get_node_or_value: jsondata_m_pointer.html#jsondata.JSONPointer.JSONPointer.get_node_or_value
 
-.. _JSONPointer.get_node_exist: _modules/jsondata/JSONPointer.html#JSONPointer.get_node_exist
-.. _get_node_exist: jsondata_m_pointer.html#jsondata.JSONPointer.JSONPointer.get_node_exist
+.. _JSONPointer.get_existing_node: _modules/jsondata/JSONPointer.html#JSONPointer.get_existing_node
+.. _get_node_exist: jsondata_m_pointer.html#jsondata.JSONPointer.JSONPointer.get_existing_node
 
 .. _JSONPointer.get_path_list: _modules/jsondata/JSONPointer.html#JSONPointer.get_path_list
 .. _get_path_list: jsondata_m_pointer.html#jsondata.JSONPointer.JSONPointer.get_path_list

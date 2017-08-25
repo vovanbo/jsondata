@@ -719,7 +719,7 @@ class JSONData:
 
         if isinstance(branch, JSONPointer):
             # FIXME: iterator
-            branch = branch.get_path_list()
+            branch = branch.path
 
         if not isinstance(branch, list):
             raise JSONDataException("value", "branch", branch)

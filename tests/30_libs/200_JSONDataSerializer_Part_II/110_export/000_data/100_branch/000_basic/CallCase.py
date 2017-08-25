@@ -88,7 +88,7 @@ class CallUnits(unittest.TestCase):
         kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
         # target container - here with one key
-        target,remaining = JSONPointer("/phoneNumber/-").get_node_exist(configdata.data)
+        target,remaining = JSONPointer("/phoneNumber/-").get_existing_node(configdata.data)
 
         # do it...
         # ATTENTION: works here for: remaining => one level only
@@ -130,7 +130,7 @@ class CallUnits(unittest.TestCase):
         kwargs['validator'] = MODE_SCHEMA_OFF
 
         # target container - here with one key
-        target,remaining = JSONPointer("/phoneNumber/-").get_node_exist(configdata.data)
+        target,remaining = JSONPointer("/phoneNumber/-").get_existing_node(configdata.data)
 
         # do it...
         # ATTENTION: works here for: remaining => one level only
@@ -172,7 +172,7 @@ class CallUnits(unittest.TestCase):
         kwargs['validator'] = MODE_SCHEMA_DRAFT4
 
         # target container - here with one key
-        target,remaining = JSONPointer("/phoneNumber/-").get_node_exist(configdata.data)
+        target,remaining = JSONPointer("/phoneNumber/-").get_existing_node(configdata.data)
 
         # do it...
         # ATTENTION: works here for: remaining => one level only

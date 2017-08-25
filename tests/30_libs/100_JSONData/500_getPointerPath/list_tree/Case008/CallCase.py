@@ -60,7 +60,7 @@ class CallUnits(unittest.TestCase):
         
         pathlst = []
         for rx in resx:
-            pathlst.append(JSONPointer(rx).get_pointer())
+            pathlst.append(JSONPointer(rx).rfc6901)
         pathx = [
             '/0/0/0/0', 
             '/0/0/0/2/0', 
