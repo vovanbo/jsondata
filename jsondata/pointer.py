@@ -23,6 +23,8 @@ from urllib.parse import unquote
 
 from decimal import Decimal
 
+import copy
+
 from .helpers import ensure_text_type, is_collection, MISSING, first
 from .exceptions import JSONPointerException
 
@@ -37,11 +39,6 @@ __version__ = '0.2.18'
 __uuid__ = '63b597d6-4ada-4880-9f99-f5e0961351fb'
 
 logger = logging.getLogger(__name__)
-
-# Valid types of in-memory JSON node types
-VALID_NODE_TYPE = (
-    str, Mapping, Sequence, int, float, Decimal, bool, type(None)
-)
 
 
 def to_int_if_possible(value):
@@ -89,8 +86,11 @@ def get_value_for_key(key, obj, default):
         return obj[key]
     except (KeyError, AttributeError, IndexError, TypeError):
         try:
-            attr = getattr(obj, key)
-            return attr() if callable(attr) else attr
+            if isinstance(key, str):
+                attr = getattr(obj, key)
+                return attr() if callable(attr) else attr
+            else:
+                return default
         except AttributeError:
             return default
 
@@ -181,8 +181,13 @@ class JSONPointer(UserList):
     for fast access in case of pointer arithmetics, while providing standards
     conform path strings at the interface.
     """
+    # Regular expression for valid numerical index
     VALID_INDEX = re.compile('0|[1-9][0-9]*$')
-    """Regular expression for valid numerical index."""
+
+    # Valid types of in-memory JSON node values
+    NODE_VALUE_TYPES = (str, Mapping, Sequence, int, float, Decimal, bool,
+                        type(None))
+    NODE_TYPES = (Mapping, Sequence)
 
     def __init__(self, pointer=None):
         """
@@ -191,20 +196,13 @@ class JSONPointer(UserList):
         Processes the ABNF of a JSON Pointer from RFC6901.
     
         Args:
-            ptr: A JSONPointer to be represented by this object. The
+            pointer: A JSONPointer to be represented by this object. The
                 supported formats are:
                     'str': A string i accordance to RFC6901
                     JSONPointer: A valid object, will be copied 
                         into this, see 'deep'.
                     'list': expects a path list, where each item
                         is processed for escape and unquote.
-            replace: Replaces masked characters.
-            **kwargs:
-                deep: Applies for copy operations on structured data
-                    'deep' when 'True', else 'swallow' only, which is 
-                    just a link to the data structure. Flat data types
-                    are copied by value in any case.
-                node: Force to set the pointed node in the internal cache. 
 
         Returns:
             When successful returns 'True', else returns either 'False', or
@@ -213,10 +211,10 @@ class JSONPointer(UserList):
             False.
 
         Raises:
-            JSONPointerException:
+            ValueError:
 
         """
-        initlist = None
+        init_list = None
 
         if pointer and isinstance(pointer, str) and pointer[0] == '#':
             pointer = pointer[1:]
@@ -227,34 +225,27 @@ class JSONPointer(UserList):
         if pointer == '':
             # shortcut for whole document, see RFC6901
             self._raw = ''
-            initlist = []
+            init_list = []
         elif pointer == '/':
             # shortcut for empty tag at top-level, see RFC6901
             self._raw = pointer
-            initlist = ['']
+            init_list = ['']
         elif isinstance(pointer, str):
             # string in accordance to RFC6901
             if pointer[0] == '/':
-                initlist = pointer[1:].split('/')
+                init_list = pointer[1:].split('/')
+                self._raw = pointer
             else:
-                initlist = pointer.split('/')
-            self._raw = '/' + pointer
+                init_list = pointer.split('/')
+                self._raw = '/' + pointer
         elif isinstance(pointer, JSONPointer):
             # copy a pointer, source has to be valid
             self._raw = pointer.raw
-            initlist = pointer.data
+            init_list = pointer.data
         elif is_collection(pointer):
             # list of entries in accordance to RFC6901, and JSONPointer
-            def normalize_items(p):
-                if p in ('', '/') or isinstance(p, (JSONPointer, str)):
-                    return p
-                elif isinstance(p, (int, float)):
-                    return ensure_text_type(p)
-                else:
-                    raise ValueError("Invalid node part: %s" % p)
-
-            initlist = [normalize_items(p) for p in pointer]
-            self._raw = '/%s' % '/'.join(initlist)
+            init_list = [self.normalize_path_part(p) for p in pointer]
+            self._raw = '/{}'.format('/'.join(init_list))
         else:
             if pointer is None:
                 self._raw = None
@@ -263,7 +254,7 @@ class JSONPointer(UserList):
                     "Pointer type not supported: %s" % type(pointer)
                 )
 
-        super(JSONPointer, self).__init__(normalize_part(p) for p in initlist)
+        super(JSONPointer, self).__init__(normalize_part(p) for p in init_list)
 
     @property
     def path(self):
@@ -276,7 +267,7 @@ class JSONPointer(UserList):
     @property
     def rfc6901(self) -> str:
         """
-        Gets the objects pointer in compliance to RFC6901.
+        Return string representation of pointer in compliance to RFC6901.
 
         Returns:
             The pointer in accordance to RFC6901.
@@ -287,6 +278,9 @@ class JSONPointer(UserList):
             # special RFC6901, '/' empty top-tag
             return '/'
         return '/{}'.format('/'.join(str(i) for i in self.data))
+
+    def __hash__(self):
+        return hash(tuple(self.path))
 
     def __add__(self, pointer):
         """
@@ -427,11 +421,8 @@ class JSONPointer(UserList):
         if self.rfc6901 >= other_rfc6901:
             # the shorter is the bigger, so false in any case
             return False
-        if other_rfc6901.startswith(self.rfc6901):
-            # matching part has to be literal
-            return True
-        else:
-            return False
+
+        return other_rfc6901.startswith(self.rfc6901)
 
     def __iadd__(self, other):
         """
@@ -588,45 +579,20 @@ class JSONPointer(UserList):
         result = self.rfc6901
         return result if result else "''"
 
-    def check_node_or_value(self, json_data, parent=False):
+    def __contains__(self, item):
         """
-        Checks the existence of the corresponding node within the JSON document.
-
-        Args:
-            json_data: A valid JSON data node.
-            parent: Return the parent node of the pointed value.
-
-        Returns:
-            True or False
-            
-        Raises:
-            JSONPointerException:
-            forwarded from json
+        Returns True if self contains the given ptr
         """
-        if not self.data:  # special RFC6901, whole document
-            return json_data
-        if len(self.data) == 1 and self.data[0] == '':
-            # special RFC6901, '/' empty top-tag
-            return json_data[0]
+        if isinstance(item, JSONPointer):
+            return self.contains(item)
+        else:
+            super(JSONPointer, self).__contains__(item)
 
-        if not isinstance(json_data, VALID_NODE_TYPE):
-            # concrete info for debugging for type mismatch
-            raise JSONPointerException(
-                "Invalid node type parameter: %s" % type(json_data)
-            )
-
-        keys = self.data[:-1] if parent else self.data
-        _, node = get_value_for_keys(keys, json_data, MISSING)
-        if node is MISSING:
-            return False
-
-        if not isinstance(node, VALID_NODE_TYPE):
-            # concrete info for debugging for type mismatch
-            raise JSONPointerException(
-                "Invalid path node type: %s" % type(json_data)
-            )
-
-        return True
+    def contains(self, other):
+        """
+        Returns True if self contains the given pointer
+        """
+        return self.path[:len(other.path)] == other.path
 
     @staticmethod
     def resolve_path(path: List[Any], data: Union[Sequence, Mapping],
@@ -642,6 +608,45 @@ class JSONPointer(UserList):
             return get_value_for_keys(path, data, default)
         else:
             raise ValueError('Invalid data type for resolving.')
+
+    @staticmethod
+    def normalize_path_part(p):
+        if isinstance(p, JSONPointer):
+            return p.rfc6901
+        if p in ('', '/') or isinstance(p, str):
+            return p
+        elif isinstance(p, (int, float)):
+            return ensure_text_type(p)
+        else:
+            raise ValueError("Invalid path part: %s" % p)
+
+    def check_node_or_value(self, json_data, parent=False):
+        """
+        Checks the existence of the corresponding node within the JSON document.
+
+        Args:
+            json_data: A valid JSON data node.
+            parent: Return the parent node of the pointed value.
+
+        Returns:
+            True or False
+
+        Raises:
+            JSONPointerException:
+            forwarded from json
+        """
+        path = self.data[:-1] if parent else self.data
+        node_path, node = self.resolve_path(path, json_data)
+        if node is MISSING:
+            return False
+
+        if not isinstance(node, self.NODE_VALUE_TYPES):
+            # concrete info for debugging for type mismatch
+            raise JSONPointerException(
+                "Invalid path node type: %s" % type(json_data)
+            )
+
+        return True
 
     def get_node(self, json_data, parent=False):
         """
@@ -683,16 +688,16 @@ class JSONPointer(UserList):
             JSONPointerException:
             forwarded from json
         """
-        path = self.data[:-1] if parent else self.data
+        path = self.path[:-1] if parent else self.path
         node_path, node = self.resolve_path(path, json_data)
 
         if node is MISSING:
             raise JSONPointerException(
                 'Requires existing Node(%s): '
-                '%s of %s' % (node_path, node, self.data)
+                '%s of %s' % (node_path, node, self.path)
             )
 
-        if not isinstance(node, (Mapping, Sequence)):
+        if not isinstance(node, self.NODE_TYPES):
             # concrete info for debugging for type mismatch
             raise JSONPointerException(
                 "Invalid path node type: %s" % type(node)
@@ -716,7 +721,7 @@ class JSONPointer(UserList):
             JSONPointerException:
             forwarded from json
         """
-        return self.get_node(json_data, parent=True), self.data[-1]
+        return self.get_node(json_data, parent=True), self.path[-1]
 
     def get_node_or_value(self, json_data, value_type=None, parent=False):
         """Gets the corresponding node reference or the JSON value of a leaf.
@@ -850,11 +855,11 @@ class JSONPointer(UserList):
             JSONPointerException:
             forwarded from json
         """
-        path = self.data[:-1] if parent else self.data
+        path = self.path[:-1] if parent else self.path
         node_path, node = self.resolve_path(path, json_data)
         if node is MISSING:
             raise JSONPointerException(
-                "Node(%s): %s of %s" % (node_path, node, self.data)
+                "Node(%s): %s of %s" % (node_path, node, self.path)
             )
 
         if value_type:  # requested value type
@@ -871,7 +876,7 @@ class JSONPointer(UserList):
                     "%s != %s" % (value_type, type(node))
                 )
         else:  # in general valid value types - RFC4729, RFC7951
-            if not isinstance(node, VALID_NODE_TYPE):
+            if not isinstance(node, self.NODE_VALUE_TYPES):
                 raise JSONPointerException(
                     "Invalid path node type: %s" % type(node)
                 )
@@ -909,6 +914,9 @@ class JSONPointer(UserList):
             JSONPointerException:
             forwarded from json
         """
+        if not self.path:
+            return json_data, []
+
         path = self.path[:-1] if parent else self.path
 
         for sub_path in self.path_reducer(path):
@@ -917,17 +925,18 @@ class JSONPointer(UserList):
             if existing_node is not MISSING:
                 break
 
-        if not isinstance(existing_node, (Mapping, Sequence)):
+        if not isinstance(existing_node, self.NODE_TYPES):
             # concrete info for debugging for type mismatch
             raise JSONPointerException(
                 "Invalid path node type: %s" % type(existing_node)
             )
 
         path_set = frozenset((i, v) for i, v in enumerate(path))
-        node_path_set = frozenset(
+        existing_node_path_set = frozenset(
             (i, v) for i, v in enumerate(existing_node_path)
         )
-        remaining_set = sorted(path_set - node_path_set, key=lambda i: i[0])
+        remaining_set = sorted(path_set - existing_node_path_set,
+                               key=lambda i: i[0])
 
         return existing_node, [v[1] for v in remaining_set]
 
@@ -979,8 +988,7 @@ class JSONPointer(UserList):
             for sub_path in self.path_producer(path):
                 if json_data is not None:
                     node = self.resolve_path(sub_path, json_data)
-                    if node is MISSING or not isinstance(node,
-                                                         (Mapping, Sequence)):
+                    if node is MISSING or not isinstance(node, self.NODE_TYPES):
                         raise ValueError(
                             'Invalid path node type "%s"' % type(node)
                         )
@@ -1016,9 +1024,24 @@ class JSONPointer(UserList):
 
             for sub_path in self.path_producer(path):
                 node = self.resolve_path(sub_path, json_data)
-                if node is MISSING or not isinstance(node,
-                                                     (Mapping, Sequence)):
+                if node is MISSING or not isinstance(node, self.NODE_TYPES):
                     raise ValueError(
                         'Invalid path node type "%s"' % type(node)
                     )
                 yield node
+
+    def set(self, json_data, value, inplace=True):
+        """
+        Resolve the pointer against the doc and replace the target with value.
+        """
+        if len(self.path) == 0:
+            if inplace:
+                raise JSONPointerException('Cannot set root in place')
+            return value
+
+        result = copy.deepcopy(json_data) if not inplace else json_data
+
+        parent, part = self.get_node_and_child(result)
+
+        parent[part] = value
+        return result
