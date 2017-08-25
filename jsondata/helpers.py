@@ -65,3 +65,58 @@ def first(iterable, default=None, key=None):
     .. _the original standalone module: https://github.com/hynek/first
     """
     return next(filter(key, iterable), default)
+
+
+def make_sentinel(name='_MISSING', var_name=None):
+    """
+    Creates and returns a new **instance** of a new class, suitable for
+    usage as a "sentinel", a kind of singleton often used to indicate
+    a value is missing when ``None`` is a valid input.
+
+    >>> make_sentinel(var_name='_MISSING')
+    _MISSING
+
+    The most common use cases here in project are as default values
+    for optional function arguments, partly because of its
+    less-confusing appearance in automatically generated
+    documentation. Sentinels also function well as placeholders in queues
+    and linked lists.
+
+    .. note::
+
+      By design, additional calls to ``make_sentinel`` with the same
+      values will not produce equivalent objects.
+
+      >>> make_sentinel('TEST') == make_sentinel('TEST')
+      False
+      >>> type(make_sentinel('TEST')) == type(make_sentinel('TEST'))
+      False
+
+    :arg str name:
+        Name of the Sentinel
+    :arg str var_name:
+        Set this name to the name of the variable in its respective
+        module enable pickleability.
+    """
+    class Sentinel(object):
+        def __init__(self):
+            self.name = name
+            self.var_name = var_name
+
+        def __repr__(self):
+            if self.var_name:
+                return self.var_name
+            return '%s(%r)' % (self.__class__.__name__, self.name)
+        if var_name:
+            def __reduce__(self):
+                return self.var_name
+
+        def __nonzero__(self):
+            return False
+
+        __bool__ = __nonzero__
+
+    return Sentinel()
+
+
+MISSING = make_sentinel()
