@@ -110,10 +110,10 @@ class JSONPointer(UserList):
     
     * self.raw: Raw input of the pointer string for the logical API.
     
-    * self.ptr: Split elements of the pointer path within a list of keys,
+    * self.path: Split elements of the pointer path within a list of keys,
         for the programming interface.
       
-    The attribute 'self.ptr' contains the path elements in a 
+    The attribute 'self.path' contains the path elements in a
     'list'::
        
        ptrlist := (<EMPTY>|plist)
@@ -137,7 +137,7 @@ class JSONPointer(UserList):
     referenced by the pointer are not modified. 
     
     The methods of this class support for multiple input format of 
-    the JSONPointer. The parameter 'x' in the operations is defined as a
+    the JSONPointer. The parameter 'other' in the operations is defined as a
     valid JSONPointer fragment. A pointer fragment is a part of a pointer,
     which could be the complete pointer itself - the all-fragment. 
     
@@ -146,8 +146,8 @@ class JSONPointer(UserList):
         'str': A string i accordance to RFC6901. Strings are represented 
             internally as unicode utf-8.
             
-            Here either the input parameter 'x' is split into
-            a list, or in case of combining operations, the self.ptr
+            Here either the input parameter 'other' is split into
+            a list, or in case of combining operations, the self.path
             attribute is 'joined' to be used for the method. 
 
         'int': A numeric value in case of an array index. This value 
@@ -169,16 +169,11 @@ class JSONPointer(UserList):
 
             The self.ptr attribute is applied for operations.
     
-    The node reference is cached by the 'get_node' and 'get_node_or_value' 
-    method, thus could be accessed by 'self.node', but is not monitored
-    to be valid. Another call of the method reloads the cache by evaluating
-    the pointer value on the document again.
-    
     The provided value is internally stored as a raw input value, and a list
     of keys and indexes for access to in-memory data as provided by the
     packages 'json' and 'jsonschema'. Requests for the string representation
     are transformed into a pointer path in accordance to RFC6901. This provides
-    for fast access in case of pointer arithmetics, while providing standards
+    for fast access in case of pointer arithmetic, while providing standards
     conform path strings at the interface.
     """
     # Regular expression for valid numerical index
@@ -267,7 +262,8 @@ class JSONPointer(UserList):
     @property
     def rfc6901(self) -> str:
         """
-        Return string representation of pointer in compliance to RFC6901.
+        JSON String Representation of pointer in compliance to RFC6901.
+        https://tools.ietf.org/html/rfc6901#section-5
 
         Returns:
             The pointer in accordance to RFC6901.
