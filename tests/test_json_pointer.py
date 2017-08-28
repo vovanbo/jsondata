@@ -1,6 +1,7 @@
 import pytest
 
 from jsondata.data import JSONData, Mode
+from jsondata.exceptions import JSONPointerException
 from jsondata.pointer import JSONPointer
 from jsondata.serializer import JSONDataSerializer
 
@@ -401,6 +402,27 @@ def test_ne():
     assert jp != '/phoneNumber/1/type'
 
 
+def test_iadd():
+    jp = JSONPointer('/foo')
+    jp += 'bar'
+    assert str(jp) == '/foo/bar'
+
+    jp += 0
+    assert str(jp) == '/foo/bar/0'
+
+    jp += ''
+    assert str(jp) == '/foo/bar/0'
+
+    jp += ['a', 'b', 1, 'c', 234]
+    assert str(jp) == '/foo/bar/0/a/b/1/c/234'
+
+    with pytest.raises(JSONPointerException):
+        jp += 1.2
+
+    with pytest.raises(JSONPointerException):
+        jp += JSONPointer('')
+
+
 def test_radd(fixture_folder, json_pointer_data):
     serializer = JSONDataSerializer(
         'test', path_list=fixture_folder, no_default_path=True,
@@ -429,7 +451,7 @@ def test_radd(fixture_folder, json_pointer_data):
     assert serializer.data["address"]["streetAddress"] == \
            jp.get_node_or_value(serializer.data)
 
-    jp = '/phoneNumber' + JSONPointer(0) + '/type'
+    jp = '/phoneNumber' + JSONPointer('0') + '/type'
     assert serializer.data["phoneNumber"][0]["type"] == \
            JSONPointer(jp).get_node_or_value(serializer.data)
 
@@ -457,10 +479,10 @@ def test_radd(fixture_folder, json_pointer_data):
 
 def test_repr():
     jp = JSONPointer('/streetAddress/address')
-    assert repr(jp) == """['streetAddress', 'address']"""
+    assert repr(jp) == "JSONPointer(['streetAddress', 'address'])"
 
     jp = JSONPointer('/streetAddress/address')
-    assert str(jp) == """/streetAddress/address"""
+    assert str(jp) == '/streetAddress/address'
 
 
 @pytest.mark.parametrize('json_data_serializer',

@@ -2,7 +2,6 @@ import copy
 import pytest
 
 from jsondata.exceptions import JSONPointerException
-from jsondata.helpers import MISSING
 from jsondata.pointer import JSONPointer
 
 
@@ -70,7 +69,7 @@ def test_round_trip():
         "/k\"l",
         "/ ",
         "/m~0n",
-        '/\xee',
+        "/\xee",
     ]
     for path in paths:
         ptr = JSONPointer(path)
@@ -78,6 +77,36 @@ def test_round_trip():
 
         new_ptr = JSONPointer(ptr.path)
         assert ptr == new_ptr
+
+
+@pytest.mark.parametrize(
+    'pointer,uri,rfc6901,python_repr',
+    [
+        ("", "#", "", "JSONPointer([])"),
+        ("/foo", "#/foo", "/foo", "JSONPointer(['foo'])"),
+        ("/foo/0", "#/foo/0", "/foo/0", "JSONPointer(['foo', 0])"),
+        ("/", "#/", "/", "JSONPointer([''])"),
+        ("/a~1b", "#/a~1b", "/a/b", "JSONPointer(['a/b'])"),
+        ("/c%d", "#/c%25d", "/c%d", "JSONPointer(['c%d'])"),
+        ("/e^f", "#/e%5Ef", "/e^f", "JSONPointer(['e^f'])"),
+        ("/g|h", "#/g%7Ch", "/g|h", "JSONPointer(['g|h'])"),
+        ('/i\\j', "#/i%5Cj", '/i\\j', "JSONPointer(['i\\\\j'])"),
+        ("/k\"l", "#/k%22l", '/k"l', "JSONPointer(['k\"l'])"),
+        ("/ ", "#/%20", "/ ", "JSONPointer([' '])"),
+        ("/m~0n", "#/m~0n", "/m~n", "JSONPointer(['m~n'])"),
+        ("/\xee", "#/%C3%AE", "/î", "JSONPointer(['î'])"),
+    ]
+)
+def test_representations(pointer, uri, rfc6901, python_repr):
+    assert JSONPointer(pointer).uri == uri
+    assert JSONPointer(pointer).raw == pointer
+    assert JSONPointer(pointer).rfc6901 == rfc6901
+    assert JSONPointer(uri).rfc6901 == rfc6901
+    assert str(JSONPointer(pointer)) == rfc6901
+    assert str(JSONPointer(uri)) == rfc6901
+    assert str(JSONPointer(rfc6901)) == rfc6901
+    assert repr(JSONPointer(pointer)) == python_repr
+    assert JSONPointer(pointer) == eval(repr(JSONPointer(pointer)))
 
 
 def test_eq_hash():
